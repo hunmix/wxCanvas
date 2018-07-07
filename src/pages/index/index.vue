@@ -5,6 +5,7 @@
     @touchstart="handleTouchStart"
     @touchmove='handleTouchMove'
     @touchend='handleTouchEnd'
+    @tap='handleTap'
   >
   </canvas>
 </template>
@@ -32,7 +33,7 @@ export default {
     let ctx = wx.createCanvasContext('canvas', this)
     this.wxCanvas = new WxCanvas(ctx, this.config)
     this.canvasSize = this.wxCanvas.initCanvasInfo()
-    let circle = new Shape('circle', {x: 0, y: 0, r: 50, color: 'red', fillMethod: 'fill'}, true)
+    let circle = new Shape('circle', {x: 0, y: 0, r: 50, color: 'red', fillMethod: 'fill'})
     let rect = new Shape('rect', {x: 100, y: 100, w: 100, h: 100, color: 'blue', fillMethod: 'fill'}, true)
     let image = new Shape('image', {x: 0, y: 0, w: 710, h: 747, imgW: 710, imgH: 747, url: '/static/images/0.png', fillMethod: 'fill'})
     let text = new Shape('text', {text: '德国', x: 186, y: 245, h: 34, w: 77, fillMethod: 'fill', fontSize: 17}, true)
@@ -44,6 +45,9 @@ export default {
     this.wxCanvas.add(text)
     this.wxCanvas.add(circleImage)
     this.wxCanvas.add(roundRect).draw()
+    circle.bind('click', function (canvas) {
+      canvas.clear()
+    })
   },
   methods: {
     handleTouchStart (e) {

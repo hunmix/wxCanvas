@@ -27,6 +27,7 @@ class WxCanvas {
     this.canvas.draw()
   }
   touchStart (e) {
+    this.isMouseMove = false
     // ----------------------------------------------------------------
     let len = this.store.store.length
     for (let i = len - 1; i > -1; i--) {
@@ -39,16 +40,71 @@ class WxCanvas {
     }
   }
   touchMove (e) {
+    this.isMouseMove = true
     if (this.canMove) {
       this.moveItem.move(e)
       this.draw()
     }
   }
   touchEnd (e) {
+    console.log('end')
+    // 点击事件回调函数
+    if (this.isMouseMove === false) {
+      let len = this.store.store.length
+      for (let i = len - 1; i > -1; i--) {
+        let shape = this.store.store[i]
+        if (shape.isInShape(e) && !shape.canDragable()) {
+          if (shape.eventList['click'].length > 0) {
+            shape.eventList['click'].forEach((ele) => {
+              ele(this)
+            })
+            return false
+          }
+        }
+      }
+    }
     this.canMove = false
   }
+  clear () {
+    this.store.clear()
+    // this.draw()
+  }
 }
-
+// 事件总线
+// class EventBus {
+//   constructor () {
+//     this.eventList = []
+//   }
+//   listen (name, event) {
+//     console.log('listen')
+//     if (this.eventList.length) {
+//       this.eventList.forEach((ele) => {
+//         if (ele.name === name) {
+//           ele.thingsList.push(event)
+//           return false
+//         }
+//       })
+//     }
+//     this.eventList.push({
+//       name: name,
+//       thingsList: [event]
+//     })
+//   }
+//   emit (name) {
+//     console.log('emit')
+//     let tempArgs = arguments
+//     if (tempArgs.length < 1) {
+//       return false
+//     }
+//     var params = Array.prototype.slice.call(tempArgs, 1)
+//     console.log(params)
+//     this.eventList.forEach((ele) => {
+//       if (ele.name === name) {
+//         console.log(ele.thingsList)
+//       }
+//     })
+//   }
+// }
 // 信息
 class Info {
   constructor (config) {
@@ -120,6 +176,9 @@ class Shape {
   constructor (type, drawData, dragable) {
     this.Shape = createShape[type](drawData)
     this.dragable = dragable
+    this.eventList = {
+      'click': []
+    }
   }
   draw (ctx, scale, realSize) {
     this.Shape.createPath(ctx, scale, realSize)
@@ -132,6 +191,11 @@ class Shape {
   }
   move (e) {
     this.Shape.move(e)
+  }
+  bind (type, method) {
+    if (this.eventList[type]) {
+      this.eventList[type].push(method)
+    }
   }
 }
 let createShape = {
