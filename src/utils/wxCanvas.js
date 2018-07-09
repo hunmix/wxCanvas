@@ -5,6 +5,8 @@ class WxCanvas {
     this.store = new Store()
     this.info = new Info(config)
     this.canMove = false
+    this.bus = new EventBus(canvas)
+    this.bus.listen('update', this.update)
   }
   // 获取canvas真实宽高，外部调用
   initCanvasInfo () {
@@ -17,12 +19,13 @@ class WxCanvas {
   }
   add (shape) {
     this.store.add(shape)
+    this.draw()
     return this
   }
   draw () {
     let that = this
     this.store.store.forEach((item) => {
-      item.draw(that.canvas, that.info.scale, that.info.realSize)
+      item.draw(that.canvas, that.info.scale, that.info.realSize, this.bus)
     })
     this.canvas.draw()
   }
@@ -47,7 +50,6 @@ class WxCanvas {
     }
   }
   touchEnd (e) {
-    console.log('end')
     // 点击事件回调函数
     if (this.isMouseMove === false) {
       let len = this.store.store.length
@@ -67,44 +69,69 @@ class WxCanvas {
   }
   clear () {
     this.store.clear()
-    // this.draw()
+    this.draw()
   }
+  // 撤销
+  cancel (cancelNum) {
+    cancelNum = cancelNum || 1
+    this.store.cancel(cancelNum)
+    this.draw()
+  }
+  // 恢复
+  resume () {
+    this.store.resume()
+    this.draw()
+  }
+  // 删除
+  delete (item) {
+    this.store.delete(item)
+    this.draw()
+  }
+  // 待改--------------------------------------------------------------------------------
+  // update () {
+  //   this.draw()
+  // }
 }
 // 事件总线
-// class EventBus {
-//   constructor () {
-//     this.eventList = []
-//   }
-//   listen (name, event) {
-//     console.log('listen')
-//     if (this.eventList.length) {
-//       this.eventList.forEach((ele) => {
-//         if (ele.name === name) {
-//           ele.thingsList.push(event)
-//           return false
-//         }
-//       })
-//     }
-//     this.eventList.push({
-//       name: name,
-//       thingsList: [event]
-//     })
-//   }
-//   emit (name) {
-//     console.log('emit')
-//     let tempArgs = arguments
-//     if (tempArgs.length < 1) {
-//       return false
-//     }
-//     var params = Array.prototype.slice.call(tempArgs, 1)
-//     console.log(params)
-//     this.eventList.forEach((ele) => {
-//       if (ele.name === name) {
-//         console.log(ele.thingsList)
-//       }
-//     })
-//   }
-// }
+class EventBus {
+  constructor () {
+    this.eventList = []
+  }
+  listen (name, event) {
+    console.log('listen')
+    if (this.eventList.length) {
+      this.eventList.forEach((ele) => {
+        if (ele.name === name) {
+          ele.thingsList.push(event)
+          return false
+        }
+      })
+    }
+    this.eventList.push({
+      name: name,
+      thingsList: [event]
+    })
+    // console.log(this.eventList[0].thingsList[0])
+  }
+  emit (name) {
+    console.log('emit')
+    let tempArgs = arguments
+    if (tempArgs.length < 1) {
+      return false
+    }
+    var params = Array.prototype.slice.call(tempArgs, 1)
+    console.log(params)
+    this.eventList.forEach((ele) => {
+      console.log(ele.name)
+      console.log(name)
+      if (ele.name === name) {
+        ele.thingsList.forEach((ele) => {
+          ele()
+        })
+      }
+    })
+  }
+}
 // 信息
 class Info {
   constructor (config) {
@@ -161,6 +188,7 @@ class Info {
 class Store {
   constructor () {
     this.store = []
+    this.deleteItems = []
   }
   // 添加图形
   add (shape) {
@@ -169,6 +197,26 @@ class Store {
   // 清空所有图形
   clear () {
     this.store = []
+  }
+  // 删除最后一个
+  cancel () {
+    if (this.store.length === 0) { return }
+    let deleteItem = this.store.pop()
+    this.deleteItems.push(deleteItem)
+  }
+  // 恢复最后一个删除的
+  resume () {
+    if (this.deleteItems.length === 0) { return }
+    let shape = this.deleteItems.pop()
+    this.store.push(shape)
+  }
+  // 删除特定元素
+  delete (item) {
+    let index = this.store.indexOf(item)
+    if (index !== -1) {
+      let deletedItem = this.store.splice(index, 1)[0]
+      this.deleteItems.push(deletedItem)
+    }
   }
 }
 // 图形
@@ -179,8 +227,10 @@ class Shape {
     this.eventList = {
       'click': []
     }
+    this.bus = null
   }
-  draw (ctx, scale, realSize) {
+  draw (ctx, scale, realSize, bus) {
+    this.bus = bus
     this.Shape.createPath(ctx, scale, realSize)
   }
   isInShape (e) {
@@ -196,6 +246,16 @@ class Shape {
     if (this.eventList[type]) {
       this.eventList[type].push(method)
     }
+  }
+  clone () {
+    let option = Object.assign({}, this.Shape)
+    console.log(option)
+    return new Shape(this.Shape.type, option, this.dragable)
+  }
+  updateOption (option, calcScale, dragable) {
+    dragable === undefined ? this.dragable = this.dragable : this.dragable = dragable
+    this.Shape.updateOption(option, calcScale)
+    // this.bus.emit('update')
   }
 }
 let createShape = {
@@ -221,18 +281,22 @@ let createShape = {
 // 圆
 class Circle {
   constructor (drawData) {
+    drawData.firstRender === false ? this.firstRender = false : this.firstRender = true
     this.x = drawData.x
     this.y = drawData.y
     this.r = drawData.r
     this.color = drawData.color
-    this.fillMethod = drawData.fillMethod
+    this.fillMethod = drawData.fillMethod || 'fill'
     this.offsetX = 0
     this.offsetY = 0
     this.type = 'circle'
-    this.firstRender = true
+    this.scale = drawData.scale || null
   }
   // 计算绘画数据
   calcInfo (scale) {
+    // 待改---------------------------------------------------------------
+    this.scale = scale
+    console.log('got circle scale')
     this.firstRender = false
     this.x = this.x * scale.x
     this.y = this.y * scale.y
@@ -290,21 +354,41 @@ class Circle {
     this.x = this.startX + this.offsetX
     this.y = this.startY + this.offsetY
   }
+  updateOption (option) {
+    for (let key in option) {
+      switch (key) {
+        case 'x':
+          this.x = option.x * this.scale.x
+          continue
+        case 'y':
+          this.y = option.y * this.scale.y
+          continue
+        case 'r':
+          this.r = option.r * this.scale.x
+          continue
+      }
+      this[key] = option[key]
+    }
+  }
 }
 
 // 矩形
 class Rect {
   constructor (drawData) {
-    this.firstRender = true
+    drawData.firstRender === false ? this.firstRender = false : this.firstRender = true
     this.x = drawData.x
     this.y = drawData.y
     this.w = drawData.w
     this.h = drawData.h
-    this.fillMethod = drawData.fillMethod
+    this.fillMethod = drawData.fillMethod || 'fill'
     this.color = drawData.color
+    this.type = 'rect'
+    this.scale = drawData.scale || null
   }
   // 计算绘画数据
   calcInfo (scale) {
+    this.scale = scale
+    console.log(this)
     this.firstRender = false
     this.x = this.x * scale.x
     this.y = this.y * scale.y
@@ -363,11 +447,32 @@ class Rect {
     this.x = this.startX + this.offsetX
     this.y = this.startY + this.offsetY
   }
+  updateOption (option, calcScale) {
+    for (let key in option) {
+      if (calcScale) {
+        switch (key) {
+          case 'x':
+            this.x = option.x * this.scale.x
+            continue
+          case 'y':
+            this.y = option.y * this.scale.y
+            continue
+          case 'w':
+            this.w = option.w * this.scale.x
+            continue
+          case 'h':
+            this.h = option.h * this.scale.x
+            continue
+        }
+      }
+      this[key] = option[key]
+    }
+  }
 }
 // 图片
 class Image {
   constructor (drawData) {
-    this.firstRender = true
+    drawData.firstRender === false ? this.firstRender = false : this.firstRender = true
     this.imgW = drawData.imgW
     this.imgH = drawData.imgH
     this.url = drawData.url
@@ -375,9 +480,12 @@ class Image {
     this.y = drawData.y
     this.w = drawData.w
     this.h = drawData.h
+    this.type = 'image'
+    this.scale = drawData.scale || null
   }
   // 计算绘画数据
   calcInfo (scale) {
+    this.scale = scale
     this.firstRender = false
     this.x = this.x * scale.x
     this.y = this.y * scale.y
@@ -435,25 +543,49 @@ class Image {
     this.x = this.startX + this.offsetX
     this.y = this.startY + this.offsetY
   }
+  updateOption (option, calcScale) {
+    for (let key in option) {
+      if (calcScale) {
+        switch (key) {
+          case 'x':
+            this.x = option.x * this.scale.x
+            continue
+          case 'y':
+            this.y = option.y * this.scale.y
+            continue
+          case 'w':
+            this.w = option.w * this.scale.x
+            continue
+          case 'h':
+            this.h = option.h * this.scale.x
+            continue
+        }
+      }
+      this[key] = option[key]
+    }
+  }
 }
 // 文字
 class Text {
   constructor (drawData) {
-    this.firstRender = true
+    drawData.firstRender === false ? this.firstRender = false : this.firstRender = true
     this.text = drawData.text || '超级变变变'
     // this.width = ctx.measureText(drawData.text).width
     this.h = drawData.h
     this.x = drawData.x
     this.w = null
     this.y = drawData.y
-    this.fontSize = drawData.fontSize
+    this.fontSize = drawData.fontSize || 14
     this.fillMethod = drawData.fillMethod
     this.color = drawData.color
     this.align = drawData.align || 'left'
-    this.baseline = drawData.baseline
+    this.baseline = drawData.baseline || 'normal'
+    this.type = 'text'
+    this.scale = drawData.scale || null
   }
   // 计算绘画数据
   calcInfo (scale) {
+    this.scale = scale
     this.firstRender = false
     this.x = this.x * scale.x
     this.y = this.y * scale.y
@@ -526,11 +658,29 @@ class Text {
     this.x = this.startX + this.offsetX
     this.y = this.startY + this.offsetY
   }
+  updateOption (option, calcScale) {
+    for (let key in option) {
+      if (calcScale) {
+        switch (key) {
+          case 'x':
+            this.x = option.x * this.scale.x
+            continue
+          case 'y':
+            this.y = option.y * this.scale.y
+            continue
+          case 'h':
+            this.h = option.h * this.scale.x
+            continue
+        }
+      }
+      this[key] = option[key]
+    }
+  }
 }
 // 圆角矩形
 class RoundRect {
   constructor (drawData) {
-    this.firstRender = true
+    drawData.firstRender === false ? this.firstRender = false : this.firstRender = true
     this.r = drawData.r
     if (drawData.width < 2 * drawData.r) {
       this.r = drawData.width / 2
@@ -538,15 +688,19 @@ class RoundRect {
     if (drawData.height < 2 * drawData.r) {
       this.r = drawData.height / 2
     }
+    this.r = this.r || 0
     this.x = drawData.x || 0
     this.y = drawData.y || 0
     this.w = drawData.w
     this.h = drawData.h
     this.color = drawData.color || '#000'
-    this.fillMethod = drawData.fillMethod
+    this.fillMethod = drawData.fillMethod || 'fill'
+    this.type = 'roundRect'
+    this.scale = drawData.scale || null
   }
   // 计算绘画数据
   calcInfo (scale) {
+    this.scale = scale
     this.firstRender = false
     this.x = this.x * scale.x
     this.y = this.y * scale.y
@@ -615,11 +769,35 @@ class RoundRect {
     this.x = this.startX + this.offsetX
     this.y = this.startY + this.offsetY
   }
+  updateOption (option, calcScale) {
+    for (let key in option) {
+      if (calcScale) {
+        switch (key) {
+          case 'x':
+            this.x = option.x * this.scale.x
+            continue
+          case 'y':
+            this.y = option.y * this.scale.y
+            continue
+          case 'w':
+            this.w = option.w * this.scale.x
+            continue
+          case 'h':
+            this.h = option.h * this.scale.x
+            continue
+          case 'r':
+            this.r = option.r * this.scale.x
+            continue
+        }
+      }
+      this[key] = option[key]
+    }
+  }
 }
 // 圆形图片
 class CircleImage {
   constructor (drawData) {
-    this.firstRender = true
+    drawData.firstRender === false ? this.firstRender = false : this.firstRender = true
     this.x = drawData.x
     this.y = drawData.y
     this.r = drawData.r
@@ -628,6 +806,9 @@ class CircleImage {
     this.w = drawData.w
     this.h = drawData.h
     this.url = drawData.url
+    this.type = 'circleImage'
+    this.scale = drawData.scale || null
+    console.log(drawData)
   }
   // 计算绘画数据
   calcInfo (scale) {
@@ -686,6 +867,22 @@ class CircleImage {
     this.offsetY = movePoint.y - this.startPoint.y
     this.x = this.startX + this.offsetX
     this.y = this.startY + this.offsetY
+  }
+  updateOption (option) {
+    for (let key in option) {
+      switch (key) {
+        case 'x':
+          this.x = option.x * this.scale.x
+          continue
+        case 'y':
+          this.y = option.y * this.scale.y
+          continue
+        case 'r':
+          this.r = option.r * this.scale.x
+          continue
+      }
+      this[key] = option[key]
+    }
   }
 }
 export {WxCanvas, Shape}
