@@ -48,35 +48,37 @@ export default {
     }
   },
   mounted () {
-    let that = this
+    // let that = this
     let ctx = wx.createCanvasContext('canvas', this)
     this.wxCanvas = new WxCanvas(ctx, this.config)
     this.canvasSize = this.wxCanvas.initCanvasInfo()
-    let bg = new Shape('roundRect', {w: 710, h: 940, color: '#fff', r: 20, fillMethod: 'fill'})
-    let image = new Shape('image', {w: 710, h: 747, url: '/static/images/0.png', imgW: 710, imgH: 747})
-    let country1 = new Shape('text', {text: '德国', x: 186, y: 245, h: 34, fontSize: 18, color: '#fff', fillMethod: 'fill'})
-    let country2 = new Shape('text', {text: '巴拿马', x: 414, y: 246, h: 34, fontSize: 18, color: '#fff', fillMethod: 'fill'})
-    let score1 = new Shape('roundRect', {x: 213, y: 405, w: 106, h: 164, color: '#fff', r: 8, fillMethod: 'fill'})
-    let score2 = new Shape('roundRect', {x: 389, y: 405, w: 106, h: 164, color: '#fff', r: 8, fillMethod: 'fill'})
-    let circleImage = new Shape('circleImage', {x: 298, y: 677, r: 61, w: 200, h: 200, url: '/static/images/1.png'}, true)
-    this.text = new Shape('text', {text: '点击输入文字', fontSize: 18, x: 359.5, y: 831, h: 25.5, fillMethod: 'fill', color: '#000', align: 'center'}, true)
-    // let text2 = new Shape('text', {text: '看看谁是真正的预言家', x: 359.5, y: 856.5, h: 25.5, fillMethod: 'fill', color: '#000', align: 'center'})
-    let line = new Shape('line', {x1: 0, y1: 405, x2: 690, y2: 405, color: '#0f0', w: 10})
-    this.wxCanvas.add(bg)
-    this.wxCanvas.add(image)
-    this.wxCanvas.add(country1)
-    this.wxCanvas.add(country2)
-    this.wxCanvas.add(score1)
-    this.wxCanvas.add(score2)
-    this.wxCanvas.add(circleImage)
-    this.wxCanvas.add(line)
-    this.text.bind('click', function () {
-      console.log('click')
-      that.isShowInput = true
-      that.text.updateOption({text: ''}, false)
-      that.wxCanvas.update()
-    })
-    this.wxCanvas.add(this.text)
+    // let bg = new Shape('roundRect', {w: 710, h: 940, color: '#fff', r: 20, fillMethod: 'fill'})
+    // let image = new Shape('image', {w: 710, h: 747, url: '/static/images/0.png', imgW: 710, imgH: 747})
+    // let country1 = new Shape('text', {text: '德国', x: 186, y: 245, h: 34, fontSize: 18, color: '#fff', fillMethod: 'fill'})
+    // let country2 = new Shape('text', {text: '巴拿马', x: 414, y: 246, h: 34, fontSize: 18, color: '#fff', fillMethod: 'fill'})
+    // let score1 = new Shape('roundRect', {x: 213, y: 405, w: 106, h: 164, color: '#fff', r: 8, fillMethod: 'fill'})
+    // let score2 = new Shape('roundRect', {x: 389, y: 405, w: 106, h: 164, color: '#fff', r: 8, fillMethod: 'fill'})
+    // let circleImage = new Shape('circleImage', {x: 298, y: 677, r: 61, w: 200, h: 200, url: '/static/images/1.png'}, true)
+    // this.text = new Shape('text', {text: '点击输入文字', fontSize: 18, x: 359.5, y: 831, h: 25.5, fillMethod: 'fill', color: '#000', align: 'center'}, true)
+    // // let text2 = new Shape('text', {text: '看看谁是真正的预言家', x: 359.5, y: 856.5, h: 25.5, fillMethod: 'fill', color: '#000', align: 'center'})
+    // let line = new Shape('line', {x1: 0, y1: 405, x2: 690, y2: 405, color: '#0f0', w: 10})
+    // this.wxCanvas.add(bg)
+    // this.wxCanvas.add(image)
+    // this.wxCanvas.add(country1)
+    // this.wxCanvas.add(country2)
+    // this.wxCanvas.add(score1)
+    // this.wxCanvas.add(score2)
+    // this.wxCanvas.add(circleImage)
+    // this.wxCanvas.add(line)
+    // this.text.bind('click', function () {
+    //   console.log('click')
+    //   that.isShowInput = true
+    //   that.text.updateOption({text: ''}, false)
+    //   that.wxCanvas.update()
+    // })
+    // this.wxCanvas.add(this.text)
+    let circle = new Shape('circle', {x: 100, y: 100, r: 61, color: 'red', fillMethod: 'fill'}, true)
+    this.wxCanvas.add(circle)
   },
   methods: {
     // 触摸开始

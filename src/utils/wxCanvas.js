@@ -5,7 +5,7 @@ class WxCanvas {
     this.store = new Store() // store对象，用于储存图形对象
     this.info = new Info(config) // info对象，初始化各种信息
     this.canMove = false // 是否能拖动标记
-    this.bus = new EventBus(canvas) // 事件总线兑现，没用到= =
+    this.bus = new EventBus(canvas) // 事件总线对象，没用到= =
     // this.bus.listen('update', this.update, this)
   }
   // 获取canvas真实宽高，外部调用
@@ -19,6 +19,7 @@ class WxCanvas {
   }
   add (shape) {
     shape.bus = this.bus
+    shape.realSize = this.info.realSize
     this.store.add(shape)
     this.draw()
     return this
@@ -237,7 +238,17 @@ class Shape {
     }
   }
   draw (ctx, scale, realSize) {
-    this.Shape.createPath(ctx, scale, realSize)
+    // 判断是否是第一次计算比例
+    if (this.isNeedCalcRatio()) {
+      this.Shape.calcInfo(scale)
+    }
+    // 碰撞判定
+    this.Shape.collisionDetection(realSize)
+    // 绘制路径
+    this.Shape.createPath(ctx, scale)
+  }
+  isNeedCalcRatio () {
+    return this.Shape.firstRender
   }
   isInShape (e) {
     return this.Shape.judgeRange(e)
@@ -306,18 +317,17 @@ class Circle {
   calcInfo (scale) {
     // 待改---------------------------------------------------------------
     this.scale = scale
-    console.log('got circle scale')
     this.firstRender = false
     this.x = this.x * scale.x
     this.y = this.y * scale.y
     this.r = this.r * scale.x
   }
   // 绘制路径
-  createPath (ctx, sacle, realSize) {
-    if (this.firstRender) {
-      this.calcInfo(sacle)
-    }
-    this.collisionDetection(realSize)
+  createPath (ctx) {
+    // if (this.firstRender) {
+    //   this.calcInfo(sacle)
+    // }
+    // this.collisionDetection(realSize)
     ctx.save()
     ctx.beginPath()
     ctx[this.fillMethod + 'Style'] = this.color
@@ -382,7 +392,6 @@ class Circle {
     }
   }
 }
-
 // 矩形
 class Rect {
   constructor (drawData) {
@@ -399,7 +408,6 @@ class Rect {
   // 计算绘画数据
   calcInfo (scale) {
     this.scale = scale
-    console.log(this)
     this.firstRender = false
     this.x = this.x * scale.x
     this.y = this.y * scale.y
@@ -408,10 +416,10 @@ class Rect {
   }
   // 绘制路径
   createPath (ctx, sacle, realSize) {
-    if (this.firstRender) {
-      this.calcInfo(sacle)
-    }
-    this.collisionDetection(realSize)
+    // if (this.firstRender) {
+    //   this.calcInfo(sacle)
+    // }
+    // this.collisionDetection(realSize)
     ctx.save()
     ctx.beginPath()
     ctx[this.fillMethod + 'Style'] = this.color
@@ -506,10 +514,10 @@ class Image {
   }
   // 绘制路径
   createPath (ctx, sacle, realSize) {
-    if (this.firstRender) {
-      this.calcInfo(sacle)
-    }
-    this.collisionDetection(realSize)
+    // if (this.firstRender) {
+    //   this.calcInfo(sacle)
+    // }
+    // this.collisionDetection(realSize)
     ctx.save()
     ctx.drawImage(this.url, 0, 0, this.imgW, this.imgH, this.x, this.y, this.w, this.h)
     ctx.closePath()
@@ -609,10 +617,10 @@ class Text {
   // 绘制路径
   createPath (ctx, sacle, realSize) {
     this.ctx = ctx
-    if (this.firstRender) {
-      this.calcInfo(sacle)
-    }
-    this.collisionDetection(realSize)
+    // if (this.firstRender) {
+    //   this.calcInfo(sacle)
+    // }
+    // this.collisionDetection(realSize)
     ctx.save()
     ctx.textBaseline = this.baseline || 'normal' // normal：baseLine在文字底部，则y值为y+文字框高度
     ctx.setFontSize(this.fontSize)
@@ -752,10 +760,10 @@ class RoundRect {
   }
   // 绘制路径
   createPath (ctx, sacle, realSize) {
-    if (this.firstRender) {
-      this.calcInfo(sacle)
-    }
-    this.collisionDetection(realSize)
+    // if (this.firstRender) {
+    //   this.calcInfo(sacle)
+    // }
+    // this.collisionDetection(realSize)
     ctx.save()
     ctx[this.fillMethod + 'Style'] = this.color
     ctx.beginPath()
@@ -863,10 +871,10 @@ class CircleImage {
   }
   // 绘制路径
   createPath (ctx, sacle, realSize) {
-    if (this.firstRender) {
-      this.calcInfo(sacle)
-    }
-    this.collisionDetection(realSize)
+    // if (this.firstRender) {
+    //   this.calcInfo(sacle)
+    // }
+    // this.collisionDetection(realSize)
     ctx.save()
     ctx.beginPath()
     ctx.arc(this.x + this.r, this.y + this.r, this.r, 0, 2 * Math.PI)
@@ -958,10 +966,10 @@ class Line {
   }
   // 绘制路径
   createPath (ctx, sacle, realSize) {
-    if (this.firstRender) {
-      this.calcInfo(sacle)
-    }
-    this.collisionDetection(realSize)
+    // if (this.firstRender) {
+    //   this.calcInfo(sacle)
+    // }
+    // this.collisionDetection(realSize)
     ctx.save()
     ctx.beginPath()
     ctx[this.fillMethod + 'Style'] = this.color
