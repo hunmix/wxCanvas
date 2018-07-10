@@ -1,11 +1,11 @@
 // 爸爸类
 class WxCanvas {
   constructor (canvas, config) {
-    this.canvas = canvas
-    this.store = new Store()
-    this.info = new Info(config)
-    this.canMove = false
-    this.bus = new EventBus(canvas)
+    this.canvas = canvas // 绘画上下文对象
+    this.store = new Store() // store对象，用于储存图形对象
+    this.info = new Info(config) // info对象，初始化各种信息
+    this.canMove = false // 是否能拖动标记
+    this.bus = new EventBus(canvas) // 事件总线兑现，没用到= =
     // this.bus.listen('update', this.update, this)
   }
   // 获取canvas真实宽高，外部调用
@@ -30,6 +30,7 @@ class WxCanvas {
     })
     this.canvas.draw()
   }
+  // 外置触摸开始
   touchStart (e) {
     this.isMouseMove = false
     // ----------------------------------------------------------------
@@ -43,6 +44,7 @@ class WxCanvas {
       }
     }
   }
+  // 外置触摸移动
   touchMove (e) {
     this.isMouseMove = true
     if (this.canMove) {
@@ -50,6 +52,7 @@ class WxCanvas {
       this.draw()
     }
   }
+  // 触摸结束
   touchEnd (e) {
     // 点击事件回调函数
     if (this.isMouseMove === false) {
@@ -68,6 +71,7 @@ class WxCanvas {
     }
     this.canMove = false
   }
+  // 清除所有图像，不可恢复
   clear () {
     this.store.clear()
     this.draw()
@@ -88,7 +92,7 @@ class WxCanvas {
     this.store.delete(item)
     this.draw()
   }
-  // 待改--------------------------------------------------------------------------------
+  // 待改，没用上= =
   update () {
     this.draw()
   }
@@ -98,6 +102,7 @@ class EventBus {
   constructor () {
     this.eventList = []
   }
+  // 监听事件
   listen (name, event, scope) {
     if (this.eventList.length) {
       this.eventList.forEach((ele) => {
@@ -114,6 +119,7 @@ class EventBus {
     })
     // console.log(this.eventList[0].thingsList[0])
   }
+  // 触发事件
   emit (name) {
     console.log('emit')
     let tempArgs = arguments
@@ -136,11 +142,11 @@ class EventBus {
 // 信息
 class Info {
   constructor (config) {
-    this.canvasSize = {
+    this.canvasSize = { // 画布尺寸
       width: config.canvasWidth,
       height: config.canvasHeight
     }
-    this.uiInfo = {
+    this.uiInfo = { // 设计图信息
       width: config.uiWidth,
       height: config.uiHeight
     }
@@ -243,6 +249,7 @@ class Shape {
     this.Shape.move(e)
   }
   bind (type, method) {
+    console.log('bind')
     if (this.eventList[type]) {
       this.eventList[type].push(method)
     }
@@ -276,6 +283,9 @@ let createShape = {
   },
   'circleImage': function (drawData) {
     return new CircleImage(drawData)
+  },
+  'line': function (drawData) {
+    return new Line(drawData)
   }
 }
 // 圆
@@ -302,6 +312,7 @@ class Circle {
     this.y = this.y * scale.y
     this.r = this.r * scale.x
   }
+  // 绘制路径
   createPath (ctx, sacle, realSize) {
     if (this.firstRender) {
       this.calcInfo(sacle)
@@ -395,6 +406,7 @@ class Rect {
     this.w = this.w * scale.x
     this.h = this.h * scale.y
   }
+  // 绘制路径
   createPath (ctx, sacle, realSize) {
     if (this.firstRender) {
       this.calcInfo(sacle)
@@ -492,6 +504,7 @@ class Image {
     this.w = this.w * scale.x
     this.h = this.h * scale.y
   }
+  // 绘制路径
   createPath (ctx, sacle, realSize) {
     if (this.firstRender) {
       this.calcInfo(sacle)
@@ -543,6 +556,7 @@ class Image {
     this.x = this.startX + this.offsetX
     this.y = this.startY + this.offsetY
   }
+  // 更新图形信息时候是否需要重新计算真实宽高
   updateOption (option, calcScale) {
     for (let key in option) {
       if (calcScale) {
@@ -592,6 +606,7 @@ class Text {
     this.w = this.w * scale.x
     this.h = this.h * scale.y
   }
+  // 绘制路径
   createPath (ctx, sacle, realSize) {
     this.ctx = ctx
     if (this.firstRender) {
@@ -684,6 +699,7 @@ class Text {
     this.x = this.startX + this.offsetX
     this.y = this.startY + this.offsetY
   }
+  // 更新图形信息时候是否需要重新计算真实宽高
   updateOption (option, calcScale) {
     for (let key in option) {
       if (calcScale) {
@@ -734,6 +750,7 @@ class RoundRect {
     this.w = this.w * scale.x
     this.h = this.h * scale.y
   }
+  // 绘制路径
   createPath (ctx, sacle, realSize) {
     if (this.firstRender) {
       this.calcInfo(sacle)
@@ -795,6 +812,7 @@ class RoundRect {
     this.x = this.startX + this.offsetX
     this.y = this.startY + this.offsetY
   }
+  // 更新图形信息时候是否需要重新计算真实宽高
   updateOption (option, calcScale) {
     for (let key in option) {
       if (calcScale) {
@@ -843,6 +861,7 @@ class CircleImage {
     this.y = this.y * scale.y
     this.r = this.r * scale.x
   }
+  // 绘制路径
   createPath (ctx, sacle, realSize) {
     if (this.firstRender) {
       this.calcInfo(sacle)
@@ -855,6 +874,7 @@ class CircleImage {
     ctx.drawImage(this.url, 0, 0, this.w, this.h, this.x, this.y, this.r * 2, this.r * 2)
     ctx.restore()
   }
+  // 判定范围
   judgeRange (e) {
     this.startPoint = {
       x: e.mp.changedTouches[0].x,
@@ -869,6 +889,7 @@ class CircleImage {
       return false
     }
   }
+  // 碰撞检测
   collisionDetection (realSize) {
     // 碰撞检测
     if (this.x + this.r * 2 > realSize.w) {
@@ -884,6 +905,7 @@ class CircleImage {
       this.y = realSize.h - this.r * 2
     }
   }
+  // 移动计算
   move (e) {
     let movePoint = {
       x: e.mp.touches[0].x,
@@ -894,6 +916,7 @@ class CircleImage {
     this.x = this.startX + this.offsetX
     this.y = this.startY + this.offsetY
   }
+  // 更新图形信息时候是否需要重新计算真实宽高
   updateOption (option) {
     for (let key in option) {
       switch (key) {
@@ -906,6 +929,108 @@ class CircleImage {
         case 'r':
           this.r = option.r * this.scale.x
           continue
+      }
+      this[key] = option[key]
+    }
+  }
+}
+// 直线
+class Line {
+  constructor (drawData) {
+    drawData.firstRender === false ? this.firstRender = false : this.firstRender = true
+    this.x1 = drawData.x1 || 0
+    this.y1 = drawData.y1 || 0
+    this.x2 = drawData.x2 || 0
+    this.y2 = drawData.y2 || 0
+    this.w = drawData.w || 1
+    this.color = drawData.color
+    this.type = 'line'
+    this.scale = drawData.scale || null
+  }
+  // 计算绘画数据
+  calcInfo (scale) {
+    this.scale = scale
+    this.firstRender = false
+    this.x1 = this.x1 * scale.x
+    this.y1 = this.y1 * scale.y
+    this.x2 = this.x2 * scale.x
+    this.y2 = this.y2 * scale.y
+  }
+  // 绘制路径
+  createPath (ctx, sacle, realSize) {
+    if (this.firstRender) {
+      this.calcInfo(sacle)
+    }
+    this.collisionDetection(realSize)
+    ctx.save()
+    ctx.beginPath()
+    ctx[this.fillMethod + 'Style'] = this.color
+    ctx.lineWidth = this.w
+    ctx.moveTo(this.x1, this.y1)
+    ctx.lineTo(this.x2, this.y2)
+    ctx.stroke()
+    ctx.closePath()
+    ctx.restore()
+  }
+  judgeRange (e) {
+    return false
+    // this.startPoint = {
+    //   x: e.mp.changedTouches[0].x,
+    //   y: e.mp.changedTouches[0].y
+    // }
+    // let rightX = this.x + this.w
+    // let bottomY = this.y + this.h
+    // let width = Math.abs(this.x2 - this.x1)
+    // if (this.startPoint.x > this.x && this.startPoint.x < rightX && this.startPoint.y < bottomY && this.startPoint.y > this.y) {
+    //   this.startX = this.x
+    //   this.startY = this.y
+    //   return true
+    // } else {
+    //   return false
+    // }
+  }
+  collisionDetection (realSize) {
+    // 碰撞检测
+    if (this.x1 < 0) {
+      this.x1 = 0
+    }
+    if (this.x2 > realSize.w) {
+      this.x2 = realSize.w
+    }
+    if (this.y1 < 0) {
+      this.y1 = 0
+    }
+    if (this.y2 > realSize.h) {
+      this.y2 = realSize.h
+    }
+  }
+  // move (e) {
+  //   let movePoint = {
+  //     x: e.mp.touches[0].x,
+  //     y: e.mp.touches[0].y
+  //   }
+  //   this.offsetX = movePoint.x - this.startPoint.x
+  //   this.offsetY = movePoint.y - this.startPoint.y
+  //   this.x = this.startX + this.offsetX
+  //   this.y = this.startY + this.offsetY
+  // }
+  updateOption (option, calcScale) {
+    for (let key in option) {
+      if (calcScale) {
+        switch (key) {
+          case 'x1':
+            this.x1 = option.x1 * this.scale.x
+            continue
+          case 'y1':
+            this.y1 = option.y1 * this.scale.y
+            continue
+          case 'x2':
+            this.x2 = option.x2 * this.scale.x
+            continue
+          case 'y2':
+            this.y2 = option.y2 * this.scale.y
+            continue
+        }
       }
       this[key] = option[key]
     }

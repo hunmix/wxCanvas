@@ -16,7 +16,7 @@
       @tap='handleTap'
     >
     </canvas>
-    <input type="text" class="input" v-show="isShowInput">
+    <input type="text" class="input" v-if="isShowInput" focus='true' @blur="handleBlur">
     <div class="bottom-box">
       <button @tap="handleChangeColor">变色</button>
       <button @tap="handleProgram">进度条</button>
@@ -48,6 +48,7 @@ export default {
     }
   },
   mounted () {
+    let that = this
     let ctx = wx.createCanvasContext('canvas', this)
     this.wxCanvas = new WxCanvas(ctx, this.config)
     this.canvasSize = this.wxCanvas.initCanvasInfo()
@@ -60,6 +61,7 @@ export default {
     let circleImage = new Shape('circleImage', {x: 298, y: 677, r: 61, w: 200, h: 200, url: '/static/images/1.png'}, true)
     this.text = new Shape('text', {text: '点击输入文字', fontSize: 18, x: 359.5, y: 831, h: 25.5, fillMethod: 'fill', color: '#000', align: 'center'}, true)
     // let text2 = new Shape('text', {text: '看看谁是真正的预言家', x: 359.5, y: 856.5, h: 25.5, fillMethod: 'fill', color: '#000', align: 'center'})
+    let line = new Shape('line', {x1: 0, y1: 405, x2: 690, y2: 405, color: '#0f0', w: 10})
     this.wxCanvas.add(bg)
     this.wxCanvas.add(image)
     this.wxCanvas.add(country1)
@@ -67,6 +69,13 @@ export default {
     this.wxCanvas.add(score1)
     this.wxCanvas.add(score2)
     this.wxCanvas.add(circleImage)
+    this.wxCanvas.add(line)
+    this.text.bind('click', function () {
+      console.log('click')
+      that.isShowInput = true
+      that.text.updateOption({text: ''}, false)
+      that.wxCanvas.update()
+    })
     this.wxCanvas.add(this.text)
   },
   methods: {
@@ -103,6 +112,22 @@ export default {
     handleBtnResume () {
       this.wxCanvas.resume()
     },
+    // 输入文字
+    handleBlur (e) {
+      let value = e.mp.detail.value
+      console.log(value)
+      if (value.trim() === '') {
+        this.text.updateOption({text: '点击输入文字'}, false)
+      } else {
+        this.text.updateOption({text: value}, false)
+      }
+      this.wxCanvas.update()
+      e.mp.detail.value = ''
+      this.isShowInput = false
+    },
+    handleConfirm () {
+      console.log('confirm')
+    }
     // // 清除所有图形
     // handleBtnClear () {
     //   this.wxCanvas.clear()
@@ -141,12 +166,6 @@ export default {
     //   this.wxCanvas.delete(this.complete)
     //   this.wxCanvas.draw()
     // },
-    handleTest () {
-      this.text.bind('click', function () {
-        console.log('click')
-        this.isShowInput = true
-      })
-    }
   }
 }
 </script>
@@ -187,7 +206,7 @@ export default {
     left: 50%;
     transform: translateX(-50%);
     width: 220rpx;
-    background: #000;
+    /* background: #000; */
     margin: 0 auto;
   }
 </style>
