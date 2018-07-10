@@ -241,11 +241,12 @@ class Shape {
     // 判断是否是第一次计算比例
     if (this.isNeedCalcRatio()) {
       this.Shape.calcInfo(scale)
+      this.Shape.getLocationX(realSize)
     }
     // 碰撞判定
     this.Shape.collisionDetection(realSize)
     // 绘制路径
-    this.Shape.createPath(ctx, scale)
+    this.Shape.createPath(ctx)
   }
   isNeedCalcRatio () {
     return this.Shape.firstRender
@@ -308,6 +309,7 @@ class Circle {
     this.r = drawData.r || 10
     this.color = drawData.color
     this.fillMethod = drawData.fillMethod || 'fill'
+    this.locX = drawData.locX || false
     this.offsetX = 0
     this.offsetY = 0
     this.type = 'circle'
@@ -324,10 +326,6 @@ class Circle {
   }
   // 绘制路径
   createPath (ctx) {
-    // if (this.firstRender) {
-    //   this.calcInfo(sacle)
-    // }
-    // this.collisionDetection(realSize)
     ctx.save()
     ctx.beginPath()
     ctx[this.fillMethod + 'Style'] = this.color
@@ -335,6 +333,18 @@ class Circle {
     ctx[this.fillMethod]()
     ctx.closePath()
     ctx.restore()
+  }
+  getLocationX (realSize) {
+    if (this.locX === 'center') {
+      console.log('in')
+      this.x = realSize.w / 2 - this.r
+    } else if (typeof this.locX === 'number') {
+      this.x = this.locX
+    } else if (this.locX.indexOf('%') !== -1) {
+      let len = this.locX.length
+      let num = Number(this.locX.substring(0, len - 1))
+      this.x = realSize.w * num / 100
+    }
   }
   judgeRange (e) {
     this.startPoint = {
@@ -375,20 +385,22 @@ class Circle {
     this.x = this.startX + this.offsetX
     this.y = this.startY + this.offsetY
   }
-  updateOption (option) {
+  updateOption (option, calcScale) {
     for (let key in option) {
-      switch (key) {
-        case 'x':
-          this.x = option.x * this.scale.x
-          continue
-        case 'y':
-          this.y = option.y * this.scale.y
-          continue
-        case 'r':
-          this.r = option.r * this.scale.x
-          continue
+      if (calcScale) {
+        switch (key) {
+          case 'x':
+            this.x = option.x * this.scale.x
+            continue
+          case 'y':
+            this.y = option.y * this.scale.y
+            continue
+          case 'r':
+            this.r = option.r * this.scale.x
+            continue
+        }
+        this[key] = option[key]
       }
-      this[key] = option[key]
     }
   }
 }

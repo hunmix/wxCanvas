@@ -77,7 +77,7 @@ export default {
     //   that.wxCanvas.update()
     // })
     // this.wxCanvas.add(this.text)
-    let circle = new Shape('circle', {x: 100, y: 100, r: 61, color: 'red', fillMethod: 'fill'}, true)
+    let circle = new Shape('circle', {r: 61, color: 'red', fillMethod: 'fill', locX: 'center'}, true)
     this.wxCanvas.add(circle)
   },
   methods: {
