@@ -6,7 +6,7 @@ class WxCanvas {
     this.info = new Info(config)
     this.canMove = false
     this.bus = new EventBus(canvas)
-    this.bus.listen('update', this.update)
+    // this.bus.listen('update', this.update, this)
   }
   // 获取canvas真实宽高，外部调用
   initCanvasInfo () {
@@ -18,6 +18,7 @@ class WxCanvas {
     }
   }
   add (shape) {
+    shape.bus = this.bus
     this.store.add(shape)
     this.draw()
     return this
@@ -25,7 +26,7 @@ class WxCanvas {
   draw () {
     let that = this
     this.store.store.forEach((item) => {
-      item.draw(that.canvas, that.info.scale, that.info.realSize, this.bus)
+      item.draw(that.canvas, that.info.scale, that.info.realSize)
     })
     this.canvas.draw()
   }
@@ -55,7 +56,7 @@ class WxCanvas {
       let len = this.store.store.length
       for (let i = len - 1; i > -1; i--) {
         let shape = this.store.store[i]
-        if (shape.isInShape(e) && !shape.canDragable()) {
+        if (shape.isInShape(e)) {
           if (shape.eventList['click'].length > 0) {
             shape.eventList['click'].forEach((ele) => {
               ele(this)
@@ -88,27 +89,27 @@ class WxCanvas {
     this.draw()
   }
   // 待改--------------------------------------------------------------------------------
-  // update () {
-  //   this.draw()
-  // }
+  update () {
+    this.draw()
+  }
 }
 // 事件总线
 class EventBus {
   constructor () {
     this.eventList = []
   }
-  listen (name, event) {
-    console.log('listen')
+  listen (name, event, scope) {
     if (this.eventList.length) {
       this.eventList.forEach((ele) => {
         if (ele.name === name) {
           ele.thingsList.push(event)
           return false
         }
-      })
+      }, this)
     }
     this.eventList.push({
       name: name,
+      scope: scope,
       thingsList: [event]
     })
     // console.log(this.eventList[0].thingsList[0])
@@ -119,14 +120,14 @@ class EventBus {
     if (tempArgs.length < 1) {
       return false
     }
-    var params = Array.prototype.slice.call(tempArgs, 1)
-    console.log(params)
+    // var params = Array.prototype.slice.call(tempArgs, 1)
+    // console.log(params)
     this.eventList.forEach((ele) => {
-      console.log(ele.name)
-      console.log(name)
+      console.log(ele)
       if (ele.name === name) {
-        ele.thingsList.forEach((ele) => {
-          ele()
+        let scope = ele.scope
+        ele.thingsList.forEach((_ele) => {
+          _ele(scope)
         })
       }
     })
@@ -225,12 +226,11 @@ class Shape {
     this.Shape = createShape[type](drawData)
     this.dragable = dragable
     this.eventList = {
-      'click': []
+      'click': [],
+      'longpress': []
     }
-    this.bus = null
   }
-  draw (ctx, scale, realSize, bus) {
-    this.bus = bus
+  draw (ctx, scale, realSize) {
     this.Shape.createPath(ctx, scale, realSize)
   }
   isInShape (e) {
@@ -282,9 +282,9 @@ let createShape = {
 class Circle {
   constructor (drawData) {
     drawData.firstRender === false ? this.firstRender = false : this.firstRender = true
-    this.x = drawData.x
-    this.y = drawData.y
-    this.r = drawData.r
+    this.x = drawData.x || 0
+    this.y = drawData.y || 0
+    this.r = drawData.r || 10
     this.color = drawData.color
     this.fillMethod = drawData.fillMethod || 'fill'
     this.offsetX = 0
@@ -376,8 +376,8 @@ class Circle {
 class Rect {
   constructor (drawData) {
     drawData.firstRender === false ? this.firstRender = false : this.firstRender = true
-    this.x = drawData.x
-    this.y = drawData.y
+    this.x = drawData.x || 0
+    this.y = drawData.y || 0
     this.w = drawData.w
     this.h = drawData.h
     this.fillMethod = drawData.fillMethod || 'fill'
@@ -476,8 +476,8 @@ class Image {
     this.imgW = drawData.imgW
     this.imgH = drawData.imgH
     this.url = drawData.url
-    this.x = drawData.x
-    this.y = drawData.y
+    this.x = drawData.x || 0
+    this.y = drawData.y || 0
     this.w = drawData.w
     this.h = drawData.h
     this.type = 'image'
@@ -572,9 +572,9 @@ class Text {
     this.text = drawData.text || '超级变变变'
     // this.width = ctx.measureText(drawData.text).width
     this.h = drawData.h
-    this.x = drawData.x
+    this.x = drawData.x || 0
     this.w = null
-    this.y = drawData.y
+    this.y = drawData.y || 0
     this.fontSize = drawData.fontSize || 14
     this.fillMethod = drawData.fillMethod
     this.color = drawData.color
@@ -628,18 +628,44 @@ class Text {
     if (this.startPoint.x > this.leftX && this.startPoint.y > this.y && this.startPoint.x < this.leftX + this.w && this.startPoint.y < this.y + this.h) {
       this.startX = this.x
       this.startY = this.y
+      console.log('in')
       return true
     } else {
+      console.log('out')
       return false
     }
   }
   // 碰撞判定
   collisionDetection (realSize) {
-    if (this.x < 0) {
-      this.x = 0
-    }
-    if (this.x + this.w > realSize.w) {
-      this.x = realSize.w - this.w
+    switch (this.align) {
+      case 'center':
+        this.leftX = this.x - this.w / 2
+        if (this.leftX < 0) {
+          this.x = this.w / 2
+        }
+        if (this.leftX + this.w > realSize.w) {
+          this.x = realSize.w - this.w / 2
+        }
+        break
+      case 'left':
+        this.leftX = this.x
+        this.leftX = this.x - this.w / 2
+        if (this.leftX < 0) {
+          this.x = 0
+        }
+        if (this.x + this.w > realSize.w) {
+          this.x = realSize.w - this.w
+        }
+        break
+      case 'right':
+        this.leftX = this.x - this.w
+        if (this.leftX < 0) {
+          this.x = this.w
+        }
+        if (this.x > realSize.w) {
+          this.x = realSize.w
+        }
+        break
     }
     if (this.y < 0) {
       this.y = 0
@@ -688,6 +714,7 @@ class RoundRect {
     if (drawData.height < 2 * drawData.r) {
       this.r = drawData.height / 2
     }
+    console.log(drawData.x || 0)
     this.r = this.r || 0
     this.x = drawData.x || 0
     this.y = drawData.y || 0
@@ -706,7 +733,6 @@ class RoundRect {
     this.y = this.y * scale.y
     this.w = this.w * scale.x
     this.h = this.h * scale.y
-    this.r = this.r * scale.x
   }
   createPath (ctx, sacle, realSize) {
     if (this.firstRender) {
@@ -798,9 +824,9 @@ class RoundRect {
 class CircleImage {
   constructor (drawData) {
     drawData.firstRender === false ? this.firstRender = false : this.firstRender = true
-    this.x = drawData.x
-    this.y = drawData.y
-    this.r = drawData.r
+    this.x = drawData.x || 0
+    this.y = drawData.y || 0
+    this.r = drawData.r || 10
     this.left = drawData.x
     this.top = drawData.y
     this.w = drawData.w
