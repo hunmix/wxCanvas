@@ -55,6 +55,7 @@ class WxCanvas {
   }
   // 触摸结束
   touchEnd (e) {
+    this.canMove = false
     // 点击事件回调函数
     if (this.isMouseMove === false) {
       let len = this.store.store.length
@@ -70,7 +71,6 @@ class WxCanvas {
         }
       }
     }
-    this.canMove = false
   }
   // 清除所有图像，不可恢复
   clear () {
@@ -241,7 +241,7 @@ class Shape {
     // 判断是否是第一次计算比例
     if (this.isNeedCalcRatio()) {
       this.Shape.calcInfo(scale)
-      this.Shape.getLocationX(realSize)
+      this.Shape.getAbsolutLocation(realSize)
     }
     // 碰撞判定
     this.Shape.collisionDetection(realSize)
@@ -309,7 +309,12 @@ class Circle {
     this.r = drawData.r || 10
     this.color = drawData.color
     this.fillMethod = drawData.fillMethod || 'fill'
-    this.locX = drawData.locX || false
+    this.left = drawData.left
+    this.right = drawData.right
+    this.top = drawData.top
+    this.bottom = drawData.bottom
+    this.locX = drawData.locX
+    this.locY = drawData.locY
     this.offsetX = 0
     this.offsetY = 0
     this.type = 'circle'
@@ -334,18 +339,6 @@ class Circle {
     ctx.closePath()
     ctx.restore()
   }
-  getLocationX (realSize) {
-    if (this.locX === 'center') {
-      console.log('in')
-      this.x = realSize.w / 2 - this.r
-    } else if (typeof this.locX === 'number') {
-      this.x = this.locX
-    } else if (this.locX.indexOf('%') !== -1) {
-      let len = this.locX.length
-      let num = Number(this.locX.substring(0, len - 1))
-      this.x = realSize.w * num / 100
-    }
-  }
   judgeRange (e) {
     this.startPoint = {
       x: e.mp.changedTouches[0].x,
@@ -361,6 +354,7 @@ class Circle {
     }
   }
   collisionDetection (realSize) {
+    this.realSize = realSize
     // 碰撞检测
     if (this.x + this.r * 2 > realSize.w) {
       this.x = realSize.w - this.r * 2
@@ -386,22 +380,151 @@ class Circle {
     this.y = this.startY + this.offsetY
   }
   updateOption (option, calcScale) {
+    // 改变的数据里有xy则根据calcScale参数决定是否进行缩放计算，并将绝对定位属性置空，避免新的x,y属性失效
     for (let key in option) {
       if (calcScale) {
         switch (key) {
           case 'x':
             this.x = option.x * this.scale.x
-            continue
+            this.left = undefined
+            this.right = undefined
+            this.locX = undefined
+            break
           case 'y':
             this.y = option.y * this.scale.y
-            continue
+            this.top = undefined
+            this.bottom = undefined
+            this.locY = undefined
+            break
           case 'r':
             this.r = option.r * this.scale.x
-            continue
+            break
+          default :
+            this[key] = option[key]
         }
-        this[key] = option[key]
       }
     }
+    this.resetAbsoluteLocationInfo(option)
+  }
+  resetAbsoluteLocationInfo (option) {
+    console.log('reset')
+    if (option.left) {
+      this.left = option.left
+      this.right = undefined
+      this.locX = undefined
+    }
+    if (option.right) {
+      this.right = option.right
+      this.left = undefined
+      this.locX = undefined
+    }
+    if (option.top) {
+      this.top = option.top
+      this.bottom = undefined
+      this.locY = undefined
+    }
+    if (option.bottom) {
+      this.bottom = option.bottom
+      this.top = undefined
+      this.locY = undefined
+    }
+    if (option.locX) {
+      this.locX = option.locX
+      this.left = undefined
+      this.right = undefined
+    }
+    if (option.locY) {
+      this.locY = option.locY
+      this.top = undefined
+      this.bottom = undefined
+    }
+    this.getAbsolutLocation(this.realSize)
+  }
+  // 根据设置方法不同设置不同参数
+  getAbsolutLocation (realSize) {
+    let loc = null // 方向
+    let size = null // realSize，屏幕真实宽or高
+    let property = null // 改变x或y的值
+    let type = null // 根据种类调用不同计算
+    if (this.locX !== undefined) {
+      loc = this.locX
+      size = realSize.w
+      property = 'x'
+      type = 'locationX&Y'
+      this.setLocPosition(loc, size, property, type)
+    }
+    if (this.locY !== undefined) {
+      loc = this.locY
+      size = realSize.h
+      property = 'y'
+      type = 'locationX&Y'
+      this.setLocPosition(loc, size, property, type)
+    }
+    if (this.left !== undefined) {
+      loc = this.left
+      size = realSize.w
+      property = 'x'
+      type = 'left&top'
+      this.setLocPosition(loc, size, property, type)
+    }
+    if (this.top !== undefined) {
+      loc = this.top
+      size = realSize.h
+      property = 'y'
+      type = 'left&top'
+      this.setLocPosition(loc, size, property, type)
+    }
+    if (this.right !== undefined) {
+      loc = this.right
+      size = realSize.w
+      property = 'x'
+      type = 'right&bottom'
+      this.setLocPosition(loc, size, property, type)
+    }
+    if (this.bottom !== undefined) {
+      loc = this.bottom
+      size = realSize.h
+      property = 'y'
+      type = 'right&bottom'
+      this.setLocPosition(loc, size, property, type)
+    }
+  }
+  // 计算x,y的值
+  setLocPosition (loc, size, property, type) {
+    switch (type) {
+      case 'locationX&Y' :
+        if (loc === 'center') {
+          this[property] = size / 2 - this.r
+        } else if (typeof loc === 'number') {
+          this[property] = loc - this.r
+        } else if (loc.indexOf('%') !== -1) {
+          let num = this.getPercentNum(loc)
+          this[property] = size * num / 100 - this.r
+        }
+        break
+      case 'left&top' :
+        if (typeof loc === 'number') {
+          this[property] = loc
+        } else if (loc.indexOf('%') !== -1) {
+          let num = this.getPercentNum(loc)
+          this[property] = size * num / 100
+        }
+        break
+      case 'right&bottom' :
+        if (typeof loc === 'number') {
+          this[property] = size - this.r * 2 - loc
+        } else if (loc.indexOf('%') !== -1) {
+          let num = this.getPercentNum(loc)
+          this[property] = size - size * num / 100 - this.r * 2
+        }
+        break
+    }
+  }
+  // 获取百分比的数字部分
+  getPercentNum (value) {
+    let len = value.length
+    console.log(Number(value.substring(0, len - 1)))
+    return Number(value.substring(0, len - 1))
   }
 }
 // 矩形
@@ -412,6 +535,12 @@ class Rect {
     this.y = drawData.y || 0
     this.w = drawData.w
     this.h = drawData.h
+    this.left = drawData.left
+    this.right = drawData.right
+    this.top = drawData.top
+    this.bottom = drawData.bottom
+    this.locX = drawData.locX
+    this.locY = drawData.locY
     this.fillMethod = drawData.fillMethod || 'fill'
     this.color = drawData.color
     this.type = 'rect'
@@ -455,6 +584,7 @@ class Rect {
     }
   }
   collisionDetection (realSize) {
+    this.realSize = realSize
     // 碰撞检测
     if (this.x < 0) {
       this.x = 0
@@ -485,20 +615,157 @@ class Rect {
         switch (key) {
           case 'x':
             this.x = option.x * this.scale.x
-            continue
+            this.left = undefined
+            this.right = undefined
+            this.locX = undefined
+            break
           case 'y':
             this.y = option.y * this.scale.y
-            continue
+            this.top = undefined
+            this.bottom = undefined
+            this.locY = undefined
+            break
           case 'w':
             this.w = option.w * this.scale.x
-            continue
+            break
           case 'h':
             this.h = option.h * this.scale.x
-            continue
+            break
+          default:
+            this[key] = option[key]
         }
       }
-      this[key] = option[key]
     }
+    this.resetAbsoluteLocationInfo(option)
+  }
+  resetAbsoluteLocationInfo (option) {
+    console.log('reset')
+    if (option.left) {
+      this.left = option.left
+      this.right = undefined
+      this.locX = undefined
+    }
+    if (option.right) {
+      this.right = option.right
+      this.left = undefined
+      this.locX = undefined
+    }
+    if (option.top) {
+      this.top = option.top
+      this.bottom = undefined
+      this.locY = undefined
+    }
+    if (option.bottom) {
+      this.bottom = option.bottom
+      this.top = undefined
+      this.locY = undefined
+    }
+    if (option.locX) {
+      this.locX = option.locX
+      this.left = undefined
+      this.right = undefined
+    }
+    if (option.locY) {
+      this.locY = option.locY
+      this.top = undefined
+      this.bottom = undefined
+    }
+    this.getAbsolutLocation(this.realSize)
+  }
+  // 根据设置方法不同设置不同参数
+  getAbsolutLocation (realSize) {
+    let loc = null // 方向
+    let size = null // realSize，屏幕真实宽or高
+    let property = null // 改变x或y的值
+    let type = null // 根据种类调用不同计算
+    let rectProperty = null
+    console.log(this.locX)
+    if (this.locX !== undefined) {
+      loc = this.locX
+      size = realSize.w
+      property = 'x'
+      rectProperty = 'w'
+      type = 'locationX&Y'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+    if (this.locY !== undefined) {
+      loc = this.locY
+      size = realSize.h
+      property = 'y'
+      rectProperty = 'h'
+      type = 'locationX&Y'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+    if (this.left !== undefined) {
+      loc = this.left
+      size = realSize.w
+      property = 'x'
+      rectProperty = 'w'
+      type = 'left&top'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+    if (this.top !== undefined) {
+      loc = this.top
+      size = realSize.h
+      property = 'y'
+      rectProperty = 'h'
+      type = 'left&top'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+    if (this.right !== undefined) {
+      loc = this.right
+      size = realSize.w
+      property = 'x'
+      rectProperty = 'w'
+      type = 'right&bottom'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+    if (this.bottom !== undefined) {
+      loc = this.bottom
+      size = realSize.h
+      property = 'y'
+      rectProperty = 'h'
+      type = 'right&bottom'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+  }
+  // 计算x,y的值
+  setLocPosition (loc, size, property, rectProperty, type) {
+    switch (type) {
+      case 'locationX&Y' :
+        if (loc === 'center') {
+          this[property] = size / 2 - this[rectProperty] / 2
+        } else if (typeof loc === 'number') {
+          this[property] = loc - this[rectProperty] / 2
+        } else if (loc.indexOf('%') !== -1) {
+          let num = this.getPercentNum(loc)
+          this[property] = size * num / 100 - this[rectProperty] / 2
+        }
+        break
+      case 'left&top' :
+        console.log('in left&top')
+        if (typeof loc === 'number') {
+          this[property] = loc
+        } else if (loc.indexOf('%') !== -1) {
+          let num = this.getPercentNum(loc)
+          this[property] = size * num / 100
+        }
+        break
+      case 'right&bottom' :
+        if (typeof loc === 'number') {
+          this[property] = size - this[rectProperty] - loc
+        } else if (loc.indexOf('%') !== -1) {
+          let num = this.getPercentNum(loc)
+          this[property] = size - size * num / 100 - this[rectProperty]
+        }
+        break
+    }
+  }
+  // 获取百分比的数字部分
+  getPercentNum (value) {
+    let len = value.length
+    console.log(Number(value.substring(0, len - 1)))
+    return Number(value.substring(0, len - 1))
   }
 }
 // 图片
@@ -552,6 +819,7 @@ class Image {
     }
   }
   collisionDetection (realSize) {
+    this.realSize = realSize
     // 碰撞检测
     if (this.x < 0) {
       this.x = 0
@@ -583,25 +851,162 @@ class Image {
         switch (key) {
           case 'x':
             this.x = option.x * this.scale.x
-            continue
+            this.left = null
+            this.right = null
+            this.locX = null
+            break
           case 'y':
             this.y = option.y * this.scale.y
-            continue
+            this.top = null
+            this.bottom = null
+            this.locY = null
+            break
           case 'w':
             this.w = option.w * this.scale.x
-            continue
+            break
           case 'h':
             this.h = option.h * this.scale.x
-            continue
+            break
+          default:
+            this[key] = option[key]
         }
       }
-      this[key] = option[key]
     }
+    this.resetAbsoluteLocationInfo(option)
+  }
+  resetAbsoluteLocationInfo (option) {
+    console.log('reset')
+    if (option.left) {
+      this.left = option.left
+      this.right = null
+      this.locX = null
+    }
+    if (option.right) {
+      this.right = option.right
+      this.left = null
+      this.locX = null
+    }
+    if (option.top) {
+      this.top = option.top
+      this.bottom = null
+      this.locY = null
+    }
+    if (option.bottom) {
+      this.bottom = option.bottom
+      this.top = null
+      this.locY = null
+    }
+    if (option.locX) {
+      this.locX = option.locX
+      this.left = null
+      this.right = null
+    }
+    if (option.locY) {
+      this.locY = option.locY
+      this.top = null
+      this.bottom = null
+    }
+    this.getAbsolutLocation(this.realSize)
+  }
+  // 根据设置方法不同设置不同参数
+  getAbsolutLocation (realSize) {
+    let loc = null // 方向
+    let size = null // realSize，屏幕真实宽or高
+    let property = null // 改变x或y的值
+    let type = null // 根据种类调用不同计算
+    let rectProperty = null
+    if (this.locX !== null) {
+      loc = this.locX
+      size = realSize.w
+      property = 'x'
+      rectProperty = 'w'
+      type = 'locationX&Y'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+    if (this.locY !== null) {
+      loc = this.locY
+      size = realSize.h
+      property = 'y'
+      rectProperty = 'h'
+      type = 'locationX&Y'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+    if (this.left !== null) {
+      loc = this.left
+      size = realSize.w
+      property = 'x'
+      rectProperty = 'w'
+      type = 'left&top'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+    if (this.top !== null) {
+      loc = this.top
+      size = realSize.h
+      property = 'y'
+      rectProperty = 'h'
+      type = 'left&top'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+    if (this.right !== null) {
+      loc = this.right
+      size = realSize.w
+      property = 'x'
+      rectProperty = 'w'
+      type = 'right&bottom'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+    if (this.bottom !== null) {
+      loc = this.bottom
+      size = realSize.h
+      property = 'y'
+      rectProperty = 'h'
+      type = 'right&bottom'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+  }
+  // 计算x,y的值
+  setLocPosition (loc, size, property, rectProperty, type) {
+    switch (type) {
+      case 'locationX&Y' :
+        if (loc === 'center') {
+          this[property] = size / 2 - this[rectProperty] / 2
+        } else if (typeof loc === 'number') {
+          this[property] = loc - this[rectProperty] / 2
+        } else if (loc.indexOf('%') !== -1) {
+          let num = this.getPercentNum(loc)
+          this[property] = size * num / 100 - this[rectProperty] / 2
+        }
+        break
+      case 'left&top' :
+        console.log('in left&top')
+        if (typeof loc === 'number') {
+          this[property] = loc
+        } else if (loc.indexOf('%') !== -1) {
+          let num = this.getPercentNum(loc)
+          this[property] = size * num / 100
+        }
+        break
+      case 'right&bottom' :
+        if (typeof loc === 'number') {
+          this[property] = size - this[rectProperty] - loc
+        } else if (loc.indexOf('%') !== -1) {
+          let num = this.getPercentNum(loc)
+          this[property] = size - size * num / 100 - this[rectProperty]
+        }
+        break
+    }
+  }
+  // 获取百分比的数字部分
+  getPercentNum (value) {
+    let len = value.length
+    console.log(Number(value.substring(0, len - 1)))
+    return Number(value.substring(0, len - 1))
   }
 }
 // 文字
 class Text {
   constructor (drawData) {
+    console.log(drawData)
     drawData.firstRender === false ? this.firstRender = false : this.firstRender = true
     this.text = drawData.text || '超级变变变'
     // this.width = ctx.measureText(drawData.text).width
@@ -609,8 +1014,14 @@ class Text {
     this.x = drawData.x || 0
     this.w = null
     this.y = drawData.y || 0
+    this.locX = drawData.locX
+    this.locY = drawData.locY
+    this.left = drawData.left
+    this.right = drawData.right
+    this.top = drawData.top
+    this.bottom = drawData.bottom
     this.fontSize = drawData.fontSize || 14
-    this.fillMethod = drawData.fillMethod
+    this.fillMethod = drawData.fillMethod || 'fill'
     this.color = drawData.color
     this.align = drawData.align || 'left'
     this.baseline = drawData.baseline || 'normal'
@@ -628,6 +1039,7 @@ class Text {
   }
   // 绘制路径
   createPath (ctx, sacle, realSize) {
+    console.log(this.y)
     this.ctx = ctx
     // if (this.firstRender) {
     //   this.calcInfo(sacle)
@@ -663,15 +1075,14 @@ class Text {
     if (this.startPoint.x > this.leftX && this.startPoint.y > this.y && this.startPoint.x < this.leftX + this.w && this.startPoint.y < this.y + this.h) {
       this.startX = this.x
       this.startY = this.y
-      console.log('in')
       return true
     } else {
-      console.log('out')
       return false
     }
   }
   // 碰撞判定
   collisionDetection (realSize) {
+    this.realSize = realSize
     switch (this.align) {
       case 'center':
         this.leftX = this.x - this.w / 2
@@ -726,17 +1137,119 @@ class Text {
         switch (key) {
           case 'x':
             this.x = option.x * this.scale.x
-            continue
+            this.locX = undefined
+            this.left = undefined
+            this.right = undefined
+            break
           case 'y':
             this.y = option.y * this.scale.y
-            continue
+            break
           case 'h':
             this.h = option.h * this.scale.x
-            continue
+            break
+          default:
+            this[key] = option[key]
         }
       }
-      this[key] = option[key]
+      this.resetAbsoluteLocationInfo(option)
     }
+  }
+  resetAbsoluteLocationInfo (option) {
+    if (option.left) {
+      this.left = option.left
+      this.right = undefined
+      this.locX = undefined
+    }
+    if (option.right) {
+      this.right = option.right
+      this.left = undefined
+      this.locX = undefined
+    }
+    if (option.top) {
+      this.top = option.top
+      this.bottom = undefined
+      this.locY = undefined
+    }
+    if (option.bottom) {
+      this.bottom = option.bottom
+      this.top = undefined
+      this.locY = undefined
+    }
+    if (option.locX) {
+      this.locX = option.locX
+      this.left = undefined
+      this.right = undefined
+    }
+    if (option.locY) {
+      this.locY = option.locY
+      this.top = undefined
+      this.bottom = undefined
+    }
+    this.getAbsolutLocation(this.realSize)
+  }
+  getAbsolutLocation (realSize) {
+    if (this.locX !== undefined) {
+      this.align = 'center'
+      if (this.locX === 'center') {
+        this.x = realSize.w / 2
+      } else if (typeof this.locX === 'number') {
+        this.x = this.locX
+      } else if (this.locX.indexOf('%') !== -1) {
+        let num = this.getPercentNum(this.locX)
+        this.x = realSize.w * num / 100
+      }
+    }
+    if (this.locY !== undefined) {
+      if (this.locY === 'center') {
+        this.y = realSize.h / 2 - this.h / 2
+      } else if (typeof this.locY === 'number') {
+        this.y = this.locY - this.h / 2
+      } else if (this.locY.indexOf('%') !== -1) {
+        let num = this.getPercentNum(this.locY)
+        this.y = realSize.h * num / 100 - this.h / 2
+      }
+    }
+    if (this.left !== undefined) {
+      this.align = 'left'
+      if (typeof this.left === 'number') {
+        this.x = this.left
+      } else if (this.left.indexOf('%') !== -1) {
+        let num = this.getPercentNum(this.left)
+        this.x = realSize.w * num / 100
+      }
+    }
+    if (this.right !== undefined) {
+      this.align = 'right'
+      if (typeof this.right === 'number') {
+        this.x = realSize.w - this.right
+        console.log(this.x)
+      } else if (this.right.indexOf('%') !== -1) {
+        let num = this.getPercentNum(this.right)
+        this.x = realSize.w - realSize.w * num / 100
+      }
+    }
+    if (this.top !== undefined) {
+      if (typeof this.top === 'number') {
+        this.y = this.top
+      } else if (this.top.indexOf('%') !== -1) {
+        let num = this.getPercentNum(this.top)
+        this.y = realSize.h * num / 100
+      }
+    }
+    if (this.bottom !== undefined) {
+      if (typeof this.bottom === 'number') {
+        this.y = realSize.h - this.bottom - this.h
+      } else if (this.bottom.indexOf('%') !== -1) {
+        let num = this.getPercentNum(this.bottom)
+        this.y = realSize.h - realSize.h * num / 100 - this.h
+      }
+    }
+  }
+  // 获取百分比的数字部分
+  getPercentNum (value) {
+    let len = value.length
+    console.log(Number(value.substring(0, len - 1)))
+    return Number(value.substring(0, len - 1))
   }
 }
 // 圆角矩形
@@ -756,6 +1269,12 @@ class RoundRect {
     this.y = drawData.y || 0
     this.w = drawData.w
     this.h = drawData.h
+    this.left = drawData.left
+    this.right = drawData.right
+    this.top = drawData.top
+    this.bottom = drawData.bottom
+    this.locX = drawData.locX
+    this.locY = drawData.locY
     this.color = drawData.color || '#000'
     this.fillMethod = drawData.fillMethod || 'fill'
     this.type = 'roundRect'
@@ -808,6 +1327,7 @@ class RoundRect {
     }
   }
   collisionDetection (realSize) {
+    this.realSize = realSize
     // 碰撞检测
     if (this.x < 0) {
       this.x = 0
@@ -839,23 +1359,160 @@ class RoundRect {
         switch (key) {
           case 'x':
             this.x = option.x * this.scale.x
-            continue
+            this.left = null
+            this.right = null
+            this.locX = null
+            break
           case 'y':
             this.y = option.y * this.scale.y
-            continue
+            this.top = null
+            this.bottom = null
+            this.locY = null
+            break
           case 'w':
             this.w = option.w * this.scale.x
-            continue
+            break
           case 'h':
             this.h = option.h * this.scale.x
-            continue
+            break
           case 'r':
             this.r = option.r * this.scale.x
-            continue
+            break
+          default:
+            this[key] = option[key]
         }
       }
-      this[key] = option[key]
     }
+    this.resetAbsoluteLocationInfo(option)
+  }
+  resetAbsoluteLocationInfo (option) {
+    if (option.left) {
+      this.left = option.left
+      this.right = undefined
+      this.locX = undefined
+    }
+    if (option.right) {
+      this.right = option.right
+      this.left = undefined
+      this.locX = undefined
+    }
+    if (option.top) {
+      this.top = option.top
+      this.bottom = undefined
+      this.locY = undefined
+    }
+    if (option.bottom) {
+      this.bottom = option.bottom
+      this.top = undefined
+      this.locY = undefined
+    }
+    if (option.locX) {
+      this.locX = option.locX
+      this.left = undefined
+      this.right = undefined
+    }
+    if (option.locY) {
+      this.locY = option.locY
+      this.top = undefined
+      this.bottom = undefined
+    }
+    this.getAbsolutLocation(this.realSize)
+  }
+  // 根据设置方法不同设置不同参数
+  getAbsolutLocation (realSize) {
+    let loc = null // 方向
+    let size = null // realSize，屏幕真实宽or高
+    let property = null // 改变x或y的值
+    let type = null // 根据种类调用不同计算
+    let rectProperty = null
+    if (this.locX !== undefined) {
+      loc = this.locX
+      size = realSize.w
+      property = 'x'
+      rectProperty = 'w'
+      type = 'locationX&Y'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+    if (this.locY !== undefined) {
+      loc = this.locY
+      size = realSize.h
+      property = 'y'
+      rectProperty = 'h'
+      type = 'locationX&Y'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+    if (this.left !== undefined) {
+      loc = this.left
+      size = realSize.w
+      property = 'x'
+      rectProperty = 'w'
+      type = 'left&top'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+    if (this.top !== undefined) {
+      loc = this.top
+      size = realSize.h
+      property = 'y'
+      rectProperty = 'h'
+      type = 'left&top'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+    if (this.right !== undefined) {
+      loc = this.right
+      size = realSize.w
+      property = 'x'
+      rectProperty = 'w'
+      type = 'right&bottom'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+    console.log(this.bottom)
+    if (this.bottom !== undefined) {
+      loc = this.bottom
+      size = realSize.h
+      property = 'y'
+      rectProperty = 'h'
+      type = 'right&bottom'
+      this.setLocPosition(loc, size, property, rectProperty, type)
+    }
+  }
+  // 计算x,y的值
+  setLocPosition (loc, size, property, rectProperty, type) {
+    console.log(loc)
+    switch (type) {
+      case 'locationX&Y' :
+        if (loc === 'center') {
+          this[property] = size / 2 - this[rectProperty] / 2
+        } else if (typeof loc === 'number') {
+          this[property] = loc - this[rectProperty] / 2
+        } else if (loc.indexOf('%') !== -1) {
+          let num = this.getPercentNum(loc)
+          this[property] = size * num / 100 - this[rectProperty] / 2
+        }
+        break
+      case 'left&top' :
+        console.log('in left&top')
+        if (typeof loc === 'number') {
+          this[property] = loc
+        } else if (loc.indexOf('%') !== -1) {
+          let num = this.getPercentNum(loc)
+          this[property] = size * num / 100
+        }
+        break
+      case 'right&bottom' :
+        if (typeof loc === 'number') {
+          this[property] = size - this[rectProperty] - loc
+        } else if (loc.indexOf('%') !== -1) {
+          let num = this.getPercentNum(loc)
+          this[property] = size - size * num / 100 - this[rectProperty]
+        }
+        break
+    }
+  }
+  // 获取百分比的数字部分
+  getPercentNum (value) {
+    let len = value.length
+    console.log(Number(value.substring(0, len - 1)))
+    return Number(value.substring(0, len - 1))
   }
 }
 // 圆形图片
@@ -867,6 +1524,12 @@ class CircleImage {
     this.r = drawData.r || 10
     this.left = drawData.x
     this.top = drawData.y
+    this.left = drawData.left
+    this.right = drawData.right
+    this.top = drawData.top
+    this.bottom = drawData.bottom
+    this.locX = drawData.locX
+    this.locY = drawData.locY
     this.w = drawData.w
     this.h = drawData.h
     this.url = drawData.url
@@ -876,6 +1539,7 @@ class CircleImage {
   }
   // 计算绘画数据
   calcInfo (scale) {
+    this.scale = scale
     this.firstRender = false
     this.x = this.x * scale.x
     this.y = this.y * scale.y
@@ -911,6 +1575,7 @@ class CircleImage {
   }
   // 碰撞检测
   collisionDetection (realSize) {
+    this.realSize = realSize
     // 碰撞检测
     if (this.x + this.r * 2 > realSize.w) {
       this.x = realSize.w - this.r * 2
@@ -937,21 +1602,154 @@ class CircleImage {
     this.y = this.startY + this.offsetY
   }
   // 更新图形信息时候是否需要重新计算真实宽高
-  updateOption (option) {
+  updateOption (option, calcScale) {
+    // 改变的数据里有xy则根据calcScale参数决定是否进行缩放计算，并将绝对定位属性置空，避免新的x,y属性失效
     for (let key in option) {
-      switch (key) {
-        case 'x':
-          this.x = option.x * this.scale.x
-          continue
-        case 'y':
-          this.y = option.y * this.scale.y
-          continue
-        case 'r':
-          this.r = option.r * this.scale.x
-          continue
+      if (calcScale) {
+        switch (key) {
+          case 'x':
+            this.x = option.x * this.scale.x
+            this.left = undefined
+            this.right = undefined
+            this.locX = undefined
+            break
+          case 'y':
+            this.y = option.y * this.scale.y
+            this.top = undefined
+            this.bottom = undefined
+            this.locY = undefined
+            break
+          case 'r':
+            this.r = option.r * this.scale.x
+            break
+          default :
+            this[key] = option[key]
+        }
       }
-      this[key] = option[key]
     }
+    this.resetAbsoluteLocationInfo(option)
+  }
+  resetAbsoluteLocationInfo (option) {
+    console.log('in reset :' + this.r)
+    console.log('reset')
+    if (option.left) {
+      this.left = option.left
+      this.right = undefined
+      this.locX = undefined
+    }
+    if (option.right) {
+      this.right = option.right
+      this.left = undefined
+      this.locX = undefined
+    }
+    if (option.top) {
+      this.top = option.top
+      this.bottom = undefined
+      this.locY = undefined
+    }
+    if (option.bottom) {
+      this.bottom = option.bottom
+      this.top = undefined
+      this.locY = undefined
+    }
+    if (option.locX) {
+      this.locX = option.locX
+      this.left = undefined
+      this.right = undefined
+    }
+    if (option.locY) {
+      this.locY = option.locY
+      this.top = undefined
+      this.bottom = undefined
+    }
+    this.getAbsolutLocation(this.realSize)
+  }
+  // 根据设置方法不同设置不同参数
+  getAbsolutLocation (realSize) {
+    let loc = null // 方向
+    let size = null // realSize，屏幕真实宽or高
+    let property = null // 改变x或y的值
+    let type = null // 根据种类调用不同计算
+    console.log(realSize)
+    if (this.locX !== undefined) {
+      loc = this.locX
+      size = realSize.w
+      property = 'x'
+      type = 'locationX&Y'
+      this.setLocPosition(loc, size, property, type)
+    }
+    if (this.locY !== undefined) {
+      loc = this.locY
+      size = realSize.h
+      property = 'y'
+      type = 'locationX&Y'
+      this.setLocPosition(loc, size, property, type)
+    }
+    if (this.left !== undefined) {
+      loc = this.left
+      size = realSize.w
+      property = 'x'
+      type = 'left&top'
+      this.setLocPosition(loc, size, property, type)
+    }
+    if (this.top !== undefined) {
+      loc = this.top
+      size = realSize.h
+      property = 'y'
+      type = 'left&top'
+      this.setLocPosition(loc, size, property, type)
+    }
+    if (this.right !== undefined) {
+      loc = this.right
+      size = realSize.w
+      property = 'x'
+      type = 'right&bottom'
+      this.setLocPosition(loc, size, property, type)
+    }
+    if (this.bottom !== undefined) {
+      loc = this.bottom
+      size = realSize.h
+      property = 'y'
+      type = 'right&bottom'
+      this.setLocPosition(loc, size, property, type)
+    }
+  }
+  // 计算x,y的值
+  setLocPosition (loc, size, property, type) {
+    switch (type) {
+      case 'locationX&Y' :
+        if (loc === 'center') {
+          this[property] = size / 2 - this.r
+        } else if (typeof loc === 'number') {
+          this[property] = loc - this.r
+        } else if (loc.indexOf('%') !== -1) {
+          let num = this.getPercentNum(loc)
+          this[property] = size * num / 100 - this.r
+        }
+        break
+      case 'left&top' :
+        if (typeof loc === 'number') {
+          this[property] = loc
+        } else if (loc.indexOf('%') !== -1) {
+          let num = this.getPercentNum(loc)
+          this[property] = size * num / 100
+        }
+        break
+      case 'right&bottom' :
+        if (typeof loc === 'number') {
+          this[property] = size - this.r * 2 - loc
+        } else if (loc.indexOf('%') !== -1) {
+          let num = this.getPercentNum(loc)
+          this[property] = size - size * num / 100 - this.r * 2
+        }
+        break
+    }
+  }
+  // 获取百分比的数字部分
+  getPercentNum (value) {
+    let len = value.length
+    console.log(Number(value.substring(0, len - 1)))
+    return Number(value.substring(0, len - 1))
   }
 }
 // 直线
@@ -1010,6 +1808,7 @@ class Line {
     // }
   }
   collisionDetection (realSize) {
+    this.realSize = realSize
     // 碰撞检测
     if (this.x1 < 0) {
       this.x1 = 0
@@ -1037,6 +1836,7 @@ class Line {
   updateOption (option, calcScale) {
     for (let key in option) {
       if (calcScale) {
+        console.log('in calc')
         switch (key) {
           case 'x1':
             this.x1 = option.x1 * this.scale.x
