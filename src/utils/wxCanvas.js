@@ -878,33 +878,33 @@ class Image {
     console.log('reset')
     if (option.left) {
       this.left = option.left
-      this.right = null
-      this.locX = null
+      this.right = undefined
+      this.locX = undefined
     }
     if (option.right) {
       this.right = option.right
-      this.left = null
-      this.locX = null
+      this.left = undefined
+      this.locX = undefined
     }
     if (option.top) {
       this.top = option.top
-      this.bottom = null
-      this.locY = null
+      this.bottom = undefined
+      this.locY = undefined
     }
     if (option.bottom) {
       this.bottom = option.bottom
-      this.top = null
-      this.locY = null
+      this.top = undefined
+      this.locY = undefined
     }
     if (option.locX) {
       this.locX = option.locX
-      this.left = null
-      this.right = null
+      this.left = undefined
+      this.right = undefined
     }
     if (option.locY) {
       this.locY = option.locY
-      this.top = null
-      this.bottom = null
+      this.top = undefined
+      this.bottom = undefined
     }
     this.getAbsolutLocation(this.realSize)
   }
@@ -915,7 +915,7 @@ class Image {
     let property = null // 改变x或y的值
     let type = null // 根据种类调用不同计算
     let rectProperty = null
-    if (this.locX !== null) {
+    if (this.locX !== undefined) {
       loc = this.locX
       size = realSize.w
       property = 'x'
@@ -923,7 +923,7 @@ class Image {
       type = 'locationX&Y'
       this.setLocPosition(loc, size, property, rectProperty, type)
     }
-    if (this.locY !== null) {
+    if (this.locY !== undefined) {
       loc = this.locY
       size = realSize.h
       property = 'y'
@@ -931,7 +931,7 @@ class Image {
       type = 'locationX&Y'
       this.setLocPosition(loc, size, property, rectProperty, type)
     }
-    if (this.left !== null) {
+    if (this.left !== undefined) {
       loc = this.left
       size = realSize.w
       property = 'x'
@@ -939,7 +939,7 @@ class Image {
       type = 'left&top'
       this.setLocPosition(loc, size, property, rectProperty, type)
     }
-    if (this.top !== null) {
+    if (this.top !== undefined) {
       loc = this.top
       size = realSize.h
       property = 'y'
@@ -947,7 +947,7 @@ class Image {
       type = 'left&top'
       this.setLocPosition(loc, size, property, rectProperty, type)
     }
-    if (this.right !== null) {
+    if (this.right !== undefined) {
       loc = this.right
       size = realSize.w
       property = 'x'
@@ -955,7 +955,7 @@ class Image {
       type = 'right&bottom'
       this.setLocPosition(loc, size, property, rectProperty, type)
     }
-    if (this.bottom !== null) {
+    if (this.bottom !== undefined) {
       loc = this.bottom
       size = realSize.h
       property = 'y'
