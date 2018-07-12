@@ -4,40 +4,42 @@ class EventBus {
     this.eventList = []
   }
   // 监听事件
-  listen (name, event, scope) {
-    if (this.eventList.length) {
-      this.eventList.forEach((ele) => {
-        if (ele.name === name) {
-          ele.thingsList.push(event)
-          return false
-        }
-      }, this)
+  listen (name, self, event, removeCallback) {
+    let eventInfo = [self, event, removeCallback]
+    let callbacks = this.eventList[name]
+    if (Array.isArray(callbacks)) {
+      callbacks.push(eventInfo)
+    } else {
+      this.eventList[name] = [eventInfo]
     }
-    this.eventList.push({
-      name: name,
-      scope: scope,
-      thingsList: [event]
-    })
-    // console.log(this.eventList[0].thingsList[0])
+  }
+  remove (name, self) {
+    let callbacks = this.eventList[name]
+    if (Array.isArray(callbacks)) {
+      this.eventList[name] = callbacks.filter((callbacks) => {
+        let retain = callbacks[0] !== self
+        if (!retain) {
+          let removeCallback = callbacks[2]
+          if (typeof removeCallback === 'function') {
+            removeCallback.call(self)
+          }
+        }
+        return retain
+      })
+    }
   }
   // 触发事件
-  emit (name) {
+  emit (name, data) {
     console.log('emit')
-    let tempArgs = arguments
-    if (tempArgs.length < 1) {
-      return false
+    let callbacks = this.eventList[name]
+    if (Array.isArray(callbacks)) {
+      callbacks.forEach((eventInfo) => {
+        console.log(eventInfo)
+        let _self = eventInfo[0]
+        let callback = eventInfo[1]
+        callback.call(_self, data)
+      })
     }
-    // var params = Array.prototype.slice.call(tempArgs, 1)
-    // console.log(params)
-    this.eventList.forEach((ele) => {
-      console.log(ele)
-      if (ele.name === name) {
-        let scope = ele.scope
-        ele.thingsList.forEach((_ele) => {
-          _ele(scope)
-        })
-      }
-    })
   }
 }
 

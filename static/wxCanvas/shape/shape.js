@@ -5,11 +5,13 @@ import {Line} from './line'
 import {Rect} from './rect'
 import {RoundRect} from './roundRect'
 import {Text} from './text'
+import {Animation} from './../animation/animation'
 // 图形
 class Shape {
   constructor (type, drawData, dragable) {
     this.Shape = createShape[type](drawData)
     this.dragable = dragable
+    this.animation = new Animation()
     this.eventList = {
       'click': [],
       'longpress': []
@@ -52,7 +54,52 @@ class Shape {
   updateOption (option, calcScale, dragable) {
     dragable === undefined ? this.dragable = this.dragable : this.dragable = dragable
     this.Shape.updateOption(option, calcScale)
-    // this.bus.emit('update')
+    this.bus.emit('update')
+  }
+  animate (option, duration) {
+    console.log('animate')
+    this.animation.add(option, duration)
+    return this
+  }
+  start (num) {
+    this._beginAnimation()
+  }
+  _beginAnimation (duration) {
+    let _this = this
+    this.animation.animationStore.forEach(function (value) {
+      let option = value[0]
+      let duration = value[1]
+      let num = 1
+      let startTime = new Date().getTime()
+      let timer = setInterval(function () {
+        let animationOption = _this._calcAnimationInfo(option, duration, num)
+        _this.updateOption(animationOption)
+        num++
+        if ((new Date().getTime() - startTime) >= duration) {
+          clearInterval(timer)
+          console.log('time end')
+        }
+      }, 30)
+    })
+  }
+  _calcAnimationInfo (option, duration, num) {
+    let pattern = /[+-]\d*/
+    for (let key in option) {
+      switch (key) {
+        case 'r' :
+          let value = option[key]
+          if (isNaN(value)) {
+            value = Number(value.match(pattern))
+          }
+          let oldR = this.Shape.r || 0
+          let step = value / 1000 * 30
+          option.r = oldR + step * num
+          console.log(option.r)
+          break
+      }
+    }
+    return option
+    // let num = Number(string.match(pattern))
   }
 }
 let createShape = {

@@ -9,8 +9,8 @@ class WxCanvas {
     this.store = new Store() // store对象，用于储存图形对象
     this.info = new Info(config) // info对象，初始化各种信息
     this.canMove = false // 是否能拖动标记
-    this.bus = new EventBus(canvas) // 事件总线对象，没用到= =
-    // this.bus.listen('update', this.update, this)
+    this.bus = new EventBus() // 事件总线对象，没用到= =
+    this.bus.listen('update', this, this.update)
   }
   // 获取canvas真实宽高，外部调用
   initCanvasInfo () {
