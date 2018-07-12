@@ -21,13 +21,13 @@
       <button @tap="handleChangeColor">变色</button>
       <button @tap="handleProgram">进度条</button>
       <button @tap="handleReset">重置</button>
-      <button @tap="handleTest">测试</button>
+      <button @tap="handleTest">保存</button>
     </div>
   </section>
 </template>
 
 <script>
-// import {WxCanvas, Shape} from '../../utils/wxCanvas'
+import {WxCanvas, Shape} from './../../../static/wxCanvas/index'
 export default {
   data () {
     return {
@@ -48,11 +48,12 @@ export default {
     }
   },
   mounted () {
-    // let _this = this
-    // let ctx = wx.createCanvasContext('canvas', this)
-    // this.wxCanvas = new WxCanvas(ctx, this.config)
-    // this.canvasSize = this.wxCanvas.initCanvasInfo()
-    // let bg = new Shape('roundRect', {w: 710, h: 940, color: '#fff', r: 20, fillMethod: 'fill'})
+    console.log('mounted')
+    let _this = this
+    let ctx = wx.createCanvasContext('canvas', this)
+    this.wxCanvas = new WxCanvas(ctx, this.config)
+    this.canvasSize = this.wxCanvas.initCanvasInfo()
+    let bg = new Shape('roundRect', {w: 710, h: 940, color: '#fff', r: 20, fillMethod: 'fill'})
     // let image = new Shape('image', {w: 710, h: 747, url: '/static/images/0.png', imgW: 710, imgH: 747})
     // let country1 = new Shape('text', {text: '德国', x: 186, y: 245, h: 34, fontSize: 18, color: '#fff', fillMethod: 'fill'})
     // let country2 = new Shape('text', {text: '巴拿马', x: 414, y: 246, h: 34, fontSize: 18, color: '#fff', fillMethod: 'fill'})
@@ -62,7 +63,7 @@ export default {
     // this.text = new Shape('text', {text: '点击输入文字', fontSize: 18, x: 359.5, y: 831, h: 25.5, fillMethod: 'fill', color: '#000', align: 'center'}, true)
     // // let text2 = new Shape('text', {text: '看看谁是真正的预言家', x: 359.5, y: 856.5, h: 25.5, fillMethod: 'fill', color: '#000', align: 'center'})
     // let line = new Shape('line', {x1: 0, y1: 405, x2: 690, y2: 405, color: '#0f0', w: 10})
-    // this.wxCanvas.add(bg)
+    this.wxCanvas.add(bg)
     // this.wxCanvas.add(image)
     // this.wxCanvas.add(country1)
     // this.wxCanvas.add(country2)
@@ -78,47 +79,47 @@ export default {
     // })
     // this.wxCanvas.add(this.text)
     // ------------------------------------------------------------------------//
-    // let circle = new Shape('circle', {r: 60, color: 'red', fillMethod: 'fill', left: '10%', bottom: 0}, true)
-    // this.wxCanvas.add(circle)
-    // circle.bind('click', function () {
-    //   circle.updateOption({locY: '50%', locX: '50%', r: 100}, true)
-    //   _this.wxCanvas.update()
-    // })
-    // let circleImage = new Shape('circleImage', {r: 60, url: '/static/images/0.png', left: '10%', bottom: 0}, true)
-    // this.wxCanvas.add(circleImage)
-    // circleImage.bind('click', function () {
-    //   circleImage.updateOption({locX: 'center', y: 0, r: 200}, true)
-    //   _this.wxCanvas.update()
-    //   console.log('click')
-    // })
-    // let rect = new Shape('rect', {w: 300, h: 300, color: 'red', locX: 'center', bottom: 0}, true)
-    // this.wxCanvas.add(rect)
-    // rect.bind('click', function () {
-    //   rect.updateOption({right: '50%', bottom: 10, w: 100, h: 100}, true)
-    //   _this.wxCanvas.update()
-    //   console.log('click')
-    // })
-    // let image = new Shape('rect', {w: 100, h: 100, url: '/static/images/0.png', locX: 'center', bottom: 0}, true)
-    // this.wxCanvas.add(image)
-    // image.bind('click', function () {
-    //   image.updateOption({left: 0, bottom: '50%', w: 100, h: 100}, true)
-    //   _this.wxCanvas.update()
-    //   console.log('click')
-    // })
-    // let roundRect = new Shape('roundRect', {w: 100, h: 100, r: 20, locX: 'center', bottom: 0}, true)
-    // this.wxCanvas.add(roundRect)
-    // roundRect.bind('click', function () {
-    //   roundRect.updateOption({left: 0, bottom: 0, w: 100, h: 200}, true)
-    //   _this.wxCanvas.update()
-    //   console.log('click')
-    // })
-    // let text = new Shape('text', {text: '嘿嘿嘿', h: 30, fontSize: 12, locX: 'center', bottom: 0}, true)
-    // this.wxCanvas.add(text)
-    // text.bind('click', function () {
-    //   text.updateOption({x: 120}, true)
-    //   _this.wxCanvas.update()
-    //   console.log('click')
-    // })
+    let circle = new Shape('circle', {r: 60, color: 'red', fillMethod: 'fill', left: '10%', bottom: 0}, true)
+    this.wxCanvas.add(circle)
+    circle.bind('click', function () {
+      circle.updateOption({locY: '50%', locX: '50%', r: 100}, true)
+      _this.wxCanvas.update()
+    })
+    let circleImage = new Shape('circleImage', {r: 60, url: '/static/images/0.png', left: '10%', bottom: 0}, true)
+    this.wxCanvas.add(circleImage)
+    circleImage.bind('click', function () {
+      circleImage.updateOption({locX: 'center', y: 0, r: 200}, true)
+      _this.wxCanvas.update()
+      console.log('click')
+    })
+    let rect = new Shape('rect', {w: 300, h: 300, color: 'red', locX: 'center', bottom: 0}, true)
+    this.wxCanvas.add(rect)
+    rect.bind('click', function () {
+      rect.updateOption({right: '50%', bottom: 10, w: 100, h: 100}, true)
+      _this.wxCanvas.update()
+      console.log('click')
+    })
+    let image = new Shape('rect', {w: 100, h: 100, url: '/static/images/0.png', locX: 'center', bottom: 0}, true)
+    this.wxCanvas.add(image)
+    image.bind('click', function () {
+      image.updateOption({left: 0, bottom: '50%', w: 100, h: 100}, true)
+      _this.wxCanvas.update()
+      console.log('click')
+    })
+    let roundRect = new Shape('roundRect', {w: 100, h: 100, r: 20, locX: 'center', bottom: 0}, true)
+    this.wxCanvas.add(roundRect)
+    roundRect.bind('click', function () {
+      roundRect.updateOption({left: 0, bottom: 0, w: 100, h: 200}, true)
+      _this.wxCanvas.update()
+      console.log('click')
+    })
+    let text = new Shape('text', {text: '嘿嘿嘿', h: 30, fontSize: 12, locX: 'center', bottom: 0}, true)
+    this.wxCanvas.add(text)
+    text.bind('click', function () {
+      text.updateOption({x: 120}, true)
+      _this.wxCanvas.update()
+      console.log('click')
+    })
   },
   methods: {
     // 触摸开始
@@ -169,7 +170,7 @@ export default {
     },
     handleConfirm () {
       console.log('confirm')
-    }
+    },
     // // 清除所有图形
     // handleBtnClear () {
     //   this.wxCanvas.clear()
@@ -204,10 +205,14 @@ export default {
     //   }, 30)
     // },
     // handleReset () {
-    //   this.program.updateOption({w: 0, x: 20}, true)
-    //   this.wxCanvas.delete(this.complete)
+    //   // this.program.updateOption({w: 0, x: 20}, true)
+    //   // this.wxCanvas.delete(this.complete)
     //   this.wxCanvas.draw()
     // },
+    handleTest () {
+      console.log('click')
+      this.wxCanvas.saveImage()
+    }
   }
 }
 </script>
