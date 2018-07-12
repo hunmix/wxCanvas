@@ -779,6 +779,12 @@ class Image {
     this.y = drawData.y || 0
     this.w = drawData.w
     this.h = drawData.h
+    this.left = drawData.left
+    this.right = drawData.right
+    this.top = drawData.top
+    this.bottom = drawData.bottom
+    this.locX = drawData.locX
+    this.locY = drawData.locY
     this.type = 'image'
     this.scale = drawData.scale || null
   }
@@ -851,15 +857,15 @@ class Image {
         switch (key) {
           case 'x':
             this.x = option.x * this.scale.x
-            this.left = null
-            this.right = null
-            this.locX = null
+            this.left = undefined
+            this.right = undefined
+            this.locX = undefined
             break
           case 'y':
             this.y = option.y * this.scale.y
-            this.top = null
-            this.bottom = null
-            this.locY = null
+            this.top = undefined
+            this.bottom = undefined
+            this.locY = undefined
             break
           case 'w':
             this.w = option.w * this.scale.x
@@ -1359,15 +1365,15 @@ class RoundRect {
         switch (key) {
           case 'x':
             this.x = option.x * this.scale.x
-            this.left = null
-            this.right = null
-            this.locX = null
+            this.left = undefined
+            this.right = undefined
+            this.locX = undefined
             break
           case 'y':
             this.y = option.y * this.scale.y
-            this.top = null
-            this.bottom = null
-            this.locY = null
+            this.top = undefined
+            this.bottom = undefined
+            this.locY = undefined
             break
           case 'w':
             this.w = option.w * this.scale.x
@@ -1761,6 +1767,7 @@ class Line {
     this.x2 = drawData.x2 || 0
     this.y2 = drawData.y2 || 0
     this.w = drawData.w || 1
+    this.fillMethod = drawData.fillMethod || 'stroke'
     this.color = drawData.color
     this.type = 'line'
     this.scale = drawData.scale || null
@@ -1854,6 +1861,9 @@ class Line {
       }
       this[key] = option[key]
     }
+  }
+  getAbsolutLocation () {
+    console.log('我被调用了,但是我p事不干')
   }
 }
 export {WxCanvas, Shape}

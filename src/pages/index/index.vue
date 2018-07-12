@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import {WxCanvas, Shape} from '../../utils/wxCanvas'
+// import {WxCanvas, Shape} from '../../utils/wxCanvas'
 export default {
   data () {
     return {
@@ -48,10 +48,10 @@ export default {
     }
   },
   mounted () {
-    let _this = this
-    let ctx = wx.createCanvasContext('canvas', this)
-    this.wxCanvas = new WxCanvas(ctx, this.config)
-    this.canvasSize = this.wxCanvas.initCanvasInfo()
+    // let _this = this
+    // let ctx = wx.createCanvasContext('canvas', this)
+    // this.wxCanvas = new WxCanvas(ctx, this.config)
+    // this.canvasSize = this.wxCanvas.initCanvasInfo()
     // let bg = new Shape('roundRect', {w: 710, h: 940, color: '#fff', r: 20, fillMethod: 'fill'})
     // let image = new Shape('image', {w: 710, h: 747, url: '/static/images/0.png', imgW: 710, imgH: 747})
     // let country1 = new Shape('text', {text: '德国', x: 186, y: 245, h: 34, fontSize: 18, color: '#fff', fillMethod: 'fill'})
