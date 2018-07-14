@@ -88,19 +88,25 @@ class CircleImage {
   updateOption (option, calcScale) {
     // 改变的数据里有xy则根据calcScale参数决定是否进行缩放计算，并将绝对定位属性置空，避免新的x,y属性失效
     for (let key in option) {
+      switch (key) {
+        case 'x':
+          this.left = undefined
+          this.right = undefined
+          this.locX = undefined
+          break
+        case 'y':
+          this.top = undefined
+          this.bottom = undefined
+          this.locY = undefined
+          break
+      }
       if (calcScale) {
         switch (key) {
           case 'x':
             this.x = option.x * this.scale.x
-            this.left = undefined
-            this.right = undefined
-            this.locX = undefined
             break
           case 'y':
             this.y = option.y * this.scale.y
-            this.top = undefined
-            this.bottom = undefined
-            this.locY = undefined
             break
           case 'r':
             this.r = option.r * this.scale.x
@@ -108,6 +114,8 @@ class CircleImage {
           default :
             this[key] = option[key]
         }
+      } else {
+        this[key] = option[key]
       }
     }
     this.resetAbsoluteLocationInfo(option)

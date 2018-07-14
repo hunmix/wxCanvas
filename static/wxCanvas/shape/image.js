@@ -82,19 +82,25 @@ class Image {
   // 更新图形信息时候是否需要重新计算真实宽高
   updateOption (option, calcScale) {
     for (let key in option) {
+      switch (key) {
+        case 'x':
+          this.left = undefined
+          this.right = undefined
+          this.locX = undefined
+          break
+        case 'y':
+          this.top = undefined
+          this.bottom = undefined
+          this.locY = undefined
+          break
+      }
       if (calcScale) {
         switch (key) {
           case 'x':
             this.x = option.x * this.scale.x
-            this.left = undefined
-            this.right = undefined
-            this.locX = undefined
             break
           case 'y':
             this.y = option.y * this.scale.y
-            this.top = undefined
-            this.bottom = undefined
-            this.locY = undefined
             break
           case 'w':
             this.w = option.w * this.scale.x
@@ -105,6 +111,8 @@ class Image {
           default:
             this[key] = option[key]
         }
+      } else {
+        this[key] = option[key]
       }
     }
     this.resetAbsoluteLocationInfo(option)

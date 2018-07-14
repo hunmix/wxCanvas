@@ -128,13 +128,18 @@ class Text {
   // 更新图形信息时候是否需要重新计算真实宽高
   updateOption (option, calcScale) {
     for (let key in option) {
+      switch (key) {
+        case 'x':
+          this.x = option.x * this.scale.x
+          this.locX = undefined
+          this.left = undefined
+          this.right = undefined
+          break
+      }
       if (calcScale) {
         switch (key) {
           case 'x':
             this.x = option.x * this.scale.x
-            this.locX = undefined
-            this.left = undefined
-            this.right = undefined
             break
           case 'y':
             this.y = option.y * this.scale.y
@@ -145,6 +150,8 @@ class Text {
           default:
             this[key] = option[key]
         }
+      } else {
+        this[key] = option[key]
       }
       this.resetAbsoluteLocationInfo(option)
     }

@@ -5,19 +5,26 @@ import {Line} from './line'
 import {Rect} from './rect'
 import {RoundRect} from './roundRect'
 import {Text} from './text'
-import {Animation} from './../animation/animation'
+import {AnimationControl} from './../animation/animationControl'
+import { EventBus } from '../eventBus/eventBus'
+import {drawAnimationStep} from './../animation/calcFunction'
 // 图形
 class Shape {
   constructor (type, drawData, dragable) {
     this.Shape = createShape[type](drawData)
     this.dragable = dragable
-    this.animation = new Animation()
+    this.watch = new AnimationControl()
+    this._bus = new EventBus()
+    this.animationStore = []
+    this.completeAnimationStore = []
     this.eventList = {
       'click': [],
       'longpress': []
     }
   }
   draw (ctx, scale, realSize) {
+    this.scale = scale
+    this.realSize = realSize
     // 判断是否是第一次计算比例
     if (this.isNeedCalcRatio()) {
       this.Shape.calcInfo(scale)
@@ -48,7 +55,6 @@ class Shape {
   }
   clone () {
     let option = Object.assign({}, this.Shape)
-    console.log(option)
     return new Shape(this.Shape.type, option, this.dragable)
   }
   updateOption (option, calcScale, dragable) {
@@ -56,50 +62,103 @@ class Shape {
     this.Shape.updateOption(option, calcScale)
     this.bus.emit('update')
   }
+  // 将动画信息存到animationStore
   animate (option, duration) {
-    console.log('animate')
-    this.animation.add(option, duration)
+    this.animationStore.push([option, duration])
     return this
   }
-  start (num) {
-    this._beginAnimation()
-  }
-  _beginAnimation (duration) {
+  start (loopTime, calcScale) {
     let _this = this
-    this.animation.animationStore.forEach(function (value) {
-      let option = value[0]
-      let duration = value[1]
-      let num = 1
-      let startTime = new Date().getTime()
-      let timer = setInterval(function () {
-        let animationOption = _this._calcAnimationInfo(option, duration, num)
-        _this.updateOption(animationOption)
-        num++
-        if ((new Date().getTime() - startTime) >= duration) {
-          clearInterval(timer)
-          console.log('time end')
-        }
-      }, 30)
-    })
+    this.watch.running = true // 动画开始
+    this.watch.setLoop(loopTime) // 设置循环次数
+    this.watch.setStartTime() // 设置开始时间
+    this.startOption = Object.assign({}, this.Shape) // 记录初始值
+    console.log(this.startOption)
+    function stepAnimation () { // 递归实现动画循环
+      drawAnimationStep(stepAnimation)
+      _this.watch.isRunning() && _this._updateStep()
+    }
+    stepAnimation()
   }
-  _calcAnimationInfo (option, duration, num) {
-    let pattern = /[+-]\d*/
-    for (let key in option) {
-      switch (key) {
-        case 'r' :
-          let value = option[key]
-          if (isNaN(value)) {
-            value = Number(value.match(pattern))
-          }
-          let oldR = this.Shape.r || 0
-          let step = value / 1000 * 30
-          option.r = oldR + step * num
-          console.log(option.r)
-          break
+  stop () {
+    this.watch.stop()
+  }
+  // 更新动画
+  _updateStep () {
+    let _this = this
+    let goesByTime = this.watch.getGoesbyTime()
+    let nowAnimation = this.animationStore[0]
+    let duration = nowAnimation[1]
+    let animationInfo = nowAnimation[0]
+    let option = this._calcAnimationInfo(animationInfo, duration) // 处理动画数据，每一步动画移动的坐标
+    this.updateOption(option)
+    // 是否结束动画
+    if (goesByTime >= duration) {
+      console.log('-------------------超帅的step分割线--------------------')
+      let completeAnimation = this.animationStore.shift()
+      // console.log(this.animationStore)
+      this.completeAnimationStore.push(completeAnimation)
+      this.tempOption = Object.assign({}, this.Shape)
+      _this.watch.setStartTime()
+      if (this.animationStore.length === 0) {
+        // 循环是否结束，没结束则将已完成的动画push到animationStore再画一遍
+        if (_this.watch.loop === true || --_this.watch.loop > 0) {
+          this.updateOption(this.startOption) // 重新循环时重置初始属性
+        } else if (--_this.watch.loop <= 0) {
+          _this.watch.running = false
+        }
+        // 把已完成动画扔回去，一遍下一次start可以用
+        this.completeAnimationStore.forEach((animationInfo) => {
+          this.animationStore.push(animationInfo)
+        })
+        // 已完成动画置空
+        this.completeAnimationStore = []
+        // 中间点置空
+        this.tempOption = null
       }
     }
-    return option
-    // let num = Number(string.match(pattern))
+  }
+  _calcAnimationInfo (option, duration) {
+    let _this = this
+    let nowOption = {}
+    let keys = Object.keys(option)
+    keys.forEach((key) => {
+      let changedLen = _this._judgePositionMethod(option[key], duration, key)
+      if (_this.tempOption) {
+        nowOption[key] = _this.tempOption[key] + changedLen
+      } else {
+        nowOption[key] = _this.startOption[key] + changedLen
+      }
+    })
+    console.log(nowOption)
+    return nowOption
+  }
+  // 暂时只支持改变x, y的动画
+  // 添加getCenterPosition方法获取原来中心点坐标在计算，一个想法，记录一哈
+  _judgePositionMethod (animationInfo, duration, key) {
+    let num = null
+    let changedLen = null
+    let option = null
+    if (typeof animationInfo === 'number') {
+      if (this.tempOption) {
+        option = this.tempOption
+      } else {
+        option = this.startOption
+      }
+      changedLen = (animationInfo - option[key]) * this.watch.getGoesbyTime() / duration
+      console.log(this.startOption[key])
+    } else if (animationInfo.indexOf('+') !== -1 || animationInfo.indexOf('-') !== -1) {
+      num = this._getNumber(animationInfo)
+      console.log(this.startOption)
+      changedLen = num * this.watch.getGoesbyTime() / duration
+    }
+    console.log(changedLen)
+    return changedLen
+  }
+  // 获取属性数值，和图形方法重复了，待提取
+  _getNumber (animationInfo) {
+    let pattern = /[-+]\d*/
+    return Number(animationInfo.match(pattern)[0])
   }
 }
 let createShape = {

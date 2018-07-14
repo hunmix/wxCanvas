@@ -30,11 +30,9 @@ class EventBus {
   }
   // 触发事件
   emit (name, data) {
-    console.log('emit')
     let callbacks = this.eventList[name]
     if (Array.isArray(callbacks)) {
       callbacks.forEach((eventInfo) => {
-        console.log(eventInfo)
         let _self = eventInfo[0]
         let callback = eventInfo[1]
         callback.call(_self, data)

@@ -82,19 +82,27 @@ class Rect {
   }
   updateOption (option, calcScale) {
     for (let key in option) {
+      switch (key) {
+        case 'x':
+          this.x = option.x * this.scale.x
+          this.left = undefined
+          this.right = undefined
+          this.locX = undefined
+          break
+        case 'y':
+          this.y = option.y * this.scale.y
+          this.top = undefined
+          this.bottom = undefined
+          this.locY = undefined
+          break
+      }
       if (calcScale) {
         switch (key) {
           case 'x':
             this.x = option.x * this.scale.x
-            this.left = undefined
-            this.right = undefined
-            this.locX = undefined
             break
           case 'y':
             this.y = option.y * this.scale.y
-            this.top = undefined
-            this.bottom = undefined
-            this.locY = undefined
             break
           case 'w':
             this.w = option.w * this.scale.x
@@ -105,6 +113,8 @@ class Rect {
           default:
             this[key] = option[key]
         }
+      } else {
+        this[key] = option[key]
       }
     }
     this.resetAbsoluteLocationInfo(option)
@@ -150,7 +160,6 @@ class Rect {
     let property = null // 改变x或y的值
     let type = null // 根据种类调用不同计算
     let rectProperty = null
-    console.log(this.locX)
     if (this.locX !== undefined) {
       loc = this.locX
       size = realSize.w
@@ -214,7 +223,6 @@ class Rect {
         }
         break
       case 'left&top' :
-        console.log('in left&top')
         if (typeof loc === 'number') {
           this[property] = loc
         } else if (loc.indexOf('%') !== -1) {
