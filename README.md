@@ -57,6 +57,7 @@ this.canvasSize = this.wxCanvas.initCanvasInfo()
 type | String|是| 形状类型：rect,circle,roundRect,image,circleImage,text,line
 drawData | Object|是| 形状参数，宽高，x，y，颜色，绘画方式之类的
 dragable | Boolean|是| 是否可拖动，默认false
+
 **创建一个可拖动的矩形**
 ```
 let rect = new Shape('rect', {x: 100, y: 100, w: 100, h: 100, color: 'blue', fillMethod: 'fill'}, true)
@@ -94,6 +95,7 @@ rect2.updateOption({color: 'red, locX: 'center', locY: 'center'})
 :-: | :-: | :-: |:-:|
 type | String|是| 事件类型（只有点击类型） click
 method | Object|是| 回调函数
+
 **bind(): 绑定事件（现在只有点击事件可以绑定，而且没有取消的，嘻嘻）**
 
 参数 | 类型| 必填|说明
@@ -101,13 +103,16 @@ method | Object|是| 回调函数
 type | String|是| 事件类型（只有点击类型） click
 method | Object|是| 回调函数
 未完善的充满bug的功能
+
 ----
+
 **animate()：增加动画**
 
 参数 | 类型| 必填|说明
 :-: | :-: | :-: |:-:|
 option | Object|是| 现在只支持x, y, r, w, h的动画，而且不能自适应缩放- -只能px为单位。两种写法：'+10', '-10'or  10。增加10或者到10位置这样子
 duration | Number|是| 持续时间
+
 **start()：开始动画**
 
 参数 | 类型| 必填|说明
@@ -120,6 +125,7 @@ rect.animate({x: '+100', y: '+100'}, 1000).animate({x: 100,y: 100}, 1000).start(
 ```
 
 ### 各种图形
+
 **注：若方向不填则默认X,y的默认值，left，right，loc等优先级高于x，y**
 **Circle: 圆**
 
@@ -140,6 +146,7 @@ locY | Number, String|否| 图形**中点**到上边距离，可选值：数字�
 // 圆
 let circle = new Shape({locX: 50%, y: 100, r: 10, fillMethod: 'fill', color: 'red'})
 ```
+
 **CircleImage: 圆形图片，放个头像啥的**(模拟器图片可能会超出圆，真机没问题)
 
 参数 | 类型| 必填|说明
@@ -160,6 +167,7 @@ locY | Number, String|否| 图形**中点**到上边距离，可选值：数字�
 // 圆形图片
 let circleImage = new Shape({locX: 50%, y: 100, r: 10, url: 'XXX/XXX.png'})
 ```
+
 **Rect: 矩形**
 
 参数 | 类型| 必填|说明
@@ -180,6 +188,7 @@ locY | Number, String|否| 图形**中点**到上边距离，可选值：数字�
 // 矩形
 let rect = new Shape({locX: 50%, y: 100, w: 10, h: 10, fillMethod: 'fill', color: 'blue'})
 ```
+
 **RoundRect: 圆角矩形**
 
 参数 | 类型| 必填|说明
@@ -199,8 +208,10 @@ locX | Number, String|否| 图形**中点**到左边距离，可选值：数字�
 locY | Number, String|否| 图形**中点**到上边距离，可选值：数字，百分比, 'center'（居中，即50%）。
 ```
 // 圆角矩形
+
 let roundRect = new Shape({locX: 50%, y: 100, w: 50, h: 50, r: 10, fillMethod: 'fill', color: 'blue'})
 ```
+
 **Image: 图片**
 
 参数 | 类型| 必填|说明
@@ -218,6 +229,7 @@ top | Number, String|否| 同上，方向换一换
 bottom | Number, String|否| 同上，方向换一换
 locX | Number, String|否| 图形**中点**到左边距离，可选值：数字，百分比, 'center'（居中，即50%）。
 locY | Number, String|否| 图形**中点**到上边距离，可选值：数字，百分比, 'center'（居中，即50%）。
+
 ```
 // 图片
 let image = new Shape({locX: 50%, y: 100, w: 50, h: 50, url: 'XXX/XXX.png'})
@@ -240,10 +252,12 @@ top | Number, String|否| 同上，方向换一换
 bottom | Number, String|否| 同上，方向换一换
 locX | Number, String|否| 图形**中点**到左边距离，可选值：数字，百分比, 'center'（居中，即50%）。
 locY | Number, String|否| 图形**中点**到上边距离，可选值：数字，百分比, 'center'（居中，即50%）。
+
 ```
 // 文字
 let text = new Shape({text: '嘿嘿嘿', locX: 50%, y: 100, h: 30, fillMethod: 'fill', color: '#000'})
 ```
+
 **Line: 线条**（不支持动画，拖动）
 
 参数 | 类型| 必填|说明
@@ -255,10 +269,12 @@ y1 | Number|是| 默认0， 第一个坐标点y坐标
 x2 | Number|是| 默认0， 第二个坐标点x坐标
 y2 | Number|是| 默认0， 第二个坐标点y坐标
 w | Number|否| 线段粗细， 默认1
+
 ```
 // 图片
 let line = new Shape({x:0, y: 0, x2: 100, y2: 100, w: 3, fillMethod: 'fill', color: '#000'})
 ```
+
 > **感谢dalao的源码，虽然并看不懂，但是还是给了很多帮助，地址在右边 [这是地址](https://github.com/bobiscool/wxDraw)**
 
-###Over ， 一起来玩bug吧 !### 
+### Over ， 一起来玩bug吧 ! 
