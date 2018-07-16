@@ -155,4 +155,4 @@ class WxCanvas {
   }
 }
 
-export {WxCanvas, Shape}
+export default {WxCanvas, Shape}

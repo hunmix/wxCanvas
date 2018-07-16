@@ -27,7 +27,8 @@
 </template>
 
 <script>
-import {WxCanvas, Shape} from './../../../static/wxCanvas/index'
+// import {WxCanvas, Shape} from './../../../static/wxCanvas/index'
+import {WxCanvas, Shape} from '/src/utils/wxCanvas'
 export default {
   data () {
     return {
@@ -93,7 +94,7 @@ export default {
     //   // circleImage.updateOption({locX: 'center', y: 0, r: 200}, true)
     //   circleImage.start()
     // })
-    this.rect = new Shape('rect', {w: 50, h: 50, color: 'green', x: 50, y: 0}, true)
+    this.rect = new Shape('rect', {w: 150, h: 150, color: 'green', x: 50, y: 100}, true)
     this.circle = new Shape('circle', {r: 50, x: 250, y: 250, color: 'blue'})
     this.circle1 = new Shape('circle', {r: 50, locX: '80%', locY: '50%', color: 'red'})
     this.roundRect = new Shape('roundRect', {r: 10, h: 150, w: 150, color: 'green', x: 50, y: 50})
