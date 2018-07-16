@@ -97,18 +97,23 @@ class WxCanvas {
     this.store.delete(item)
     this.draw()
   }
-  // 待改，没用上= =
   update () {
     this.draw()
   }
-  // 保存图片，外部调用
-  saveImage () {
+  /* 保存图片，外部调用
+  * @param {boolean} useShowLoading 是否使用提示
+  * @param {string} loadingText 提示文字
+  */
+  saveImage (useShowLoading, loadingText = '保存中...') {
     console.log('save')
+    useShowLoading && wx.showLoading({
+      title: loadingText
+    })
     var _this = this
     wx.authorize({
       scope: 'scope.writePhotosAlbum',
       success () {
-        _this._saveCanvasToPthotosAlbum()
+        _this._saveCanvasToPthotosAlbum(useShowLoading)
       },
       fail () {
         console.log('授权失败')
@@ -116,17 +121,33 @@ class WxCanvas {
     })
   }
   // 保存canvas到相册
-  _saveCanvasToPthotosAlbum () {
+  _saveCanvasToPthotosAlbum (useShowLoading) {
     let _this = this
     console.log(_this.canvas)
+    // canvas转图片并获取路径
     wx.canvasToTempFilePath({
       canvasId: _this.canvas.canvasId,
       success: function (res) {
         console.log(res.tempFilePath)
+        // 获取路径后保存图片到相册s
         wx.saveImageToPhotosAlbum({
           filePath: res.tempFilePath,
+          success () {
+            // 成功之后关掉loading并提示已保存
+            if (useShowLoading) {
+              wx.hideLoading()
+              wx.showToast({
+                title: '已保存到相册',
+                icon: 'success',
+                duration: 1000
+              })
+            }
+          },
           fail (err) {
-            console.log(err)
+            if (useShowLoading) {
+              wx.hideLoading()
+            }
+            console.warn(err)
           }
         })
       }

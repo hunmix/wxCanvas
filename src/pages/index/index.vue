@@ -5,7 +5,7 @@
       <button @tap="handleBtnDelete">删除</button>
       <button @tap="handleBtnResume">恢复</button>
       <button @tap="handleBtnClear">清空</button>
-      <button @tap="handleBtnDeleteYellowCircle">删圆</button>
+      <button @tap="handleBtnDeleteYellowCircle">改圆</button>
     </div>
     <canvas class="canvas-cantainer"
       canvas-id="canvas" 
@@ -93,16 +93,33 @@ export default {
     //   // circleImage.updateOption({locX: 'center', y: 0, r: 200}, true)
     //   circleImage.start()
     // })
-    this.rect = new Shape('rect', {w: 50, h: 50, color: 'green', x: 0, y: 0})
-    this.circle = new Shape('circle', {r: 50, locX: '50%', locY: '50%', color: 'blue'})
+    this.rect = new Shape('rect', {w: 50, h: 50, color: 'green', x: 50, y: 0}, true)
+    this.circle = new Shape('circle', {r: 50, x: 250, y: 250, color: 'blue'})
+    this.circle1 = new Shape('circle', {r: 50, locX: '80%', locY: '50%', color: 'red'})
+    this.roundRect = new Shape('roundRect', {r: 10, h: 150, w: 150, color: 'green', x: 50, y: 50})
+    this.image = new Shape('image', {w: 300, h: 200, url: '/static/images/0.png', imgW: 710, imgH: 747})
+    this.circleImage = new Shape('circleImage', {x: 298, y: 677, r: 61, imgW: 200, imgH: 200, url: '/static/images/1.png'}, true)
+    this.text = new Shape('text', {text: '点击输入文字', fontSize: 18, x: 359.5, y: 831, h: 25.5, fillMethod: 'fill', color: '#000', align: 'center'}, true)
     this.rect1 = this.rect.clone()
     this.wxCanvas.add(this.rect)
-    this.wxCanvas.add(this.rect1)
+    // this.wxCanvas.add(this.rect1)
     this.wxCanvas.add(this.circle)
-    this.rect1.updateOption({color: 'red'})
-    this.rect.animate({x: 375, w: 50, h: 50}, 1000).animate({y: 667, w: 25, h: 25}, 1000).animate({x: 0, w: 50, h: 50}, 1000).animate({y: 0, w: 25, h: 25}, 1000).start(true)
-    this.rect1.animate({x: 375, w: 50, h: 50}, 1000).animate({y: 667, w: 25, h: 25}, 1000).animate({x: 0, w: 50, h: 50}, 1000).animate({y: 0, w: 25, h: 25}, 1000).start(true)
-    this.circle.animate({r: 50}, 1000).animate({r: 25}, 1000).animate({r: 50}, 1000).animate({r: 25}, 1000).start(true)
+    this.wxCanvas.add(this.circle1)
+    this.wxCanvas.add(this.roundRect)
+    this.wxCanvas.add(this.image)
+    this.wxCanvas.add(this.circleImage)
+    this.wxCanvas.add(this.text)
+    // this.rect1.updateOption({color: 'red'})
+    this.rect.updateOption({color: 'red', x: 50, w: 50}, false)
+    this.roundRect.updateOption({color: 'red', h: 150, w: 150, x: 50, y: 50}, true)
+    this.roundRect.animate({x: '+50', y: '+50'}, 1000, true).start(1)
+    this.circle.updateOption({x: 250, y: 250, r: 50})
+    this.image.updateOption({locX: '50%', locY: '50%', r: 50}, true)
+    this.circleImage.updateOption({x: 298, y: 677, r: 61, imgW: 200, imgH: 200}, true)
+    this.text.updateOption({locX: '50%', locY: '50%', color: 'red'})
+    // this.rect.animate({x: 375, w: 50, h: 50}, 1000).animate({y: 667, w: 25, h: 25}, 1000).animate({x: 0, w: 50, h: 50}, 1000).animate({y: 0, w: 25, h: 25}, 1000).start(1)
+    // this.rect1.animate({x: 375, w: 50, h: 50}, 1000).animate({y: 667, w: 25, h: 25}, 1000).animate({x: 0, w: 50, h: 50}, 1000).animate({y: 0, w: 25, h: 25}, 1000).start(1)
+    // this.circle.animate({r: 50}, 1000).animate({r: 25}, 1000).animate({r: 50}, 1000).animate({r: 25}, 1000).start(1)
     // rect.bind('click', function () {
     //   // rect.updateOption({right: '50%', bottom: 10, w: 100, h: 100}, true)
     //   rect.start()
@@ -172,7 +189,6 @@ export default {
       } else {
         this.text.updateOption({text: value}, false)
       }
-      this.wxCanvas.update()
       e.mp.detail.value = ''
       this.isShowInput = false
     },
@@ -184,9 +200,9 @@ export default {
     //   this.wxCanvas.clear()
     // },
     // // 删除黄色圆
-    // handleBtnDeleteYellowCircle () {
-    //   this.wxCanvas.delete(this.circle)
-    // },
+    handleBtnDeleteYellowCircle () {
+      this.circle1.updateOption({x: 100, y: 0})
+    },
     // // 改变颜色
     // handleChangeColor () {
     //   if (this.circle.Shape.color === 'yellow') {
@@ -202,10 +218,10 @@ export default {
     handleReset () {
       // this.program.updateOption({w: 0, x: 20}, true)
       // this.wxCanvas.delete(this.complete)
-      this.rect.updateOption({w: 0})
+      this.rect.updateOption({x: 100, y: 100})
     },
     handleTest () {
-      this.wxCanvas.saveImage()
+      this.wxCanvas.saveImage(true)
     }
   }
 }

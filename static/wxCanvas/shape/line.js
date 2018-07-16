@@ -81,6 +81,7 @@ class Line {
   //   this.y = this.startY + this.offsetY
   // }
   updateOption (option, calcScale) {
+    // 待改= =先不动了
     for (let key in option) {
       if (calcScale) {
         console.log('in calc')

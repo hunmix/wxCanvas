@@ -1,3 +1,4 @@
+import {commonUtils} from './commonUtils'
 // 圆角矩形
 class RoundRect {
   constructor (drawData) {
@@ -100,80 +101,56 @@ class RoundRect {
   }
   // 更新图形信息时候是否需要重新计算真实宽高
   updateOption (option, calcScale) {
-    for (let key in option) {
-      switch (key) {
-        case 'x':
-          this.x = option.x * this.scale.x
-          this.left = undefined
-          this.right = undefined
-          this.locX = undefined
-          break
-        case 'y':
-          this.y = option.y * this.scale.y
-          this.top = undefined
-          this.bottom = undefined
-          this.locY = undefined
-          break
-      }
+    // ----------------------可能会有问题-----------------------------------------------
+    // 一坨方法放在commonUtils里面
+    let keyArr = Object.keys(option)
+    if (keyArr.length !== 0) {
+      this.resetXY(keyArr)
       if (calcScale) {
-        switch (key) {
-          case 'x':
-            this.x = option.x * this.scale.x
-            break
-          case 'y':
-            this.y = option.y * this.scale.y
-            break
-          case 'w':
-            this.w = option.w * this.scale.x
-            break
-          case 'h':
-            this.h = option.h * this.scale.x
-            break
-          case 'r':
-            this.r = option.r * this.scale.x
-            break
-          default:
-            this[key] = option[key]
-        }
+        this.calcScaleValue(keyArr, option, this.scale)
       } else {
-        this[key] = option[key]
+        this.calcScaleValue(keyArr, option, false)
       }
+      this.getOptionValue(keyArr, option)
     }
-    this.resetAbsoluteLocationInfo(option)
-  }
-  resetAbsoluteLocationInfo (option) {
-    if (option.left) {
-      this.left = option.left
-      this.right = undefined
-      this.locX = undefined
-    }
-    if (option.right) {
-      this.right = option.right
-      this.left = undefined
-      this.locX = undefined
-    }
-    if (option.top) {
-      this.top = option.top
-      this.bottom = undefined
-      this.locY = undefined
-    }
-    if (option.bottom) {
-      this.bottom = option.bottom
-      this.top = undefined
-      this.locY = undefined
-    }
-    if (option.locX) {
-      this.locX = option.locX
-      this.left = undefined
-      this.right = undefined
-    }
-    if (option.locY) {
-      this.locY = option.locY
-      this.top = undefined
-      this.bottom = undefined
-    }
+    // 如果有left, right啥啥啥的，就重置同方向的定位属性，避免影响
+    this.resetAbsoluteInfo(keyArr, option)
     this.getAbsolutLocation(this.realSize)
+    // this.resetAbsoluteLocationInfo(option)
   }
+  // resetAbsoluteLocationInfo (option) {
+  //   if (option.left) {
+  //     this.left = option.left
+  //     this.right = undefined
+  //     this.locX = undefined
+  //   }
+  //   if (option.right) {
+  //     this.right = option.right
+  //     this.left = undefined
+  //     this.locX = undefined
+  //   }
+  //   if (option.top) {
+  //     this.top = option.top
+  //     this.bottom = undefined
+  //     this.locY = undefined
+  //   }
+  //   if (option.bottom) {
+  //     this.bottom = option.bottom
+  //     this.top = undefined
+  //     this.locY = undefined
+  //   }
+  //   if (option.locX) {
+  //     this.locX = option.locX
+  //     this.left = undefined
+  //     this.right = undefined
+  //   }
+  //   if (option.locY) {
+  //     this.locY = option.locY
+  //     this.top = undefined
+  //     this.bottom = undefined
+  //   }
+  //   this.getAbsolutLocation(this.realSize)
+  // }
   // 根据设置方法不同设置不同参数
   getAbsolutLocation (realSize) {
     let loc = null // 方向
@@ -221,7 +198,6 @@ class RoundRect {
       type = 'right&bottom'
       this.setLocPosition(loc, size, property, rectProperty, type)
     }
-    console.log(this.bottom)
     if (this.bottom !== undefined) {
       loc = this.bottom
       size = realSize.h
@@ -271,5 +247,5 @@ class RoundRect {
     return Number(value.substring(0, len - 1))
   }
 }
-
+RoundRect.prototype = Object.assign(RoundRect.prototype, commonUtils)
 export {RoundRect}

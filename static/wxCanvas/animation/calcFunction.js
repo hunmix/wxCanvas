@@ -4,6 +4,3 @@ export function drawAnimationStep (callback) {
     callback()
   }, 30)
 }
-export function judgePositionMethod () {
-  console.log('我被调用了')
-}

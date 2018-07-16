@@ -1,3 +1,4 @@
+import {commonUtils} from './commonUtils'
 // 圆形图片
 class CircleImage {
   constructor (drawData) {
@@ -13,8 +14,8 @@ class CircleImage {
     this.bottom = drawData.bottom
     this.locX = drawData.locX
     this.locY = drawData.locY
-    this.w = drawData.w
-    this.h = drawData.h
+    this.imgW = drawData.imgW
+    this.imgH = drawData.imgH
     this.url = drawData.url
     this.type = 'circleImage'
     this.scale = drawData.scale || null
@@ -38,7 +39,7 @@ class CircleImage {
     ctx.beginPath()
     ctx.arc(this.x + this.r, this.y + this.r, this.r, 0, 2 * Math.PI)
     ctx.clip()
-    ctx.drawImage(this.url, 0, 0, this.w, this.h, this.x, this.y, this.r * 2, this.r * 2)
+    ctx.drawImage(this.url, 0, 0, this.imgW, this.imgH, this.x, this.y, this.r * 2, this.r * 2)
     ctx.restore()
   }
   // 判定范围
@@ -87,74 +88,57 @@ class CircleImage {
   // 更新图形信息时候是否需要重新计算真实宽高
   updateOption (option, calcScale) {
     // 改变的数据里有xy则根据calcScale参数决定是否进行缩放计算，并将绝对定位属性置空，避免新的x,y属性失效
-    for (let key in option) {
-      switch (key) {
-        case 'x':
-          this.left = undefined
-          this.right = undefined
-          this.locX = undefined
-          break
-        case 'y':
-          this.top = undefined
-          this.bottom = undefined
-          this.locY = undefined
-          break
-      }
+    // ----------------------可能会有问题-----------------------------------------------
+    // 一坨方法放在commonUtils里面
+    let keyArr = Object.keys(option)
+    if (keyArr.length !== 0) {
+      this.resetXY(keyArr)
       if (calcScale) {
-        switch (key) {
-          case 'x':
-            this.x = option.x * this.scale.x
-            break
-          case 'y':
-            this.y = option.y * this.scale.y
-            break
-          case 'r':
-            this.r = option.r * this.scale.x
-            break
-          default :
-            this[key] = option[key]
-        }
+        this.calcScaleValue(keyArr, option, this.scale)
       } else {
-        this[key] = option[key]
+        this.calcScaleValue(keyArr, option, false)
       }
+      this.getOptionValue(keyArr, option)
     }
-    this.resetAbsoluteLocationInfo(option)
-  }
-  resetAbsoluteLocationInfo (option) {
-    console.log('in reset :' + this.r)
-    console.log('reset')
-    if (option.left) {
-      this.left = option.left
-      this.right = undefined
-      this.locX = undefined
-    }
-    if (option.right) {
-      this.right = option.right
-      this.left = undefined
-      this.locX = undefined
-    }
-    if (option.top) {
-      this.top = option.top
-      this.bottom = undefined
-      this.locY = undefined
-    }
-    if (option.bottom) {
-      this.bottom = option.bottom
-      this.top = undefined
-      this.locY = undefined
-    }
-    if (option.locX) {
-      this.locX = option.locX
-      this.left = undefined
-      this.right = undefined
-    }
-    if (option.locY) {
-      this.locY = option.locY
-      this.top = undefined
-      this.bottom = undefined
-    }
+    // 如果有left, right啥啥啥的，就重置同方向的定位属性，避免影响
+    this.resetAbsoluteInfo(keyArr, option)
     this.getAbsolutLocation(this.realSize)
   }
+  // resetAbsoluteLocationInfo (option) {
+  //   console.log('in reset :' + this.r)
+  //   console.log('reset')
+  //   if (option.left) {
+  //     this.left = option.left
+  //     this.right = undefined
+  //     this.locX = undefined
+  //   }
+  //   if (option.right) {
+  //     this.right = option.right
+  //     this.left = undefined
+  //     this.locX = undefined
+  //   }
+  //   if (option.top) {
+  //     this.top = option.top
+  //     this.bottom = undefined
+  //     this.locY = undefined
+  //   }
+  //   if (option.bottom) {
+  //     this.bottom = option.bottom
+  //     this.top = undefined
+  //     this.locY = undefined
+  //   }
+  //   if (option.locX) {
+  //     this.locX = option.locX
+  //     this.left = undefined
+  //     this.right = undefined
+  //   }
+  //   if (option.locY) {
+  //     this.locY = option.locY
+  //     this.top = undefined
+  //     this.bottom = undefined
+  //   }
+  //   this.getAbsolutLocation(this.realSize)
+  // }
   // 根据设置方法不同设置不同参数
   getAbsolutLocation (realSize) {
     let loc = null // 方向
@@ -243,5 +227,7 @@ class CircleImage {
     return Number(value.substring(0, len - 1))
   }
 }
+
+CircleImage.prototype = Object.assign(CircleImage.prototype, commonUtils)
 
 export {CircleImage}

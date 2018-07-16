@@ -1,3 +1,4 @@
+import {commonUtils} from './commonUtils'
 // 文字
 class Text {
   constructor (drawData) {
@@ -127,68 +128,55 @@ class Text {
   }
   // 更新图形信息时候是否需要重新计算真实宽高
   updateOption (option, calcScale) {
-    for (let key in option) {
-      switch (key) {
-        case 'x':
-          this.x = option.x * this.scale.x
-          this.locX = undefined
-          this.left = undefined
-          this.right = undefined
-          break
-      }
+    // ----------------------可能会有问题-----------------------------------------------
+    // 一坨方法放在commonUtils里面
+    let keyArr = Object.keys(option)
+    if (keyArr.length !== 0) {
+      this.resetXY(keyArr)
       if (calcScale) {
-        switch (key) {
-          case 'x':
-            this.x = option.x * this.scale.x
-            break
-          case 'y':
-            this.y = option.y * this.scale.y
-            break
-          case 'h':
-            this.h = option.h * this.scale.x
-            break
-          default:
-            this[key] = option[key]
-        }
+        this.calcScaleValue(keyArr, option, this.scale)
       } else {
-        this[key] = option[key]
+        this.calcScaleValue(keyArr, option, false)
       }
-      this.resetAbsoluteLocationInfo(option)
+      this.getOptionValue(keyArr, option)
     }
-  }
-  resetAbsoluteLocationInfo (option) {
-    if (option.left) {
-      this.left = option.left
-      this.right = undefined
-      this.locX = undefined
-    }
-    if (option.right) {
-      this.right = option.right
-      this.left = undefined
-      this.locX = undefined
-    }
-    if (option.top) {
-      this.top = option.top
-      this.bottom = undefined
-      this.locY = undefined
-    }
-    if (option.bottom) {
-      this.bottom = option.bottom
-      this.top = undefined
-      this.locY = undefined
-    }
-    if (option.locX) {
-      this.locX = option.locX
-      this.left = undefined
-      this.right = undefined
-    }
-    if (option.locY) {
-      this.locY = option.locY
-      this.top = undefined
-      this.bottom = undefined
-    }
+    // 如果有left, right啥啥啥的，就重置同方向的定位属性，避免影响
+    this.resetAbsoluteInfo(keyArr, option)
     this.getAbsolutLocation(this.realSize)
   }
+  // resetAbsoluteLocationInfo (option) {
+  //   if (option.left) {
+  //     this.left = option.left
+  //     this.right = undefined
+  //     this.locX = undefined
+  //   }
+  //   if (option.right) {
+  //     this.right = option.right
+  //     this.left = undefined
+  //     this.locX = undefined
+  //   }
+  //   if (option.top) {
+  //     this.top = option.top
+  //     this.bottom = undefined
+  //     this.locY = undefined
+  //   }
+  //   if (option.bottom) {
+  //     this.bottom = option.bottom
+  //     this.top = undefined
+  //     this.locY = undefined
+  //   }
+  //   if (option.locX) {
+  //     this.locX = option.locX
+  //     this.left = undefined
+  //     this.right = undefined
+  //   }
+  //   if (option.locY) {
+  //     this.locY = option.locY
+  //     this.top = undefined
+  //     this.bottom = undefined
+  //   }
+  //   this.getAbsolutLocation(this.realSize)
+  // }
   getAbsolutLocation (realSize) {
     if (this.locX !== undefined) {
       this.align = 'center'
@@ -254,5 +242,7 @@ class Text {
     return Number(value.substring(0, len - 1))
   }
 }
+
+Text.prototype = Object.assign(Text.prototype, commonUtils)
 
 export {Text}

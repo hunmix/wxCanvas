@@ -1,13 +1,13 @@
 import {Circle} from './circle'
 import {CircleImage} from './circleImage'
-import {Image} from './image.js'
+import {Image} from './image'
 import {Line} from './line'
 import {Rect} from './rect'
 import {RoundRect} from './roundRect'
 import {Text} from './text'
-import {AnimationControl} from './../animation/animationControl'
+import {AnimationControl} from '../animation/animationControl'
 import { EventBus } from '../eventBus/eventBus'
-import {drawAnimationStep} from './../animation/calcFunction'
+import {drawAnimationStep} from '../animation/calcFunction'
 // 图形
 class Shape {
   constructor (type, drawData, dragable) {
