@@ -27,8 +27,9 @@
 </template>
 
 <script>
-// import {WxCanvas, Shape} from './../../../static/wxCanvas/index'
-import {WxCanvas, Shape} from '/src/utils/wxCanvas'
+// import {WxCanvas, Shape} from './../../../static/wxCanvas/index.js'
+import {WxCanvas, Shape} from './../../utils/wxCanvas'
+// import {heihei} from './../../utils/test'
 export default {
   data () {
     return {
@@ -49,7 +50,6 @@ export default {
     }
   },
   mounted () {
-    console.log('mounted')
     // let _this = this
     let ctx = wx.createCanvasContext('canvas', this)
     this.wxCanvas = new WxCanvas(ctx, this.config)
@@ -95,57 +95,28 @@ export default {
     //   circleImage.start()
     // })
     this.rect = new Shape('rect', {w: 150, h: 150, color: 'green', x: 50, y: 100}, true)
-    this.circle = new Shape('circle', {r: 50, x: 250, y: 250, color: 'blue'})
-    this.circle1 = new Shape('circle', {r: 50, locX: '80%', locY: '50%', color: 'red'})
-    this.roundRect = new Shape('roundRect', {r: 10, h: 150, w: 150, color: 'green', x: 50, y: 50})
-    this.image = new Shape('image', {w: 300, h: 200, url: '/static/images/0.png', imgW: 710, imgH: 747})
-    this.circleImage = new Shape('circleImage', {x: 298, y: 677, r: 61, imgW: 200, imgH: 200, url: '/static/images/1.png'}, true)
-    this.text = new Shape('text', {text: '点击输入文字', fontSize: 18, x: 359.5, y: 831, h: 25.5, fillMethod: 'fill', color: '#000', align: 'center'}, true)
-    this.rect1 = this.rect.clone()
+    // this.circle = new Shape('circle', {r: 50, x: 250, y: 250, color: 'blue'})
+    // this.circle1 = new Shape('circle', {r: 50, locX: '80%', locY: '50%', color: 'red'})
+    // this.roundRect = new Shape('roundRect', {r: 10, h: 150, w: 150, color: 'green', x: 50, y: 50})
+    // this.image = new Shape('image', {w: 300, h: 200, url: '/static/images/0.png', imgW: 710, imgH: 747})
+    // this.circleImage = new Shape('circleImage', {x: 298, y: 677, r: 61, imgW: 200, imgH: 200, url: '/static/images/1.png'}, true)
+    // this.text = new Shape('text', {text: '点击输入文字', fontSize: 18, x: 359.5, y: 831, h: 25.5, fillMethod: 'fill', color: '#000', align: 'center'}, true)
+    // this.rect1 = this.rect.clone()
     this.wxCanvas.add(this.rect)
-    // this.wxCanvas.add(this.rect1)
-    this.wxCanvas.add(this.circle)
-    this.wxCanvas.add(this.circle1)
-    this.wxCanvas.add(this.roundRect)
-    this.wxCanvas.add(this.image)
-    this.wxCanvas.add(this.circleImage)
-    this.wxCanvas.add(this.text)
-    // this.rect1.updateOption({color: 'red'})
+    // this.wxCanvas.add(this.circle)
+    // this.wxCanvas.add(this.circle1)
+    // this.wxCanvas.add(this.roundRect)
+    // this.wxCanvas.add(this.image)
+    // this.wxCanvas.add(this.circleImage)
+    // this.wxCanvas.add(this.text)
     this.rect.updateOption({color: 'red', x: 50, w: 50}, false)
-    this.roundRect.updateOption({color: 'red', h: 150, w: 150, x: 50, y: 50}, true)
-    this.roundRect.animate({x: '+50', y: '+50'}, 1000, true).start(1)
-    this.circle.updateOption({x: 250, y: 250, r: 50})
-    this.image.updateOption({locX: '50%', locY: '50%', r: 50}, true)
-    this.circleImage.updateOption({x: 298, y: 677, r: 61, imgW: 200, imgH: 200}, true)
-    this.text.updateOption({locX: '50%', locY: '50%', color: 'red'})
-    // this.rect.animate({x: 375, w: 50, h: 50}, 1000).animate({y: 667, w: 25, h: 25}, 1000).animate({x: 0, w: 50, h: 50}, 1000).animate({y: 0, w: 25, h: 25}, 1000).start(1)
-    // this.rect1.animate({x: 375, w: 50, h: 50}, 1000).animate({y: 667, w: 25, h: 25}, 1000).animate({x: 0, w: 50, h: 50}, 1000).animate({y: 0, w: 25, h: 25}, 1000).start(1)
-    // this.circle.animate({r: 50}, 1000).animate({r: 25}, 1000).animate({r: 50}, 1000).animate({r: 25}, 1000).start(1)
-    // rect.bind('click', function () {
-    //   // rect.updateOption({right: '50%', bottom: 10, w: 100, h: 100}, true)
-    //   rect.start()
-    // })
-    // let image = new Shape('rect', {w: 100, h: 100, url: '/static/images/0.png', locX: 'center', bottom: 0}, true)
-    // this.wxCanvas.add(image)
-    // image.bind('click', function () {
-    //   image.updateOption({left: 0, bottom: '50%', w: 100, h: 100}, true)
-    //   _this.wxCanvas.update()
-    //   console.log('click')
-    // })
-    // let roundRect = new Shape('roundRect', {w: 100, h: 100, r: 20, locX: 'center', bottom: 0}, true)
-    // this.wxCanvas.add(roundRect)
-    // roundRect.bind('click', function () {
-    //   roundRect.updateOption({left: 0, bottom: 0, w: 100, h: 200}, true)
-    //   _this.wxCanvas.update()
-    //   console.log('click')
-    // })
-    // let text = new Shape('text', {text: '嘿嘿嘿', h: 30, fontSize: 12, locX: 'center', bottom: 0}, true)
-    // this.wxCanvas.add(text)
-    // text.bind('click', function () {
-    //   text.updateOption({x: 120}, true)
-    //   _this.wxCanvas.update()
-    //   console.log('click')
-    // })
+    this.rect.animate({x: '+100', y: '+100', w: 200, h: 200}).start()
+    // this.roundRect.updateOption({color: 'red', h: 150, w: 150, x: 50, y: 50}, true)
+    // this.roundRect.animate({x: '+50', y: '+50'}, 1000, true).start(1)
+    // this.circle.updateOption({x: 250, y: 250, r: 50})
+    // this.image.updateOption({locX: '50%', locY: '50%', r: 50}, true)
+    // this.circleImage.updateOption({x: 298, y: 677, r: 61, imgW: 200, imgH: 200}, true)
+    // this.text.updateOption({locX: '50%', locY: '50%', color: 'red'})
   },
   methods: {
     // 触摸开始

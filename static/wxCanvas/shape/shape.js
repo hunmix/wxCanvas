@@ -63,7 +63,8 @@ class Shape {
     this.bus.emit('update')
   }
   // 将动画信息存到animationStore
-  animate (option, duration) {
+  animate (option, duration = 1000) {
+    console.log('duration')
     this.animationStore.push([option, duration])
     return this
   }
