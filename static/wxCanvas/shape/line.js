@@ -1,3 +1,4 @@
+import {commonUtils} from './commonUtils'
 // 直线
 class Line {
   constructor (drawData) {
@@ -107,5 +108,7 @@ class Line {
     console.log('我被调用了,但是我p事不干')
   }
 }
+
+Line.prototype = Object.assign(Line.prototype, commonUtils)
 
 export {Line}

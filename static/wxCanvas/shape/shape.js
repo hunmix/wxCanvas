@@ -27,8 +27,10 @@ class Shape {
     this.realSize = realSize
     // 判断是否是第一次计算比例
     if (this.isNeedCalcRatio()) {
+      let keyArr = Object.keys(this.Shape)
       this.Shape.calcInfo(scale)
-      this.Shape.getAbsolutLocation(realSize)
+      // 最后一个参数用来判断是否是第一次调用
+      this.Shape.judgeChangeProps(this.Shape.type, realSize, keyArr)
     }
     // 碰撞判定
     this.Shape.collisionDetection(realSize)
@@ -86,6 +88,7 @@ class Shape {
   }
   // 更新动画
   _updateStep () {
+    console.log(this.animationStore)
     let _this = this
     let goesByTime = this.watch.getGoesbyTime()
     let nowAnimation = this.animationStore[0]

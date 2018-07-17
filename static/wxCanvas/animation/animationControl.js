@@ -28,6 +28,7 @@ class AnimationControl {
   }
   setStartTime (startTime) {
     this.startTime = new Date().getTime()
+    console.log(this.startTime)
   }
   getGoesbyTime () {
     this.goesbyTime = new Date().getTime() - this.startTime

@@ -27,8 +27,8 @@
 </template>
 
 <script>
-// import {WxCanvas, Shape} from './../../../static/wxCanvas/index.js'
-import {WxCanvas, Shape} from './../../utils/wxCanvas'
+import {WxCanvas, Shape} from './../../../static/wxCanvas/index.js'
+// import {WxCanvas, Shape} from './../../utils/wxCanvas'
 // import {heihei} from './../../utils/test'
 export default {
   data () {
@@ -94,23 +94,30 @@ export default {
     //   // circleImage.updateOption({locX: 'center', y: 0, r: 200}, true)
     //   circleImage.start()
     // })
-    this.rect = new Shape('rect', {w: 150, h: 150, color: 'green', x: 50, y: 100}, true)
-    // this.circle = new Shape('circle', {r: 50, x: 250, y: 250, color: 'blue'})
+    // this.roundRect = new Shape('roundRect', {w: 150, h: 150, color: 'green', left: 50, y: 100, r: 20}, true)
+    // this.circleImage = new Shape('circleImage', {r: 50, x: 250, locY: 'center', url: '/static/images/0.png'})
     // this.circle1 = new Shape('circle', {r: 50, locX: '80%', locY: '50%', color: 'red'})
     // this.roundRect = new Shape('roundRect', {r: 10, h: 150, w: 150, color: 'green', x: 50, y: 50})
     // this.image = new Shape('image', {w: 300, h: 200, url: '/static/images/0.png', imgW: 710, imgH: 747})
     // this.circleImage = new Shape('circleImage', {x: 298, y: 677, r: 61, imgW: 200, imgH: 200, url: '/static/images/1.png'}, true)
-    // this.text = new Shape('text', {text: '点击输入文字', fontSize: 18, x: 359.5, y: 831, h: 25.5, fillMethod: 'fill', color: '#000', align: 'center'}, true)
+    this.text = new Shape('text', {text: '点击输入文字', fontSize: 18, right: '50%', bottom: '90%', h: 25.5, fillMethod: 'fill', color: '#000', align: 'center'}, true)
     // this.rect1 = this.rect.clone()
-    this.wxCanvas.add(this.rect)
-    // this.wxCanvas.add(this.circle)
+    // this.wxCanvas.add(this.image)
+    // this.rect.animate({x: '+50', y: '+50'})
+    // this.wxCanvas.add(this.circleImage)
+    // this.wxCanvas.add(this.circle1)
     // this.wxCanvas.add(this.circle1)
     // this.wxCanvas.add(this.roundRect)
     // this.wxCanvas.add(this.image)
     // this.wxCanvas.add(this.circleImage)
+    this.rect = new Shape('rect', {w: 50, h: 50, y: 50, x: 50, color: 'red', fillMethod: 'fill'})
     // this.wxCanvas.add(this.text)
-    this.rect.updateOption({color: 'red', x: 50, w: 50}, false)
-    this.rect.animate({x: '+100', y: '+100', w: 200, h: 200}).start()
+    this.wxCanvas.add(this.rect)
+    // this.line = new Shape('line', {x1: 0, y1: 0, x2: 100, y2: 100, color: '#000'})
+    // this.wxCanvas.add(this.line)
+    this.rect.animate({x: '+50'}).start(2)
+    // this.rect.updateOption({color: 'red', x: 50, w: 50}, false)
+    // this.rect.animate({x: '+100', y: '+100', w: 200, h: 200}).start()
     // this.roundRect.updateOption({color: 'red', h: 150, w: 150, x: 50, y: 50}, true)
     // this.roundRect.animate({x: '+50', y: '+50'}, 1000, true).start(1)
     // this.circle.updateOption({x: 250, y: 250, r: 50})
@@ -188,9 +195,11 @@ export default {
       this.rect.stop()
     },
     handleReset () {
+      console.log('reset')
+      // this.circleImage.updateOption({locX: 'center', y: 100, r: 100})
       // this.program.updateOption({w: 0, x: 20}, true)
       // this.wxCanvas.delete(this.complete)
-      this.rect.updateOption({x: 100, y: 100})
+      this.text.updateOption({locX: '50%', locY: 'center', color: 'red', text: '嘿嘿嘿'}, false, false)
     },
     handleTest () {
       this.wxCanvas.saveImage(true)

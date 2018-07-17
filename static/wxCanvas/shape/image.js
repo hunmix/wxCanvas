@@ -96,7 +96,8 @@ class Image {
     }
     // 如果有left, right啥啥啥的，就重置同方向的定位属性，避免影响
     this.resetAbsoluteInfo(keyArr, option)
-    this.getAbsolutLocation(this.realSize)
+    // this.getAbsolutLocation(this.realSize)
+    this.judgeChangeProps(this.type, this.realSize, keyArr)
   }
   // resetAbsoluteLocationInfo (option) {
   //   console.log('reset')
