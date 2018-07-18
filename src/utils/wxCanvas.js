@@ -2023,7 +2023,7 @@ function drawAnimationStep (callback) {
 
 function hex2rgb (hexValue) {
   // 如果是三位数的值则转化成6位
-  const has3Num = /#[\da-f]{3}/.test(hexValue);
+  const has3Num = /#[\da-fA-F]{3}$/.test(hexValue);
   if (has3Num) {
     const stack = hexValue.split('').slice(1);
     const len = stack.length;
@@ -2037,8 +2037,9 @@ function hex2rgb (hexValue) {
     let hexString = arr.join('');
     hexValue = `#${hexString}`;
   }
-  const hexParrten = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i;
+  const hexParrten = /^#?([a-fA-F\d]{2})([a-fA-F\d]{2})([a-fA-F\d]{2})$/i;
   const result = hexParrten.exec(hexValue);
+  console.log(result);
   // 转化成rgb格式
   return result ? {
     r: parseInt(result[1], 16),
@@ -2080,6 +2081,7 @@ function calcColorChange (animationInfo, goesbyRatio, startOptionColor) {
   console.log(goesbyRatio);
   const startColor = _getFormatRgb(startOptionColor);
   const currentColor = _getFormatRgb(animationInfo);
+  console.log(currentColor);
   const changedColorStep = {
     cr: (currentColor.r - startColor.r) * goesbyRatio,
     cg: (currentColor.g - startColor.g) * goesbyRatio,
@@ -2100,7 +2102,7 @@ function calcColorChange (animationInfo, goesbyRatio, startOptionColor) {
  * @returns {String} rgba形式的颜色
  */
 function _getFormatRgb (colorValue) {
-  const hexPattern = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+  const hexPattern = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
   // const rgbPattern = /[rR][gG][bB]\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)/
   const rgbPattern = /^[rR][gG][bB][aA]?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,?(\s*0|\s*1|\s*0\.\d{1,2}|\s*\.\d{1,2})?\s*\)\s*$/;
   let result = null;
@@ -2109,11 +2111,173 @@ function _getFormatRgb (colorValue) {
   } else if (rgbPattern.test(colorValue)) {
     result = formatRgb(colorValue);
   } else {
-    console.warn('输入的颜色不合法');
+    result = getColorValue(colorValue);
   }
   console.log(result);
   return result
 }
+
+function getColorValue (colorValue) {
+  const colorName = colorValue.toLowerCase();
+  const color = colorList[colorName];
+  let result = null;
+  if (color) {
+    result = hex2rgb(color);
+  } else {
+    console.warn('输入颜色不合法');
+  }
+  return result
+}
+const colorList = {
+  'antiquewhite': '#FAEBD7',
+  'aqua': '#00FFFF',
+  'aquamarine': '#7FFFD4',
+  'azure': '#F0FFFF',
+  'beige': '#F5F5DC',
+  'bisque': '#FFE4C4',
+  'black': '#000000',
+  'blanchedalmond': '#FFEBCD',
+  'blue': '#0000FF',
+  'blueViolet': '#8A2BE2',
+  'brown': '#A52A2A',
+  'burlywood': '#DEB887',
+  'cadetblue': '#5F9EA0',
+  'chartreuse': '#7FFF00',
+  'chocolate': '#D2691E',
+  'coral': '#FF7F50',
+  'cornflowerblue': '#6495ED',
+  'cornsilk': '#FFF8DC',
+  'crimson': '#DC143C',
+  'cyan': '#00FFFF',
+  'darkblue': '#00008B',
+  'darkcyan': '#008B8B',
+  'darkgoldenrod': '#B8860B',
+  'darkgray': '#A9A9A9',
+  'darkgrey': '#A9A9A9',
+  'darkgreen': '#006400',
+  'darkkhaki': '#BDB76B',
+  'darkmagenta': '#8B008B',
+  'darkoliveGreen': '#556B2F',
+  'darkorange': '#FF8C00',
+  'darkorchid': '#9932CC',
+  'darkred': '#8B0000',
+  'darksalmon': '#E9967A',
+  'darkseagreen': '#8FBC8F',
+  'darkslateblue': '#483D8B',
+  'darkslategray': '#2F4F4F',
+  'darkslategrey': '#2F4F4F',
+  'darkturquoise': '#00CED1',
+  'darkviolet': '#9400D3',
+  'deeppink': '#FF1493',
+  'deepskyblue': '#00BFFF',
+  'dimgray': '#696969',
+  'dimgrey': '#696969',
+  'dodgerblue': '#1E90FF',
+  'fireBrick': '#B22222',
+  'floralwhite': '#FFFAF0',
+  'forestgreen': '#228B22',
+  'fuchsia': '#FF00FF',
+  'gainsboro': '#DCDCDC',
+  'ghostwhite': '#F8F8FF',
+  'gold': '#FFD700',
+  'goldenrod': '#DAA520',
+  'gray': '#808080',
+  'grey': '#808080',
+  'green': '#008000',
+  'greenyellow': '#ADFF2F',
+  'honeydew': '#F0FFF0',
+  'hotPink': '#FF69B4',
+  'indianred': '#CD5C5C',
+  'indigo': '#4B0082',
+  'ivory': '#FFFFF0',
+  'khaki': '#F0E68C',
+  'lavender': '#E6E6FA',
+  'lavenderblush': '#FFF0F5',
+  'lawngreen': '#7CFC00',
+  'lemonchiffon': '#FFFACD',
+  'lightblue': '#ADD8E6',
+  'lightcoral': '#F08080',
+  'lightcyan': '#E0FFFF',
+  'lightgoldenrodyellow': '#FAFAD2',
+  'lightgray': '#D3D3D3',
+  'lightgrey': '#D3D3D3',
+  'lightgreen': '#90EE90',
+  'lightpink': '#FFB6C1',
+  'lightsalmon': '#FFA07A',
+  'lightseagreen': '#20B2AA',
+  'lightskyblue': '#87CEFA',
+  'lightslategray': '#778899',
+  'lightslategrey': '#778899',
+  'lightsteelblue': '#B0C4DE',
+  'lightyellow': '#FFFFE0',
+  'lime': '#00FF00',
+  'limegreen': '#32CD32',
+  'linen': '#FAF0E6',
+  'magenta': '#FF00FF',
+  'maroon': '#800000',
+  'mediumaquamarine': '#66CDAA',
+  'mediumblue': '#0000CD',
+  'mediumorchid': '#BA55D3',
+  'mediumpurple': '#9370DB',
+  'mediumseagreen': '#3CB371',
+  'mediumslateblue': '#7B68EE',
+  'mediumspringgreen': '#00FA9A',
+  'mediumturquoise': '#48D1CC',
+  'mediumvioletRed': '#C71585',
+  'midnightblue': '#191970',
+  'mintcream': '#F5FFFA',
+  'mistyrose': '#FFE4E1',
+  'moccasin': '#FFE4B5',
+  'navajowhite': '#FFDEAD',
+  'navy': '#000080',
+  'oldlace': '#FDF5E6',
+  'olive': '#808000',
+  'olivedrab': '#6B8E23',
+  'orange': '#FFA500',
+  'orangered': '#FF4500',
+  'orchid': '#DA70D6',
+  'palegoldenrod': '#EEE8AA',
+  'palegreen': '#98FB98',
+  'paleturquoise': '#AFEEEE',
+  'palevioletred': '#DB7093',
+  'papayawhip': '#FFEFD5',
+  'peachpuff': '#FFDAB9',
+  'peru': '#CD853F',
+  'pink': '#FFC0CB',
+  'plum': '#DDA0DD',
+  'powderblue': '#B0E0E6',
+  'purple': '#800080',
+  'rebeccapurple': '#663399',
+  'red': '#FF0000',
+  'rosybrown': '#BC8F8F',
+  'royalblue': '#4169E1',
+  'saddlebrown': '#8B4513',
+  'salmon': '#FA8072',
+  'sandybrown': '#F4A460',
+  'seagreen': '#2E8B57',
+  'seashell': '#FFF5EE',
+  'sienna': '#A0522D',
+  'silver': '#C0C0C0',
+  'skyblue': '#87CEEB',
+  'slateblue': '#6A5ACD',
+  'slategray': '#708090',
+  'slategrey': '#708090',
+  'snow': '#FFFAFA',
+  'springgreen': '#00FF7F',
+  'steelblue': '#4682B4',
+  'tan': '#D2B48C',
+  'teal': '#008080',
+  'thistle': '#D8BFD8',
+  'tomato': '#FF6347',
+  'turquoise': '#40E0D0',
+  'violet': '#EE82EE',
+  'wheat': '#F5DEB3',
+  'white': '#FFFFFF',
+  'whitesmoke': '#F5F5F5',
+  'yellow': '#FFFF00',
+  'yellowgreen': '#9ACD32'
+
+};
 
 // 图形
 class Shape {
@@ -2260,6 +2424,7 @@ class Shape {
       const startValue = _this.tempOption ? _this.tempOption[key] : _this.startOption[key];
       // 颜色和距离宽高变动分开算
       if (key === 'color') {
+        console.log(option[key]);
         const rgbColor = calcColorChange(option[key], goesbyRatio, startValue);
         nowOption[key] = rgbColor;
         // console.log(rgbColor)
