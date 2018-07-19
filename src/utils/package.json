@@ -1,0 +1,25 @@
+{
+  "name": "wx-canvas",
+  "version": "1.0.3",
+  "description": "",
+  "main": "wxCanvas.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hunmix/wxCanvas-v1.0.git"
+  },
+  "keywords": [
+    "wx",
+    "wechat",
+    "mpvue",
+    "canvas"
+  ],
+  "author": "hunmix",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hunmix/wxCanvas-v1.0/issues"
+  },
+  "homepage": "https://github.com/hunmix/wxCanvas-v1.0#readme"
+}

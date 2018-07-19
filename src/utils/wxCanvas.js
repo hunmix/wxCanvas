@@ -1595,24 +1595,28 @@ class Shape {
     return this
   }
   start (loopTime, calcScale) {
-    // 动画时禁止拖动, 这边可以放到watch里面，后面再改- -
-    const tempDragable = this.dragable;
     this.dragable = false;
-    let _this = this;
     this.watch.running = true; // 动画开始
     this.watch.setLoop(loopTime); // 设置循环次数
     this.watch.setStartTime(); // 设置开始时间
     this.startOption = Object.assign({}, this.Shape); // 记录初始值
+    this._loopAnimation();
     // console.log(this.startOption)
-    function stepAnimation () { // 递归实现动画循环
-      drawAnimationStep(stepAnimation);
+  }
+  _loopAnimation () {
+    let _this = this;
+    // 动画时禁止拖动, 这边可以放到watch里面，后面再改- -
+    const tempDragable = this.dragable;
+    function stepAnimation () { // 实现动画循环
       if (_this.watch.isRunning()) {
         _this._updateStep();
       } else {
         _this.dragable = tempDragable;
+        return false
       }
+      drawAnimationStep(stepAnimation);
     }
-    stepAnimation();
+    drawAnimationStep(stepAnimation);
   }
   stop () {
     this.watch.stop();
