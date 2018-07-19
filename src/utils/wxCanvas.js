@@ -1161,6 +1161,169 @@ class Text {
 
 Text.prototype = Object.assign(Text.prototype, commonUtils);
 
+// 选中边框
+class BorderFrame {
+  constructor (drawData) {
+    drawData.firstRender = false;
+    this.x = drawData.x || 0;
+    this.y = drawData.y || 0;
+    this.w = drawData.w;
+    this.h = drawData.h;
+    this.left = drawData.left;
+    this.right = drawData.right;
+    this.top = drawData.top;
+    this.bottom = drawData.bottom;
+    this.locX = drawData.locX;
+    this.locY = drawData.locY;
+    // this.fillMethod = drawData.fillMethod || 'fill'
+    this.fillMethod = 'stroke';
+    this.color = '#80cef5';
+    // this.color = drawData.color
+    this.type = 'borderFrame';
+    this.scale = drawData.scale || null;
+  }
+  // 计算绘画数据
+  calcInfo (scale) {
+    console.log('scale');
+    this.scale = scale;
+    this.firstRender = false;
+    this.x = this.x * scale.x;
+    this.y = this.y * scale.y;
+    this.w = this.w * scale.x;
+    this.h = this.h * scale.y;
+  }
+  // 绘制路径
+  createPath (ctx, sacle, realSize) {
+    ctx.save();
+    ctx.beginPath();
+    ctx[this.fillMethod + 'Style'] = this.color;
+    ctx[this.fillMethod + 'Rect'](this.x, this.y, this.w, this.h);
+    this._drawPoint(ctx);
+    this._drawLine(ctx);
+    this._drawCircle(ctx);
+    ctx.closePath();
+    ctx.restore();
+  }
+  _drawPoint (ctx) {
+    const option = this._calcPointsPosition();
+    console.log(option);
+    option.forEach(point => {
+      ctx.beginPath();
+      ctx.strokeStyle = this.color;
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(point.x, point.y, 10, 10);
+      ctx.strokeRect(point.x, point.y, 10, 10);
+      ctx.closePath();
+    });
+  }
+  _calcPointsPosition () {
+    const len = 5;
+    const pointLeftTop = {
+      x: this.x - len,
+      y: this.y - len
+    };
+    const pointRightTop = {
+      x: this.x + this.w - len,
+      y: this.y - len
+    };
+    const pointRightBottom = {
+      x: this.x + this.w - len,
+      y: this.y + this.h - len
+    };
+    const pointLeftBottom = {
+      x: this.x - len,
+      y: this.y + this.h - len
+    };
+    return [pointLeftTop, pointRightTop, pointRightBottom, pointLeftBottom]
+  }
+  _drawLine (ctx) {
+    const lineOption = {
+      x1: this.x + this.w / 2,
+      y1: this.y,
+      x2: this.x + this.w / 2,
+      y2: this.y - 15
+    };
+    ctx.beginPath();
+    ctx.strokeStyle = this.color;
+    ctx.moveTo(lineOption.x1, lineOption.y1);
+    ctx.lineTo(lineOption.x2, lineOption.y2);
+    ctx.stroke();
+    ctx.closePath();
+  }
+  _drawCircle (ctx) {
+    const circleOption = {
+      x: this.x + this.w / 2,
+      y: this.y - 20,
+      r: 5
+    };
+    ctx.beginPath();
+    ctx.strokeStyle = this.color;
+    ctx.arc(circleOption.x, circleOption.y, circleOption.r, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.closePath();
+  }
+  judgeRange (e) {
+    this.startPoint = {
+      x: e.mp.changedTouches[0].x,
+      y: e.mp.changedTouches[0].y
+    };
+    let rightX = this.x + this.w;
+    let bottomY = this.y + this.h;
+    if (this.startPoint.x > this.x && this.startPoint.x < rightX && this.startPoint.y < bottomY && this.startPoint.y > this.y) {
+      this.startX = this.x;
+      this.startY = this.y;
+      return true
+    } else {
+      return false
+    }
+  }
+  collisionDetection (realSize) {
+    const len = 5;
+    this.realSize = realSize;
+    // 碰撞检测
+    if (this.x < 0) {
+      this.x = -len;
+    }
+    if (this.x + this.w > realSize.w) {
+      this.x = realSize.w - this.w + len;
+    }
+    if (this.y < 0) {
+      this.y = -len;
+    }
+    if (this.y + this.h > realSize.h) {
+      this.y = realSize.h - this.h + len;
+    }
+  }
+  move (e) {
+    // let movePoint = {
+    //   x: e.mp.touches[0].x,
+    //   y: e.mp.touches[0].y
+    // }
+    // this.offsetX = movePoint.x - this.startPoint.x
+    // this.offsetY = movePoint.y - this.startPoint.y
+    // this.x = this.startX + this.offsetX
+    // this.y = this.startY + this.offsetY
+  }
+  // 更新自适应属性数据x,y,r,w,h等，直接更新or动画调用
+  updateOption (option, calcScale) {
+    // ----------------------可能会有问题-----------------------------------------------
+    let keyArr = Object.keys(option);
+    if (keyArr.length !== 0) {
+      this.resetXY(keyArr);
+      if (calcScale) {
+        this.calcScaleValue(keyArr, option, this.scale);
+      } else {
+        this.calcScaleValue(keyArr, option, false);
+      }
+      this.getOptionValue(keyArr, option);
+    }
+    // 如果有left, right啥啥啥的，就重置同方向的定位属性，避免影响
+    this.resetAbsoluteInfo(keyArr, option);
+    this.judgeChangeProps(this.type, this.realSize, keyArr);
+  }
+}
+BorderFrame.prototype = Object.assign(BorderFrame.prototype, commonUtils);
+
 class AnimationControl {
   constructor () {
     this.running = false;
@@ -1534,9 +1697,13 @@ const colorList = {
 
 // 图形
 class Shape {
-  constructor (type, drawData, dragable) {
+  constructor (type, drawData, dragable, scaleable) {
     this.Shape = createShape[type](drawData);
     this.dragable = dragable;
+    this.scaleable = scaleable;
+    if (scaleable) {
+      this.dragable = false;
+    }
     this.watch = new AnimationControl();
     this._bus = new EventBus();
     this.animationStore = [];
@@ -1608,6 +1775,7 @@ class Shape {
     // 动画时禁止拖动, 这边可以放到watch里面，后面再改- -
     const tempDragable = this.dragable;
     function stepAnimation () { // 实现动画循环
+      // drawAnimationStep(stepAnimation)
       if (_this.watch.isRunning()) {
         _this._updateStep();
       } else {
@@ -1745,6 +1913,9 @@ let createShape = {
   },
   'line': function (drawData) {
     return new Line(drawData)
+  },
+  'borderFrame': function (drawData) {
+    return new BorderFrame(drawData)
   }
 };
 
@@ -1837,6 +2008,92 @@ class Info {
   }
 }
 
+// wxCanvas中用到的方法
+const canvasFunction = {
+  // touchEnd点击事件处理
+  clickEvent (e) {
+    const len = this.store.store.length;
+    for (let i = len - 1; i > -1; i--) {
+      const shape = this.store.store[i];
+      if (this._isInShapeAfterTouchEnd(e, shape)) {
+        this.scaleControl.isScaleShapeChanged() && this.scaleControl.reset(this);
+        shape.scaleable && this.scaleControl.createBorderFrame(shape);
+        // shape.scaleable && this._drawBorderFrame(shape)
+        this._ergodicEvents(shape);
+        return false
+      }
+    }
+    this.scaleControl.reset(this);
+  },
+  // 判断是否触发缩放事件
+  _isInShapeAfterTouchEnd (e, shape) {
+    const isInShape = shape.isInShape(e);
+    const hasClickEvent = shape.eventList['click'].length > 0;
+    const canClickEmit = isInShape && hasClickEvent;
+    return canClickEmit
+  },
+  // 遍历所有点击事件
+  _ergodicEvents (shape) {
+    shape.eventList['click'].forEach((ele) => {
+      ele(this);
+    });
+  }
+};
+
+class ScaleControl {
+  constructor (bus) {
+    this.borderFrame = null;
+    this.bus = bus;
+    this.scaleShape = null;
+  }
+  createBorderFrame (shape) {
+    if (!this.isScaleShapeChanged()) return
+    this.scaleShape = shape;
+    this.scaleShape.dragable = true;
+    const option = this.calcBorderFrameData(shape);
+    this.drawBorderFrame(option);
+  }
+  calcBorderFrameData (scaleShape) {
+    const len = 5;
+    return {
+      x: scaleShape.Shape.x - len,
+      y: scaleShape.Shape.y - len,
+      w: scaleShape.Shape.w + len * 2,
+      h: scaleShape.Shape.h + len * 2
+    }
+  }
+  drawBorderFrame (drawData) {
+    this.borderFrame = new Shape('borderFrame', drawData);
+    this.bus.emit('add', this.borderFrame);
+  }
+  reset () {
+    this.delete();
+    if (this.scaleShape) {
+      this.scaleShape.dragable = false;
+    }
+    this.scaleShape = null;
+  }
+  delete () {
+    console.log('delete');
+    this.bus.emit('delete', this.borderFrame);
+  }
+  isScaleShapeChanged (shape) {
+    return this.scaleShape !== shape
+  }
+  isBorderFrameNeedMove (currentMoveItem) {
+    return currentMoveItem === this.scaleShape
+  }
+  update () {
+    console.log('update');
+    const shape = this.scaleShape;
+    const option = this.calcBorderFrameData(shape);
+    const changedProps = Object.keys(option);
+    changedProps.forEach(prop => {
+      this.borderFrame.Shape[prop] = option[prop];
+    });
+  }
+}
+
 // 爸爸类
 class WxCanvas {
   constructor (canvas, config) {
@@ -1844,8 +2101,11 @@ class WxCanvas {
     this.store = new Store(); // store对象，用于储存图形对象
     this.info = new Info(config); // info对象，初始化各种信息
     this.canMove = false; // 是否能拖动标记
-    this.bus = new EventBus(); // 事件总线对象，没用到= =
+    this.bus = new EventBus(); // 事件总线对象
+    this.scaleControl = new ScaleControl(this.bus);
     this.bus.listen('update', this, this.update);
+    this.bus.listen('add', this, this.add);
+    this.bus.listen('delete', this, this.delete);
   }
   // 获取canvas真实宽高，外部调用
   initCanvasInfo () {
@@ -1866,6 +2126,7 @@ class WxCanvas {
   draw () {
     let that = this;
     this.store.store.forEach((item) => {
+      console.log(item);
       item.draw(that.canvas, that.info.scale, that.info.realSize);
     });
     this.canvas.draw();
@@ -1886,9 +2147,11 @@ class WxCanvas {
   }
   // 外置触摸移动
   touchMove (e) {
+    const _this = this;
     this.isMouseMove = true;
     if (this.canMove) {
       this.moveItem.move(e);
+      _this.scaleControl.isBorderFrameNeedMove(this.moveItem) && _this.scaleControl.update();
       this.draw();
     }
   }
@@ -1896,20 +2159,21 @@ class WxCanvas {
   touchEnd (e) {
     this.canMove = false;
     // 点击事件回调函数
-    if (this.isMouseMove === false) {
-      let len = this.store.store.length;
-      for (let i = len - 1; i > -1; i--) {
-        let shape = this.store.store[i];
-        if (shape.isInShape(e)) {
-          if (shape.eventList['click'].length > 0) {
-            shape.eventList['click'].forEach((ele) => {
-              ele(this);
-            });
-            return false
-          }
-        }
-      }
-    }
+    this.isMouseMove === false && this.clickEvent(e);
+    // if (this.isMouseMove === false) {
+    //   let len = this.store.store.length
+    //   for (let i = len - 1; i > -1; i--) {
+    //     let shape = this.store.store[i]
+    //     if (shape.isInShape(e)) {
+    //       if (shape.eventList['click'].length > 0) {
+    //         shape.eventList['click'].forEach((ele) => {
+    //           ele(this)
+    //         })
+    //         return false
+    //       }
+    //     }
+    //   }
+    // }
   }
   // 清除所有图像，不可恢复
   clear () {
@@ -1932,7 +2196,7 @@ class WxCanvas {
     this.store.delete(item);
     this.draw();
   }
-  update () {
+  update (data) {
     this.draw();
   }
   /* 保存图片，外部调用
@@ -1989,5 +2253,7 @@ class WxCanvas {
     });
   }
 }
+//  感觉这样好像不太好 先这么滴吧
+WxCanvas.prototype = Object.assign(WxCanvas.prototype, canvasFunction);
 
 export { WxCanvas, Shape };

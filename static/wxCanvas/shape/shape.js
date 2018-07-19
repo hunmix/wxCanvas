@@ -5,15 +5,20 @@ import {Line} from './line'
 import {Rect} from './rect'
 import {RoundRect} from './roundRect'
 import {Text} from './text'
+import {BorderFrame} from './borderFrame'
 import {AnimationControl} from '../animation/animationControl'
 import { EventBus } from '../eventBus/eventBus'
 import {drawAnimationStep} from '../animation/calcFunction'
 import {calcColorChange} from '../animation/calcColorChange'
 // 图形
 class Shape {
-  constructor (type, drawData, dragable) {
+  constructor (type, drawData, dragable, scaleable) {
     this.Shape = createShape[type](drawData)
     this.dragable = dragable
+    this.scaleable = scaleable
+    if (scaleable) {
+      this.dragable = false
+    }
     this.watch = new AnimationControl()
     this._bus = new EventBus()
     this.animationStore = []
@@ -85,6 +90,7 @@ class Shape {
     // 动画时禁止拖动, 这边可以放到watch里面，后面再改- -
     const tempDragable = this.dragable
     function stepAnimation () { // 实现动画循环
+      // drawAnimationStep(stepAnimation)
       if (_this.watch.isRunning()) {
         _this._updateStep()
       } else {
@@ -222,6 +228,9 @@ let createShape = {
   },
   'line': function (drawData) {
     return new Line(drawData)
+  },
+  'borderFrame': function (drawData) {
+    return new BorderFrame(drawData)
   }
 }
 

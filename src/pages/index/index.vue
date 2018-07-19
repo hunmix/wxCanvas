@@ -70,12 +70,15 @@ export default {
     // this.wxCanvas.add(this.roundRect)
     // this.wxCanvas.add(this.image)
     // this.wxCanvas.add(this.circleImage)
-    this.rect = new Shape('rect', {w: 50, h: 50, y: 50, x: 50, color: 'red', fillMethod: 'fill'}, true, true)
+    this.rect = new Shape('rect', {w: 200, h: 200, locY: 'center', locX: 'center', color: 'red', fillMethod: 'fill'}, true, true)
     // this.wxCanvas.add(this.text)
     this.wxCanvas.add(this.rect)
+    this.rect.bind('click', function () {
+      console.log('click')
+    })
     // this.line = new Shape('line', {x1: 0, y1: 0, x2: 100, y2: 100, color: '#000'})
     // this.wxCanvas.add(this.line)
-    this.rect.animate({color: 'rgba(0, 0,0,.1)', x: '+40', y: '+40', h: '+40', w: '+40'}).animate({color: 'red', x: '-40', y: '-40', h: '-40', w: '-40'}).start()
+    // this.rect.animate({color: 'rgba(0, 0,0,.1)', x: '+40', y: '+40', h: '+40', w: '+40'}).animate({color: 'red', x: '-40', y: '-40', h: '-40', w: '-40'}).start()
     // this.roundRect.animate({color: 'blue', x: '+40', y: '+40', h: '+40', w: '+40'}).start(2)
   },
   methods: {

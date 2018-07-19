@@ -1,20 +1,20 @@
 # wx-canvas
 基于mpvue的canvas绘图工具，用于快速还原设计稿，自适应保证不同手机下视觉效果一致（canvas宽度与屏幕比例与设计图中canvas和屏幕比例一致，如果高度不够则定高宽度等比缩放），基本用法就是，按照设计稿的画就行了。
 ## 使用方法
-### 1. 下载wxCanvas文件，并在项目中引入
-[文件github地址](https://github.com/hunmix/wxCanvas-v1.0) 也可以在这个仓库下的/src/utils/wxCanvas.js 下面找到 （最好还是,去网址下载- -谁知道是是不是一个版本呢）
-
+### 1. 使用npm下载并引用（推荐，我把编译版单独的仓库删了，太懒了...)
 ```
-// 比如我放在了/src/utils/wxCanvas
-import {WxCanvas, Shape} from '/src/utils/wxCanvas'
-```
-### 2. 使用npm下载并引用
-```
-npm install -save
+npm install wx-canvas --save
 ```
 
 ```
 import {WxCanvas, Shape} from 'wx-canvas'
+```
+### 2. 下载wxCanvas文件，并在项目中引入
+可以在这个仓库下的/src/utils/wxCanvas.js 下面找到
+
+```
+// 比如我放在了/src/utils/wxCanvas
+import {WxCanvas, Shape} from '/src/utils/wxCanvas'
 ```
 
 ----

@@ -2,6 +2,8 @@ import {Shape} from './shape/shape'
 import {Store} from './store/store'
 import {Info} from './info/info'
 import {EventBus} from './eventBus/eventBus'
+import {canvasFunction} from './utils/wxCanvasSelfFun'
+import {ScaleControl} from './scale/ScaleControl'
 // 爸爸类
 class WxCanvas {
   constructor (canvas, config) {
@@ -9,8 +11,11 @@ class WxCanvas {
     this.store = new Store() // store对象，用于储存图形对象
     this.info = new Info(config) // info对象，初始化各种信息
     this.canMove = false // 是否能拖动标记
-    this.bus = new EventBus() // 事件总线对象，没用到= =
+    this.bus = new EventBus() // 事件总线对象
+    this.scaleControl = new ScaleControl(this.bus)
     this.bus.listen('update', this, this.update)
+    this.bus.listen('add', this, this.add)
+    this.bus.listen('delete', this, this.delete)
   }
   // 获取canvas真实宽高，外部调用
   initCanvasInfo () {
@@ -31,6 +36,7 @@ class WxCanvas {
   draw () {
     let that = this
     this.store.store.forEach((item) => {
+      console.log(item)
       item.draw(that.canvas, that.info.scale, that.info.realSize)
     })
     this.canvas.draw()
@@ -51,9 +57,11 @@ class WxCanvas {
   }
   // 外置触摸移动
   touchMove (e) {
+    const _this = this
     this.isMouseMove = true
     if (this.canMove) {
       this.moveItem.move(e)
+      _this.scaleControl.isBorderFrameNeedMove(this.moveItem) && _this.scaleControl.update()
       this.draw()
     }
   }
@@ -61,20 +69,21 @@ class WxCanvas {
   touchEnd (e) {
     this.canMove = false
     // 点击事件回调函数
-    if (this.isMouseMove === false) {
-      let len = this.store.store.length
-      for (let i = len - 1; i > -1; i--) {
-        let shape = this.store.store[i]
-        if (shape.isInShape(e)) {
-          if (shape.eventList['click'].length > 0) {
-            shape.eventList['click'].forEach((ele) => {
-              ele(this)
-            })
-            return false
-          }
-        }
-      }
-    }
+    this.isMouseMove === false && this.clickEvent(e)
+    // if (this.isMouseMove === false) {
+    //   let len = this.store.store.length
+    //   for (let i = len - 1; i > -1; i--) {
+    //     let shape = this.store.store[i]
+    //     if (shape.isInShape(e)) {
+    //       if (shape.eventList['click'].length > 0) {
+    //         shape.eventList['click'].forEach((ele) => {
+    //           ele(this)
+    //         })
+    //         return false
+    //       }
+    //     }
+    //   }
+    // }
   }
   // 清除所有图像，不可恢复
   clear () {
@@ -97,7 +106,7 @@ class WxCanvas {
     this.store.delete(item)
     this.draw()
   }
-  update () {
+  update (data) {
     this.draw()
   }
   /* 保存图片，外部调用
@@ -154,5 +163,7 @@ class WxCanvas {
     })
   }
 }
+//  感觉这样好像不太好 先这么滴吧
+WxCanvas.prototype = Object.assign(WxCanvas.prototype, canvasFunction)
 
 export {WxCanvas, Shape}
