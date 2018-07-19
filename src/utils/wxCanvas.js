@@ -465,161 +465,8 @@ class Circle {
     }
     // 如果有left, right啥啥啥的，就重置同方向的定位属性，避免影响
     this.resetAbsoluteInfo(keyArr, option);
-    // this.getAbsolutLocation(this.realSize)
     this.judgeChangeProps(this.type, this.realSize, keyArr);
-    // for (let key in option) {
-    //   switch (key) {
-    //     case 'x':
-    //       this.left = undefined
-    //       this.right = undefined
-    //       this.locX = undefined
-    //       break
-    //     case 'y':
-    //       this.top = undefined
-    //       this.bottom = undefined
-    //       this.locY = undefined
-    //       break
-    //   }
-    //   if (calcScale) {
-    //     switch (key) {
-    //       case 'x':
-    //         this.x = option.x * this.scale.x
-    //         break
-    //       case 'y':
-    //         this.y = option.y * this.scale.y
-    //         break
-    //       case 'r':
-    //         this.r = option.r * this.scale.x
-    //         break
-    //       default :
-    //         this[key] = option[key]
-    //     }
-    //   } else {
-    //     this[key] = option[key]
-    //   }
-    // }
-    // this.resetAbsoluteLocationInfo(option)
   }
-  // resetAbsoluteLocationInfo (option) {
-  //   console.log('reset')
-  //   if (option.left) {
-  //     this.left = option.left
-  //     this.right = undefined
-  //     this.locX = undefined
-  //   }
-  //   if (option.right) {
-  //     this.right = option.right
-  //     this.left = undefined
-  //     this.locX = undefined
-  //   }
-  //   if (option.top) {
-  //     this.top = option.top
-  //     this.bottom = undefined
-  //     this.locY = undefined
-  //   }
-  //   if (option.bottom) {
-  //     this.bottom = option.bottom
-  //     this.top = undefined
-  //     this.locY = undefined
-  //   }
-  //   if (option.locX) {
-  //     this.locX = option.locX
-  //     this.left = undefined
-  //     this.right = undefined
-  //   }
-  //   if (option.locY) {
-  //     this.locY = option.locY
-  //     this.top = undefined
-  //     this.bottom = undefined
-  //   }
-  //   this.getAbsolutLocation(this.realSize)
-  // }
-  // 根据设置方法不同设置不同参数
-  // getAbsolutLocation (realSize) {
-  //   let loc = null // 方向
-  //   let size = null // realSize，屏幕真实宽or高
-  //   let property = null // 改变x或y的值
-  //   let type = null // 根据种类调用不同计算
-  //   if (this.locX !== undefined) {
-  //     loc = this.locX
-  //     size = realSize.w
-  //     property = 'x'
-  //     type = 'locationX&Y'
-  //     this.setLocPosition(loc, size, property, type)
-  //   }
-  //   if (this.locY !== undefined) {
-  //     loc = this.locY
-  //     size = realSize.h
-  //     property = 'y'
-  //     type = 'locationX&Y'
-  //     this.setLocPosition(loc, size, property, type)
-  //   }
-  //   if (this.left !== undefined) {
-  //     loc = this.left
-  //     size = realSize.w
-  //     property = 'x'
-  //     type = 'left&top'
-  //     this.setLocPosition(loc, size, property, type)
-  //   }
-  //   if (this.top !== undefined) {
-  //     loc = this.top
-  //     size = realSize.h
-  //     property = 'y'
-  //     type = 'left&top'
-  //     this.setLocPosition(loc, size, property, type)
-  //   }
-  //   if (this.right !== undefined) {
-  //     loc = this.right
-  //     size = realSize.w
-  //     property = 'x'
-  //     type = 'right&bottom'
-  //     this.setLocPosition(loc, size, property, type)
-  //   }
-  //   if (this.bottom !== undefined) {
-  //     loc = this.bottom
-  //     size = realSize.h
-  //     property = 'y'
-  //     type = 'right&bottom'
-  //     this.setLocPosition(loc, size, property, type)
-  //   }
-  // }
-  // // 计算x,y的值
-  // setLocPosition (loc, size, property, type) {
-  //   switch (type) {
-  //     case 'locationX&Y' :
-  //       if (loc === 'center') {
-  //         this[property] = size / 2 - this.r
-  //       } else if (typeof loc === 'number') {
-  //         this[property] = loc - this.r
-  //       } else if (loc.indexOf('%') !== -1) {
-  //         let num = this.getPercentNum(loc)
-  //         this[property] = size * num / 100 - this.r
-  //       }
-  //       break
-  //     case 'left&top' :
-  //       if (typeof loc === 'number') {
-  //         this[property] = loc
-  //       } else if (loc.indexOf('%') !== -1) {
-  //         let num = this.getPercentNum(loc)
-  //         this[property] = size * num / 100
-  //       }
-  //       break
-  //     case 'right&bottom' :
-  //       if (typeof loc === 'number') {
-  //         this[property] = size - this.r * 2 - loc
-  //       } else if (loc.indexOf('%') !== -1) {
-  //         let num = this.getPercentNum(loc)
-  //         this[property] = size - size * num / 100 - this.r * 2
-  //       }
-  //       break
-  //   }
-  // }
-  // 获取百分比的数字部分
-  // getPercentNum (value) {
-  //   let len = value.length
-  //   console.log(Number(value.substring(0, len - 1)))
-  //   return Number(value.substring(0, len - 1))
-  // }
 }
 Circle.prototype = Object.assign(Circle.prototype, commonUtils);
 
@@ -729,128 +576,6 @@ class CircleImage {
     // this.getAbsolutLocation(this.realSize)
     this.judgeChangeProps(this.type, this.realSize, keyArr);
   }
-  // resetAbsoluteLocationInfo (option) {
-  //   console.log('in reset :' + this.r)
-  //   console.log('reset')
-  //   if (option.left) {
-  //     this.left = option.left
-  //     this.right = undefined
-  //     this.locX = undefined
-  //   }
-  //   if (option.right) {
-  //     this.right = option.right
-  //     this.left = undefined
-  //     this.locX = undefined
-  //   }
-  //   if (option.top) {
-  //     this.top = option.top
-  //     this.bottom = undefined
-  //     this.locY = undefined
-  //   }
-  //   if (option.bottom) {
-  //     this.bottom = option.bottom
-  //     this.top = undefined
-  //     this.locY = undefined
-  //   }
-  //   if (option.locX) {
-  //     this.locX = option.locX
-  //     this.left = undefined
-  //     this.right = undefined
-  //   }
-  //   if (option.locY) {
-  //     this.locY = option.locY
-  //     this.top = undefined
-  //     this.bottom = undefined
-  //   }
-  //   this.getAbsolutLocation(this.realSize)
-  // }
-  // 根据设置方法不同设置不同参数
-  // getAbsolutLocation (realSize) {
-  //   let loc = null // 方向
-  //   let size = null // realSize，屏幕真实宽or高
-  //   let property = null // 改变x或y的值
-  //   let type = null // 根据种类调用不同计算
-  //   console.log(realSize)
-  //   if (this.locX !== undefined) {
-  //     loc = this.locX
-  //     size = realSize.w
-  //     property = 'x'
-  //     type = 'locationX&Y'
-  //     this.setLocPosition(loc, size, property, type)
-  //   }
-  //   if (this.locY !== undefined) {
-  //     loc = this.locY
-  //     size = realSize.h
-  //     property = 'y'
-  //     type = 'locationX&Y'
-  //     this.setLocPosition(loc, size, property, type)
-  //   }
-  //   if (this.left !== undefined) {
-  //     loc = this.left
-  //     size = realSize.w
-  //     property = 'x'
-  //     type = 'left&top'
-  //     this.setLocPosition(loc, size, property, type)
-  //   }
-  //   if (this.top !== undefined) {
-  //     loc = this.top
-  //     size = realSize.h
-  //     property = 'y'
-  //     type = 'left&top'
-  //     this.setLocPosition(loc, size, property, type)
-  //   }
-  //   if (this.right !== undefined) {
-  //     loc = this.right
-  //     size = realSize.w
-  //     property = 'x'
-  //     type = 'right&bottom'
-  //     this.setLocPosition(loc, size, property, type)
-  //   }
-  //   if (this.bottom !== undefined) {
-  //     loc = this.bottom
-  //     size = realSize.h
-  //     property = 'y'
-  //     type = 'right&bottom'
-  //     this.setLocPosition(loc, size, property, type)
-  //   }
-  // }
-  // // 计算x,y的值
-  // setLocPosition (loc, size, property, type) {
-  //   switch (type) {
-  //     case 'locationX&Y' :
-  //       if (loc === 'center') {
-  //         this[property] = size / 2 - this.r
-  //       } else if (typeof loc === 'number') {
-  //         this[property] = loc - this.r
-  //       } else if (loc.indexOf('%') !== -1) {
-  //         let num = this.getPercentNum(loc)
-  //         this[property] = size * num / 100 - this.r
-  //       }
-  //       break
-  //     case 'left&top' :
-  //       if (typeof loc === 'number') {
-  //         this[property] = loc
-  //       } else if (loc.indexOf('%') !== -1) {
-  //         let num = this.getPercentNum(loc)
-  //         this[property] = size * num / 100
-  //       }
-  //       break
-  //     case 'right&bottom' :
-  //       if (typeof loc === 'number') {
-  //         this[property] = size - this.r * 2 - loc
-  //       } else if (loc.indexOf('%') !== -1) {
-  //         let num = this.getPercentNum(loc)
-  //         this[property] = size - size * num / 100 - this.r * 2
-  //       }
-  //       break
-  //   }
-  // }
-  // // 获取百分比的数字部分
-  // getPercentNum (value) {
-  //   let len = value.length
-  //   console.log(Number(value.substring(0, len - 1)))
-  //   return Number(value.substring(0, len - 1))
-  // }
 }
 
 CircleImage.prototype = Object.assign(CircleImage.prototype, commonUtils);
@@ -955,134 +680,6 @@ class Image {
     // this.getAbsolutLocation(this.realSize)
     this.judgeChangeProps(this.type, this.realSize, keyArr);
   }
-  // resetAbsoluteLocationInfo (option) {
-  //   console.log('reset')
-  //   if (option.left) {
-  //     this.left = option.left
-  //     this.right = undefined
-  //     this.locX = undefined
-  //   }
-  //   if (option.right) {
-  //     this.right = option.right
-  //     this.left = undefined
-  //     this.locX = undefined
-  //   }
-  //   if (option.top) {
-  //     this.top = option.top
-  //     this.bottom = undefined
-  //     this.locY = undefined
-  //   }
-  //   if (option.bottom) {
-  //     this.bottom = option.bottom
-  //     this.top = undefined
-  //     this.locY = undefined
-  //   }
-  //   if (option.locX) {
-  //     this.locX = option.locX
-  //     this.left = undefined
-  //     this.right = undefined
-  //   }
-  //   if (option.locY) {
-  //     this.locY = option.locY
-  //     this.top = undefined
-  //     this.bottom = undefined
-  //   }
-  //   this.getAbsolutLocation(this.realSize)
-  // }
-  // 根据设置方法不同设置不同参数
-  getAbsolutLocation (realSize) {
-    let loc = null; // 方向
-    let size = null; // realSize，屏幕真实宽or高
-    let property = null; // 改变x或y的值
-    let type = null; // 根据种类调用不同计算
-    let rectProperty = null;
-    if (this.locX !== undefined) {
-      loc = this.locX;
-      size = realSize.w;
-      property = 'x';
-      rectProperty = 'w';
-      type = 'locationX&Y';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-    if (this.locY !== undefined) {
-      loc = this.locY;
-      size = realSize.h;
-      property = 'y';
-      rectProperty = 'h';
-      type = 'locationX&Y';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-    if (this.left !== undefined) {
-      loc = this.left;
-      size = realSize.w;
-      property = 'x';
-      rectProperty = 'w';
-      type = 'left&top';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-    if (this.top !== undefined) {
-      loc = this.top;
-      size = realSize.h;
-      property = 'y';
-      rectProperty = 'h';
-      type = 'left&top';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-    if (this.right !== undefined) {
-      loc = this.right;
-      size = realSize.w;
-      property = 'x';
-      rectProperty = 'w';
-      type = 'right&bottom';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-    if (this.bottom !== undefined) {
-      loc = this.bottom;
-      size = realSize.h;
-      property = 'y';
-      rectProperty = 'h';
-      type = 'right&bottom';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-  }
-  // 计算x,y的值
-  setLocPosition (loc, size, property, rectProperty, type) {
-    switch (type) {
-      case 'locationX&Y' :
-        if (loc === 'center') {
-          this[property] = size / 2 - this[rectProperty] / 2;
-        } else if (typeof loc === 'number') {
-          this[property] = loc - this[rectProperty] / 2;
-        } else if (loc.indexOf('%') !== -1) {
-          let num = this.getPercentNum(loc);
-          this[property] = size * num / 100 - this[rectProperty] / 2;
-        }
-        break
-      case 'left&top' :
-        console.log('in left&top');
-        if (typeof loc === 'number') {
-          this[property] = loc;
-        } else if (loc.indexOf('%') !== -1) {
-          let num = this.getPercentNum(loc);
-          this[property] = size * num / 100;
-        }
-        break
-      case 'right&bottom' :
-        if (typeof loc === 'number') {
-          this[property] = size - this[rectProperty] - loc;
-        } else if (loc.indexOf('%') !== -1) {
-          let num = this.getPercentNum(loc);
-          this[property] = size - size * num / 100 - this[rectProperty];
-        }
-        break
-    }
-  }
-  // 获取百分比的数字部分
-  getPercentNum (value) {
-    let len = value.length;
-    console.log(Number(value.substring(0, len - 1)));
-    return Number(value.substring(0, len - 1))
-  }
 }
 
 Image.prototype = Object.assign(Image.prototype, commonUtils);
@@ -1112,10 +709,6 @@ class Line {
   }
   // 绘制路径
   createPath (ctx, sacle, realSize) {
-    // if (this.firstRender) {
-    //   this.calcInfo(sacle)
-    // }
-    // this.collisionDetection(realSize)
     ctx.save();
     ctx.beginPath();
     ctx[this.fillMethod + 'Style'] = this.color;
@@ -1229,10 +822,6 @@ class Rect {
   }
   // 绘制路径
   createPath (ctx, sacle, realSize) {
-    // if (this.firstRender) {
-    //   this.calcInfo(sacle)
-    // }
-    // this.collisionDetection(realSize)
     ctx.save();
     ctx.beginPath();
     ctx[this.fillMethod + 'Style'] = this.color;
@@ -1296,138 +885,7 @@ class Rect {
     }
     // 如果有left, right啥啥啥的，就重置同方向的定位属性，避免影响
     this.resetAbsoluteInfo(keyArr, option);
-    // this.getAbsolutLocation(this.realSize)
     this.judgeChangeProps(this.type, this.realSize, keyArr);
-    // this.resetAbsoluteLocationInfo(option)
-  }
-  // resetAbsoluteLocationInfo (option) {
-  //   console.log(option)
-  //   console.log('reset')
-  //   if (option.left) {
-  //     this.left = option.left
-  //     this.right = undefined
-  //     this.locX = undefined
-  //   }
-  //   if (option.right) {
-  //     this.right = option.right
-  //     this.left = undefined
-  //     this.locX = undefined
-  //   }
-  //   if (option.top) {
-  //     this.top = option.top
-  //     this.bottom = undefined
-  //     this.locY = undefined
-  //   }
-  //   if (option.bottom) {
-  //     this.bottom = option.bottom
-  //     this.top = undefined
-  //     this.locY = undefined
-  //   }
-  //   if (option.locX) {
-  //     this.locX = option.locX
-  //     this.left = undefined
-  //     this.right = undefined
-  //   }
-  //   if (option.locY) {
-  //     this.locY = option.locY
-  //     this.top = undefined
-  //     this.bottom = undefined
-  //   }
-  //   this.getAbsolutLocation(this.realSize)
-  // }
-  // ---------待重写！---------------------------------------------------------------
-  // 根据设置方法不同设置不同参数
-  getAbsolutLocation (realSize) {
-    let loc = null; // 方向
-    let size = null; // realSize，屏幕真实宽or高
-    let property = null; // 改变x或y的值
-    let type = null; // 根据种类调用不同计算
-    let rectProperty = null;
-    if (this.locX !== undefined) {
-      loc = this.locX;
-      size = realSize.w;
-      property = 'x';
-      rectProperty = 'w';
-      type = 'locationX&Y';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-    if (this.locY !== undefined) {
-      loc = this.locY;
-      size = realSize.h;
-      property = 'y';
-      rectProperty = 'h';
-      type = 'locationX&Y';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-    if (this.left !== undefined) {
-      loc = this.left;
-      size = realSize.w;
-      property = 'x';
-      rectProperty = 'w';
-      type = 'left&top';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-    if (this.top !== undefined) {
-      loc = this.top;
-      size = realSize.h;
-      property = 'y';
-      rectProperty = 'h';
-      type = 'left&top';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-    if (this.right !== undefined) {
-      loc = this.right;
-      size = realSize.w;
-      property = 'x';
-      rectProperty = 'w';
-      type = 'right&bottom';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-    if (this.bottom !== undefined) {
-      loc = this.bottom;
-      size = realSize.h;
-      property = 'y';
-      rectProperty = 'h';
-      type = 'right&bottom';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-  }
-  // 计算x,y的值
-  setLocPosition (loc, size, property, rectProperty, type) {
-    switch (type) {
-      case 'locationX&Y' :
-        if (loc === 'center') {
-          this[property] = size / 2 - this[rectProperty] / 2;
-        } else if (typeof loc === 'number') {
-          this[property] = loc - this[rectProperty] / 2;
-        } else if (loc.indexOf('%') !== -1) {
-          let num = this.getPercentNum(loc);
-          this[property] = size * num / 100 - this[rectProperty] / 2;
-        }
-        break
-      case 'left&top' :
-        if (typeof loc === 'number') {
-          this[property] = loc;
-        } else if (loc.indexOf('%') !== -1) {
-          let num = this.getPercentNum(loc);
-          this[property] = size * num / 100;
-        }
-        break
-      case 'right&bottom' :
-        if (typeof loc === 'number') {
-          this[property] = size - this[rectProperty] - loc;
-        } else if (loc.indexOf('%') !== -1) {
-          let num = this.getPercentNum(loc);
-          this[property] = size - size * num / 100 - this[rectProperty];
-        }
-        break
-    }
-  }
-  // 获取百分比的数字部分
-  getPercentNum (value) {
-    let len = value.length;
-    console.log(Number(value.substring(0, len - 1)));
-    return Number(value.substring(0, len - 1))
   }
 }
 Rect.prototype = Object.assign(Rect.prototype, commonUtils);
@@ -1548,137 +1006,7 @@ class RoundRect {
     }
     // 如果有left, right啥啥啥的，就重置同方向的定位属性，避免影响
     this.resetAbsoluteInfo(keyArr, option);
-    // this.getAbsolutLocation(this.realSize)
     this.judgeChangeProps(this.type, this.realSize, keyArr);
-    // this.resetAbsoluteLocationInfo(option)
-  }
-  // resetAbsoluteLocationInfo (option) {
-  //   if (option.left) {
-  //     this.left = option.left
-  //     this.right = undefined
-  //     this.locX = undefined
-  //   }
-  //   if (option.right) {
-  //     this.right = option.right
-  //     this.left = undefined
-  //     this.locX = undefined
-  //   }
-  //   if (option.top) {
-  //     this.top = option.top
-  //     this.bottom = undefined
-  //     this.locY = undefined
-  //   }
-  //   if (option.bottom) {
-  //     this.bottom = option.bottom
-  //     this.top = undefined
-  //     this.locY = undefined
-  //   }
-  //   if (option.locX) {
-  //     this.locX = option.locX
-  //     this.left = undefined
-  //     this.right = undefined
-  //   }
-  //   if (option.locY) {
-  //     this.locY = option.locY
-  //     this.top = undefined
-  //     this.bottom = undefined
-  //   }
-  //   this.getAbsolutLocation(this.realSize)
-  // }
-  // 根据设置方法不同设置不同参数
-  getAbsolutLocation (realSize) {
-    let loc = null; // 方向
-    let size = null; // realSize，屏幕真实宽or高
-    let property = null; // 改变x或y的值
-    let type = null; // 根据种类调用不同计算
-    let rectProperty = null;
-    if (this.locX !== undefined) {
-      loc = this.locX;
-      size = realSize.w;
-      property = 'x';
-      rectProperty = 'w';
-      type = 'locationX&Y';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-    if (this.locY !== undefined) {
-      loc = this.locY;
-      size = realSize.h;
-      property = 'y';
-      rectProperty = 'h';
-      type = 'locationX&Y';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-    if (this.left !== undefined) {
-      loc = this.left;
-      size = realSize.w;
-      property = 'x';
-      rectProperty = 'w';
-      type = 'left&top';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-    if (this.top !== undefined) {
-      loc = this.top;
-      size = realSize.h;
-      property = 'y';
-      rectProperty = 'h';
-      type = 'left&top';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-    if (this.right !== undefined) {
-      loc = this.right;
-      size = realSize.w;
-      property = 'x';
-      rectProperty = 'w';
-      type = 'right&bottom';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-    if (this.bottom !== undefined) {
-      loc = this.bottom;
-      size = realSize.h;
-      property = 'y';
-      rectProperty = 'h';
-      type = 'right&bottom';
-      this.setLocPosition(loc, size, property, rectProperty, type);
-    }
-  }
-  // 计算x,y的值
-  setLocPosition (loc, size, property, rectProperty, type) {
-    console.log(loc);
-    switch (type) {
-      case 'locationX&Y' :
-        if (loc === 'center') {
-          this[property] = size / 2 - this[rectProperty] / 2;
-        } else if (typeof loc === 'number') {
-          this[property] = loc - this[rectProperty] / 2;
-        } else if (loc.indexOf('%') !== -1) {
-          let num = this.getPercentNum(loc);
-          this[property] = size * num / 100 - this[rectProperty] / 2;
-        }
-        break
-      case 'left&top' :
-        console.log('in left&top');
-        if (typeof loc === 'number') {
-          this[property] = loc;
-        } else if (loc.indexOf('%') !== -1) {
-          let num = this.getPercentNum(loc);
-          this[property] = size * num / 100;
-        }
-        break
-      case 'right&bottom' :
-        if (typeof loc === 'number') {
-          this[property] = size - this[rectProperty] - loc;
-        } else if (loc.indexOf('%') !== -1) {
-          let num = this.getPercentNum(loc);
-          this[property] = size - size * num / 100 - this[rectProperty];
-        }
-        break
-    }
-  }
-  // 获取百分比的数字部分
-  getPercentNum (value) {
-    let len = value.length;
-    console.log(Number(value.substring(0, len - 1)));
-    return Number(value.substring(0, len - 1))
   }
 }
 RoundRect.prototype = Object.assign(RoundRect.prototype, commonUtils);
@@ -1829,103 +1157,6 @@ class Text {
     // this.getAbsolutLocation(this.realSize)
     this.judgeChangeProps(this.type, this.realSize, keyArr);
   }
-  // resetAbsoluteLocationInfo (option) {
-  //   if (option.left) {
-  //     this.left = option.left
-  //     this.right = undefined
-  //     this.locX = undefined
-  //   }
-  //   if (option.right) {
-  //     this.right = option.right
-  //     this.left = undefined
-  //     this.locX = undefined
-  //   }
-  //   if (option.top) {
-  //     this.top = option.top
-  //     this.bottom = undefined
-  //     this.locY = undefined
-  //   }
-  //   if (option.bottom) {
-  //     this.bottom = option.bottom
-  //     this.top = undefined
-  //     this.locY = undefined
-  //   }
-  //   if (option.locX) {
-  //     this.locX = option.locX
-  //     this.left = undefined
-  //     this.right = undefined
-  //   }
-  //   if (option.locY) {
-  //     this.locY = option.locY
-  //     this.top = undefined
-  //     this.bottom = undefined
-  //   }
-  //   this.getAbsolutLocation(this.realSize)
-  // }
-  getAbsolutLocation (realSize) {
-    if (this.locX !== undefined) {
-      this.align = 'center';
-      if (this.locX === 'center') {
-        this.x = realSize.w / 2;
-      } else if (typeof this.locX === 'number') {
-        this.x = this.locX;
-      } else if (this.locX.indexOf('%') !== -1) {
-        let num = this.getPercentNum(this.locX);
-        this.x = realSize.w * num / 100;
-      }
-    }
-    if (this.locY !== undefined) {
-      if (this.locY === 'center') {
-        this.y = realSize.h / 2 - this.h / 2;
-      } else if (typeof this.locY === 'number') {
-        this.y = this.locY - this.h / 2;
-      } else if (this.locY.indexOf('%') !== -1) {
-        let num = this.getPercentNum(this.locY);
-        this.y = realSize.h * num / 100 - this.h / 2;
-      }
-    }
-    if (this.left !== undefined) {
-      this.align = 'left';
-      if (typeof this.left === 'number') {
-        this.x = this.left;
-      } else if (this.left.indexOf('%') !== -1) {
-        let num = this.getPercentNum(this.left);
-        this.x = realSize.w * num / 100;
-      }
-    }
-    if (this.right !== undefined) {
-      this.align = 'right';
-      if (typeof this.right === 'number') {
-        this.x = realSize.w - this.right;
-        console.log(this.x);
-      } else if (this.right.indexOf('%') !== -1) {
-        let num = this.getPercentNum(this.right);
-        this.x = realSize.w - realSize.w * num / 100;
-      }
-    }
-    if (this.top !== undefined) {
-      if (typeof this.top === 'number') {
-        this.y = this.top;
-      } else if (this.top.indexOf('%') !== -1) {
-        let num = this.getPercentNum(this.top);
-        this.y = realSize.h * num / 100;
-      }
-    }
-    if (this.bottom !== undefined) {
-      if (typeof this.bottom === 'number') {
-        this.y = realSize.h - this.bottom - this.h;
-      } else if (this.bottom.indexOf('%') !== -1) {
-        let num = this.getPercentNum(this.bottom);
-        this.y = realSize.h - realSize.h * num / 100 - this.h;
-      }
-    }
-  }
-  // 获取百分比的数字部分
-  getPercentNum (value) {
-    let len = value.length;
-    console.log(Number(value.substring(0, len - 1)));
-    return Number(value.substring(0, len - 1))
-  }
 }
 
 Text.prototype = Object.assign(Text.prototype, commonUtils);
@@ -1950,6 +1181,9 @@ class AnimationControl {
   }
   getLoop () {
     return this.loop
+  }
+  isLoopContinue () {
+    return (this.loop === true || --this.loop > 0)
   }
   getCurrentIndex () {
     return this.index
@@ -2052,7 +1286,7 @@ function hex2rgb (hexValue) {
 function formatRgb (rgbValue) {
   console.log(rgbValue);
   // const rgbPattern = /^[rR][gG][bB]\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/
-  const rgbPattern = /^[rR][gG][bB][aA]?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,?\s*(0|1|0\.\d{1,2}|\.\d{1,2})?\s*\)\s*$/;
+  const rgbPattern = /^[rR][gG][bB][aA]?\(\s*(\d{1,3}.?\d*)\s*,\s*(\d{1,3}.?\d*)\s*,\s*(\d{1,3}.?\d*)\s*,?\s*(0|1|0\.\d{1,2}|\.\d{1,2})?\s*\)\s*$/;
   const result = rgbPattern.exec(rgbValue);
   const alpha = /\.\d{1,2}/;
   console.log(result);
@@ -2078,10 +1312,14 @@ function formatRgb (rgbValue) {
  * @returns {String} 一个用rgba表示颜色的字符串
  */
 function calcColorChange (animationInfo, goesbyRatio, startOptionColor) {
-  console.log(goesbyRatio);
+  console.log('startOptionColor');
+  console.log(startOptionColor);
   const startColor = _getFormatRgb(startOptionColor);
   const currentColor = _getFormatRgb(animationInfo);
-  console.log(currentColor);
+  console.log('before');
+  console.log(currentColor); // right
+  console.log('after');
+  console.log(startColor); // wrong
   const changedColorStep = {
     cr: (currentColor.r - startColor.r) * goesbyRatio,
     cg: (currentColor.g - startColor.g) * goesbyRatio,
@@ -2089,22 +1327,34 @@ function calcColorChange (animationInfo, goesbyRatio, startOptionColor) {
     ca: (currentColor.a - startColor.a) * goesbyRatio
   };
   const currentRgb = {
-    r: startColor.r + changedColorStep.cr,
-    g: startColor.g + changedColorStep.cg,
-    b: startColor.b + changedColorStep.cb,
-    a: startColor.a + changedColorStep.ca
+    r: (startColor.r + changedColorStep.cr).toFixed(2),
+    g: (startColor.g + changedColorStep.cg).toFixed(2),
+    b: (startColor.b + changedColorStep.cb).toFixed(2),
+    a: (startColor.a + changedColorStep.ca).toFixed(2)
   };
+  _roughHandle(currentRgb);
   return `rgba(${currentRgb.r}, ${currentRgb.g}, ${currentRgb.b}, ${currentRgb.a})`
 }
-
+// 暴力解决数值溢出的问题，先这么着= =后面再说
+function _roughHandle (currentRgb) {
+  const props = Object.keys(currentRgb);
+  props.forEach(porp => {
+    if (currentRgb[porp] > 255) {
+      currentRgb[porp] = 255;
+    } else if (currentRgb[porp] < 0) {
+      currentRgb[porp] = 0;
+    }
+  });
+}
 /** 格式化，把所有颜色都他喵转换成rgba形式
  * @param {String} colorValue 颜色值
  * @returns {String} rgba形式的颜色
  */
 function _getFormatRgb (colorValue) {
+  console.log(colorValue);
   const hexPattern = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
   // const rgbPattern = /[rR][gG][bB]\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)/
-  const rgbPattern = /^[rR][gG][bB][aA]?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,?(\s*0|\s*1|\s*0\.\d{1,2}|\s*\.\d{1,2})?\s*\)\s*$/;
+  const rgbPattern = /^[rR][gG][bB][aA]?\(\s*\d{1,3}.?\d*\s*,\s*\d{1,3}\.?\d*\s*,\s*\d{1,3}.?\d*\s*,?(\s*0|\s*1|\s*0\.\d{1,2}|\s*\.\d{1,2})?\s*\)\s*$/;
   let result = null;
   if (hexPattern.test(colorValue)) {
     result = hex2rgb(colorValue);
@@ -2118,11 +1368,14 @@ function _getFormatRgb (colorValue) {
 }
 
 function getColorValue (colorValue) {
+  console.log(colorValue);
   const colorName = colorValue.toLowerCase();
   const color = colorList[colorName];
   let result = null;
   if (color) {
     result = hex2rgb(color);
+    console.log('in color');
+    console.log(result);
   } else {
     console.warn('输入颜色不合法');
   }
@@ -2350,7 +1603,7 @@ class Shape {
     this.watch.setLoop(loopTime); // 设置循环次数
     this.watch.setStartTime(); // 设置开始时间
     this.startOption = Object.assign({}, this.Shape); // 记录初始值
-    console.log(this.startOption);
+    // console.log(this.startOption)
     function stepAnimation () { // 递归实现动画循环
       drawAnimationStep(stepAnimation);
       if (_this.watch.isRunning()) {
@@ -2370,45 +1623,48 @@ class Shape {
     this.animationStore = [];
     this.completeAnimationStore = [];
   }
-  // 更新动画
+  // 更新动画 step -> loop -> complete
+  // _updateStep -> updateOption -> (stepComplete) -> _setStepAfterStepOption -> _isALoopComplete -> (loopComplete) -> _resetDataAfterALoopCompelte
   _updateStep () {
     console.log(this.animationStore);
-    let _this = this;
-    let goesByTime = this.watch.getGoesbyTime();
-    let nowAnimation = this.animationStore[0];
-    let duration = nowAnimation[1];
-    let animationInfo = nowAnimation[0];
-    let option = this._calcAnimationInfo(animationInfo, duration); // 处理动画数据，每一步动画移动的坐标, 处理数据都在里面
+    const goesByTime = this.watch.getGoesbyTime();
+    const nowAnimation = this.animationStore[0];
+    const duration = nowAnimation[1];
+    const animationInfo = nowAnimation[0];
+    const option = this._calcAnimationInfo(animationInfo, duration); // 处理动画数据，每一步动画移动的坐标, 处理数据都在里面
     this.updateOption(option);
     // 是否结束动画
     if (goesByTime >= duration) {
-      console.log('-------------------超帅的step分割线--------------------');
-      let completeAnimation = this.animationStore.shift();
-      this.completeAnimationStore.push(completeAnimation);
-      // 惊了，忘记是干嘛的了，大概是克隆了一份Shape的值，防止引用型变量被篡改
-      this.tempOption = Object.assign({}, this.Shape);
-      _this.watch.setStartTime();
-      if (this.animationStore.length === 0) {
-        // 循环是否结束，没结束则将已完成的动画push到animationStore再画一遍
-        // 添加一个函数来判断， 过会改
-        if (_this.watch.loop === true || --_this.watch.loop > 0) {
-          this.updateOption(this.startOption); // 重新循环时重置初始属性
-        } else if (--_this.watch.loop <= 0) {
-          // 用_this.watch.stop()， 过会改
-          _this.watch.running = false;
-        }
-        // 把已完成动画扔回去，以便下一次start可以用
-        this.completeAnimationStore.forEach((animationInfo) => {
-          this.animationStore.push(animationInfo);
-        });
-        // 已完成动画置空
-        this.completeAnimationStore = [];
-        // 中间点置空
-        this.tempOption = null;
-      }
+      this._setStepAfterStepOption();
+      this._isALoopComplete(this.animationStore.length);
     }
   }
-
+  _setStepAfterStepOption () {
+    console.log('-------------------超帅的step分割线--------------------');
+    // 将已完成的动画从动画仓库移动到已完成仓库
+    const completeAnimation = this.animationStore.shift();
+    this.completeAnimationStore.push(completeAnimation);
+    // 惊了，忘记是干嘛的了，大概是克隆了一份Shape的值，防止引用型变量被篡改
+    this.tempOption = Object.assign({}, this.Shape);
+    this.watch.setStartTime();
+  }
+  _isALoopComplete (animationStoreLength) {
+    if (animationStoreLength === 0) {
+      // 循环是否结束，没结束则将已完成的动画push到animationStore再画一遍
+      this.watch.isLoopContinue() ? this.updateOption(this.startOption) : this.watch.complete();
+      this._resetDataAfterALoopCompelte();
+    }
+  }
+  _resetDataAfterALoopCompelte () {
+    // 把已完成动画扔回去，以便下一次start可以用
+    this.completeAnimationStore.forEach((animationInfo) => {
+      this.animationStore.push(animationInfo);
+    });
+    this.completeAnimationStore = [];
+    // 中间点置空
+    this.tempOption = null;
+  }
+  // -----------------------------------------------------------------------------------------------------------
   /** 计算动画过程中变化的属性返回计算后的值
    * @param {Object} option 更改的属性
    * @param {Number} duration 动画持续时间
@@ -2422,14 +1678,14 @@ class Shape {
     keys.forEach((key) => {
       const goesbyRatio = _this.watch.getGoesbyTime() / duration;
       const startValue = _this.tempOption ? _this.tempOption[key] : _this.startOption[key];
-      // 颜色和距离宽高变动分开算
+      // 颜色和距离宽高变动分开算, 这边仿佛可以拆= =想不出函数名，留着先
       if (key === 'color') {
-        console.log(option[key]);
+        console.log(startValue);
         const rgbColor = calcColorChange(option[key], goesbyRatio, startValue);
         nowOption[key] = rgbColor;
         // console.log(rgbColor)
       } else {
-        const changedValue = _this._judgePositionMethod(option[key], goesbyRatio, startValue);
+        const changedValue = _this._calcPositionValue(option[key], goesbyRatio, startValue);
         nowOption[key] = changedValue;
       }
     });
@@ -2444,7 +1700,7 @@ class Shape {
    * @returns 改变之后的单个属性值
    * @memberof Shape
    */
-  _judgePositionMethod (animationInfo, goesbyRatio, startValue) {
+  _calcPositionValue (animationInfo, goesbyRatio, startValue) {
     let num = null;
     let changedLen = null;
     if (typeof animationInfo === 'number') {

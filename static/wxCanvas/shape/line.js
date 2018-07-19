@@ -24,10 +24,6 @@ class Line {
   }
   // 绘制路径
   createPath (ctx, sacle, realSize) {
-    // if (this.firstRender) {
-    //   this.calcInfo(sacle)
-    // }
-    // this.collisionDetection(realSize)
     ctx.save()
     ctx.beginPath()
     ctx[this.fillMethod + 'Style'] = this.color

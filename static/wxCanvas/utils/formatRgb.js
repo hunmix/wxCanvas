@@ -29,7 +29,7 @@ export function hex2rgb (hexValue) {
 export function formatRgb (rgbValue) {
   console.log(rgbValue)
   // const rgbPattern = /^[rR][gG][bB]\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/
-  const rgbPattern = /^[rR][gG][bB][aA]?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,?\s*(0|1|0\.\d{1,2}|\.\d{1,2})?\s*\)\s*$/
+  const rgbPattern = /^[rR][gG][bB][aA]?\(\s*(\d{1,3}.?\d*)\s*,\s*(\d{1,3}.?\d*)\s*,\s*(\d{1,3}.?\d*)\s*,?\s*(0|1|0\.\d{1,2}|\.\d{1,2})?\s*\)\s*$/
   const result = rgbPattern.exec(rgbValue)
   const alpha = /\.\d{1,2}/
   console.log(result)

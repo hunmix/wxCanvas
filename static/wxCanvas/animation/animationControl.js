@@ -19,6 +19,9 @@ class AnimationControl {
   getLoop () {
     return this.loop
   }
+  isLoopContinue () {
+    return (this.loop === true || --this.loop > 0)
+  }
   getCurrentIndex () {
     return this.index
   }

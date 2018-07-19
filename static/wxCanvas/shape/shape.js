@@ -80,7 +80,7 @@ class Shape {
     this.watch.setLoop(loopTime) // 设置循环次数
     this.watch.setStartTime() // 设置开始时间
     this.startOption = Object.assign({}, this.Shape) // 记录初始值
-    console.log(this.startOption)
+    // console.log(this.startOption)
     function stepAnimation () { // 递归实现动画循环
       drawAnimationStep(stepAnimation)
       if (_this.watch.isRunning()) {
@@ -100,45 +100,48 @@ class Shape {
     this.animationStore = []
     this.completeAnimationStore = []
   }
-  // 更新动画
+  // 更新动画 step -> loop -> complete
+  // _updateStep -> updateOption -> (stepComplete) -> _setStepAfterStepOption -> _isALoopComplete -> (loopComplete) -> _resetDataAfterALoopCompelte
   _updateStep () {
     console.log(this.animationStore)
-    let _this = this
-    let goesByTime = this.watch.getGoesbyTime()
-    let nowAnimation = this.animationStore[0]
-    let duration = nowAnimation[1]
-    let animationInfo = nowAnimation[0]
-    let option = this._calcAnimationInfo(animationInfo, duration) // 处理动画数据，每一步动画移动的坐标, 处理数据都在里面
+    const goesByTime = this.watch.getGoesbyTime()
+    const nowAnimation = this.animationStore[0]
+    const duration = nowAnimation[1]
+    const animationInfo = nowAnimation[0]
+    const option = this._calcAnimationInfo(animationInfo, duration) // 处理动画数据，每一步动画移动的坐标, 处理数据都在里面
     this.updateOption(option)
     // 是否结束动画
     if (goesByTime >= duration) {
-      console.log('-------------------超帅的step分割线--------------------')
-      let completeAnimation = this.animationStore.shift()
-      this.completeAnimationStore.push(completeAnimation)
-      // 惊了，忘记是干嘛的了，大概是克隆了一份Shape的值，防止引用型变量被篡改
-      this.tempOption = Object.assign({}, this.Shape)
-      _this.watch.setStartTime()
-      if (this.animationStore.length === 0) {
-        // 循环是否结束，没结束则将已完成的动画push到animationStore再画一遍
-        // 添加一个函数来判断， 过会改
-        if (_this.watch.loop === true || --_this.watch.loop > 0) {
-          this.updateOption(this.startOption) // 重新循环时重置初始属性
-        } else if (--_this.watch.loop <= 0) {
-          // 用_this.watch.stop()， 过会改
-          _this.watch.running = false
-        }
-        // 把已完成动画扔回去，以便下一次start可以用
-        this.completeAnimationStore.forEach((animationInfo) => {
-          this.animationStore.push(animationInfo)
-        })
-        // 已完成动画置空
-        this.completeAnimationStore = []
-        // 中间点置空
-        this.tempOption = null
-      }
+      this._setStepAfterStepOption()
+      this._isALoopComplete(this.animationStore.length)
     }
   }
-
+  _setStepAfterStepOption () {
+    console.log('-------------------超帅的step分割线--------------------')
+    // 将已完成的动画从动画仓库移动到已完成仓库
+    const completeAnimation = this.animationStore.shift()
+    this.completeAnimationStore.push(completeAnimation)
+    // 惊了，忘记是干嘛的了，大概是克隆了一份Shape的值，防止引用型变量被篡改
+    this.tempOption = Object.assign({}, this.Shape)
+    this.watch.setStartTime()
+  }
+  _isALoopComplete (animationStoreLength) {
+    if (animationStoreLength === 0) {
+      // 循环是否结束，没结束则将已完成的动画push到animationStore再画一遍
+      this.watch.isLoopContinue() ? this.updateOption(this.startOption) : this.watch.complete()
+      this._resetDataAfterALoopCompelte()
+    }
+  }
+  _resetDataAfterALoopCompelte () {
+    // 把已完成动画扔回去，以便下一次start可以用
+    this.completeAnimationStore.forEach((animationInfo) => {
+      this.animationStore.push(animationInfo)
+    })
+    this.completeAnimationStore = []
+    // 中间点置空
+    this.tempOption = null
+  }
+  // -----------------------------------------------------------------------------------------------------------
   /** 计算动画过程中变化的属性返回计算后的值
    * @param {Object} option 更改的属性
    * @param {Number} duration 动画持续时间
@@ -152,14 +155,14 @@ class Shape {
     keys.forEach((key) => {
       const goesbyRatio = _this.watch.getGoesbyTime() / duration
       const startValue = _this.tempOption ? _this.tempOption[key] : _this.startOption[key]
-      // 颜色和距离宽高变动分开算
+      // 颜色和距离宽高变动分开算, 这边仿佛可以拆= =想不出函数名，留着先
       if (key === 'color') {
-        console.log(option[key])
+        console.log(startValue)
         const rgbColor = calcColorChange(option[key], goesbyRatio, startValue)
         nowOption[key] = rgbColor
         // console.log(rgbColor)
       } else {
-        const changedValue = _this._judgePositionMethod(option[key], goesbyRatio, startValue)
+        const changedValue = _this._calcPositionValue(option[key], goesbyRatio, startValue)
         nowOption[key] = changedValue
       }
     })
@@ -174,7 +177,7 @@ class Shape {
    * @returns 改变之后的单个属性值
    * @memberof Shape
    */
-  _judgePositionMethod (animationInfo, goesbyRatio, startValue) {
+  _calcPositionValue (animationInfo, goesbyRatio, startValue) {
     let num = null
     let changedLen = null
     if (typeof animationInfo === 'number') {

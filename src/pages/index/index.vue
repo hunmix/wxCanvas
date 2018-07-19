@@ -54,46 +54,6 @@ export default {
     let ctx = wx.createCanvasContext('canvas', this)
     this.wxCanvas = new WxCanvas(ctx, this.config)
     this.canvasSize = this.wxCanvas.initCanvasInfo()
-    // let bg = new Shape('roundRect', {w: 710, h: 940, color: '#fff', r: 20, fillMethod: 'fill'})
-    // let image = new Shape('image', {w: 710, h: 747, url: '/static/images/0.png', imgW: 710, imgH: 747})
-    // let country1 = new Shape('text', {text: '德国', x: 186, y: 245, h: 34, fontSize: 18, color: '#fff', fillMethod: 'fill'})
-    // let country2 = new Shape('text', {text: '巴拿马', x: 414, y: 246, h: 34, fontSize: 18, color: '#fff', fillMethod: 'fill'})
-    // let score1 = new Shape('roundRect', {x: 213, y: 405, w: 106, h: 164, color: '#fff', r: 8, fillMethod: 'fill'})
-    // let score2 = new Shape('roundRect', {x: 389, y: 405, w: 106, h: 164, color: '#fff', r: 8, fillMethod: 'fill'})
-    // let circleImage = new Shape('circleImage', {x: 298, y: 677, r: 61, w: 200, h: 200, url: '/static/images/1.png'}, true)
-    // this.text = new Shape('text', {text: '点击输入文字', fontSize: 18, x: 359.5, y: 831, h: 25.5, fillMethod: 'fill', color: '#000', align: 'center'}, true)
-    // // let text2 = new Shape('text', {text: '看看谁是真正的预言家', x: 359.5, y: 856.5, h: 25.5, fillMethod: 'fill', color: '#000', align: 'center'})
-    // let line = new Shape('line', {x1: 0, y1: 405, x2: 690, y2: 405, color: '#0f0', w: 10})
-    // this.wxCanvas.add(bg)
-    // this.wxCanvas.add(image)
-    // this.wxCanvas.add(country1)
-    // this.wxCanvas.add(country2)
-    // this.wxCanvas.add(score1)
-    // this.wxCanvas.add(score2)
-    // this.wxCanvas.add(circleImage)
-    // this.wxCanvas.add(line)
-    // this.text.bind('click', function () {
-    //   console.log('click')
-    //   that.isShowInput = true
-    //   that.text.updateOption({text: ''}, false)
-    //   that.wxCanvas.update()
-    // })
-    // this.wxCanvas.add(this.text)
-    // ------------------------------------------------------------------------//
-    // let circle = new Shape('circle', {x: 200, bottom: 0, r: 60, color: 'red', fillMethod: 'fill'}, true)
-    // this.wxCanvas.add(circle)
-    // circle.animate({x: '+200', y: '-200', r: '+10'}, 1000)
-    // circle.bind('click', function () {
-    //   // circle.updateOption({x: 200, y: 200, r: 100}, true)
-    //   circle.start()
-    // })
-    // let circleImage = new Shape('circleImage', {r: 60, url: '/static/images/0.png', x: 100, y: 100}, true)
-    // this.wxCanvas.add(circleImage)
-    // circleImage.animate({x: '+200', y: '-200', r: '+10'}, 1000)
-    // circleImage.bind('click', function () {
-    //   // circleImage.updateOption({locX: 'center', y: 0, r: 200}, true)
-    //   circleImage.start()
-    // })
     // this.roundRect = new Shape('roundRect', {w: 150, h: 150, color: 'green', left: 50, y: 100, r: 20}, true)
     // this.circleImage = new Shape('circleImage', {r: 50, x: 250, locY: 'center', url: '/static/images/0.png'})
     // this.circle1 = new Shape('circle', {r: 50, locX: '80%', locY: '50%', color: 'red'})
@@ -115,15 +75,8 @@ export default {
     this.wxCanvas.add(this.rect)
     // this.line = new Shape('line', {x1: 0, y1: 0, x2: 100, y2: 100, color: '#000'})
     // this.wxCanvas.add(this.line)
-    this.rect.animate({color: 'lightblue', x: '+40', y: '+40', h: '+40', w: '+40'}).start(2)
-    // this.rect.updateOption({color: 'red', x: 50, w: 50}, false)
-    // this.rect.animate({x: '+100', y: '+100', w: 200, h: 200}).start()
-    // this.roundRect.updateOption({color: 'red', h: 150, w: 150, x: 50, y: 50}, true)
-    // this.roundRect.animate({x: '+50', y: '+50'}, 1000, true).start(1)
-    // this.circle.updateOption({x: 250, y: 250, r: 50})
-    // this.image.updateOption({locX: '50%', locY: '50%', r: 50}, true)
-    // this.circleImage.updateOption({x: 298, y: 677, r: 61, imgW: 200, imgH: 200}, true)
-    // this.text.updateOption({locX: '50%', locY: '50%', color: 'red'})
+    this.rect.animate({color: 'rgba(0, 0,0,.1)', x: '+40', y: '+40', h: '+40', w: '+40'}).animate({color: 'red', x: '-40', y: '-40', h: '-40', w: '-40'}).start()
+    // this.roundRect.animate({color: 'blue', x: '+40', y: '+40', h: '+40', w: '+40'}).start(2)
   },
   methods: {
     // 触摸开始
@@ -138,19 +91,6 @@ export default {
     handleTouchEnd (e) {
       this.wxCanvas.touchEnd(e)
     },
-    // 复制并增加方块
-    // handleBtnAdd () {
-    //   console.log(this.dadRect)
-    //   let tempShape = this.dadRect.clone()
-    //   let len = this.rectList.length
-    //   if (len === 0) {
-    //     tempShape.updateOption({x: this.dadRect.Shape.x + 55, color: '#000'}, false, false)
-    //   } else {
-    //     tempShape.updateOption({x: this.rectList[len - 1].Shape.x + 55, color: '#0f0'}, false, true)
-    //   }
-    //   this.rectList.push(tempShape)
-    //   this.wxCanvas.add(tempShape)
-    // },
     // 从图上删除最后一个图形
     handleBtnDelete () {
       this.wxCanvas.cancel(1)
@@ -182,15 +122,6 @@ export default {
     handleBtnDeleteYellowCircle () {
       this.circle1.updateOption({x: 100, y: 0})
     },
-    // // 改变颜色
-    // handleChangeColor () {
-    //   if (this.circle.Shape.color === 'yellow') {
-    //     this.circle.updateOption({color: '#000'}, false, false)
-    //   } else {
-    //     this.circle.updateOption({color: 'yellow'}, false, true)
-    //   }
-    //   this.wxCanvas.draw()
-    // },
     handleProgram () {
       this.rect.stop()
     },

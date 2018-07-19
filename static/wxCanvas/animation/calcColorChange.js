@@ -8,10 +8,14 @@ import {hex2rgb, formatRgb} from '../utils/formatRgb'
  * @returns {String} 一个用rgba表示颜色的字符串
  */
 function calcColorChange (animationInfo, goesbyRatio, startOptionColor) {
-  console.log(goesbyRatio)
+  console.log('startOptionColor')
+  console.log(startOptionColor)
   const startColor = _getFormatRgb(startOptionColor)
   const currentColor = _getFormatRgb(animationInfo)
-  console.log(currentColor)
+  console.log('before')
+  console.log(currentColor) // right
+  console.log('after')
+  console.log(startColor) // wrong
   const changedColorStep = {
     cr: (currentColor.r - startColor.r) * goesbyRatio,
     cg: (currentColor.g - startColor.g) * goesbyRatio,
@@ -19,22 +23,34 @@ function calcColorChange (animationInfo, goesbyRatio, startOptionColor) {
     ca: (currentColor.a - startColor.a) * goesbyRatio
   }
   const currentRgb = {
-    r: startColor.r + changedColorStep.cr,
-    g: startColor.g + changedColorStep.cg,
-    b: startColor.b + changedColorStep.cb,
-    a: startColor.a + changedColorStep.ca
+    r: (startColor.r + changedColorStep.cr).toFixed(2),
+    g: (startColor.g + changedColorStep.cg).toFixed(2),
+    b: (startColor.b + changedColorStep.cb).toFixed(2),
+    a: (startColor.a + changedColorStep.ca).toFixed(2)
   }
+  _roughHandle(currentRgb)
   return `rgba(${currentRgb.r}, ${currentRgb.g}, ${currentRgb.b}, ${currentRgb.a})`
 }
-
+// 暴力解决数值溢出的问题，先这么着= =后面再说
+function _roughHandle (currentRgb) {
+  const props = Object.keys(currentRgb)
+  props.forEach(porp => {
+    if (currentRgb[porp] > 255) {
+      currentRgb[porp] = 255
+    } else if (currentRgb[porp] < 0) {
+      currentRgb[porp] = 0
+    }
+  })
+}
 /** 格式化，把所有颜色都他喵转换成rgba形式
  * @param {String} colorValue 颜色值
  * @returns {String} rgba形式的颜色
  */
 function _getFormatRgb (colorValue) {
+  console.log(colorValue)
   const hexPattern = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
   // const rgbPattern = /[rR][gG][bB]\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)/
-  const rgbPattern = /^[rR][gG][bB][aA]?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,?(\s*0|\s*1|\s*0\.\d{1,2}|\s*\.\d{1,2})?\s*\)\s*$/
+  const rgbPattern = /^[rR][gG][bB][aA]?\(\s*\d{1,3}.?\d*\s*,\s*\d{1,3}\.?\d*\s*,\s*\d{1,3}.?\d*\s*,?(\s*0|\s*1|\s*0\.\d{1,2}|\s*\.\d{1,2})?\s*\)\s*$/
   let result = null
   if (hexPattern.test(colorValue)) {
     result = hex2rgb(colorValue)
@@ -48,11 +64,14 @@ function _getFormatRgb (colorValue) {
 }
 
 function getColorValue (colorValue) {
+  console.log(colorValue)
   const colorName = colorValue.toLowerCase()
   const color = colorList[colorName]
   let result = null
   if (color) {
     result = hex2rgb(color)
+    console.log('in color')
+    console.log(result)
   } else {
     console.warn('输入颜色不合法')
   }
