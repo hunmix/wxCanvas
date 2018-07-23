@@ -26,6 +26,9 @@ class Shape {
       'click': [],
       'longpress': []
     }
+    console.log(`---------------0-0-0-0---------------------------------`)
+    console.log(`dragable : ${this.dragable}`)
+    console.log(`scaleable : ${this.scaleable}`)
     // 为可自定义图形和borderFrame添加点击事件，这个点击事件，怪怪的 后面再说
     if (this.scaleable) {
       this.dragable = false
@@ -85,21 +88,22 @@ class Shape {
     return this
   }
   start (loopTime, calcScale) {
+    console.log(`start : ${this.dragable}`)
+    console.log(this.animationStore)
+    const tempDragable = this.dragable
     this.dragable = false
     this.watch.running = true // 动画开始
     this.watch.setLoop(loopTime) // 设置循环次数
     this.watch.setStartTime() // 设置开始时间
     this.startOption = Object.assign({}, this.Shape) // 记录初始值
-    this._loopAnimation()
-    // console.log(this.startOption)
+    this._loopAnimation(tempDragable)
   }
   resetTransInfo () {
     this.transformInfo = null
   }
-  _loopAnimation () {
+  _loopAnimation (tempDragable) {
     let _this = this
     // 动画时禁止拖动, 这边可以放到watch里面，后面再改- -
-    const tempDragable = this.dragable
     function stepAnimation () { // 实现动画循环
       // drawAnimationStep(stepAnimation)
       if (_this.watch.isRunning()) {

@@ -9,7 +9,6 @@ class ScaleControl {
     this.startPoint = null
     this.realSize = realSize
     this.fromBorderLen = 5
-    this.bus.listen('update', this, this.update)
   }
   createBorderFrame (shape) {
     if (!this.isScaleShapeChanged()) return
@@ -88,6 +87,8 @@ class ScaleControl {
     return this.borderFrame.isInShape(e)
   }
   update (updateData) {
+    console.log('ScaleControl :')
+    console.log(updateData)
     console.log('update')
     const shape = updateData || this.scaleShape.Shape
     console.log(updateData)
@@ -166,7 +167,7 @@ class ScaleControl {
     }
   }
   _isCircleInBoundary (scale) {
-    return this.scaleShape.Shape.r * 2 * scale.x <= 10 || this.scaleShape.Shape.w * scale.x >= this.realSize.w
+    return this.scaleShape.Shape.r * 2 * scale.x <= 10 || this.scaleShape.Shape.r * 2 * scale.x >= this.realSize.width - this.fromBorderLen * 2
   }
   _isOtherShapeInBoundary (scale) {
     return this.scaleShape.Shape.w * scale.x <= 10 || this.scaleShape.Shape.h * scale.y <= 10 || this.scaleShape.Shape.w * scale.x >= this.realSize.width - this.fromBorderLen * 2 || this.scaleShape.Shape.h * scale.y >= this.realSize.height - this.fromBorderLen * 2
