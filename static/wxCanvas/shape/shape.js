@@ -12,13 +12,12 @@ import {drawAnimationStep} from '../animation/calcFunction'
 import {calcColorChange} from '../animation/calcColorChange'
 // 图形
 class Shape {
-  constructor (type, drawData, dragable, scaleable) {
+  constructor (type, drawData, {dragable = false, scaleable = false} = {}) {
+    console.log(arguments)
     this.Shape = createShape[type](drawData)
     this.dragable = dragable
     this.scaleable = scaleable
-    if (scaleable) {
-      this.dragable = false
-    }
+    this.transformInfo = null
     this.watch = new AnimationControl()
     this._bus = new EventBus()
     this.animationStore = []
@@ -26,6 +25,10 @@ class Shape {
     this.eventList = {
       'click': [],
       'longpress': []
+    }
+    // 为可自定义图形和borderFrame添加点击事件，这个点击事件，怪怪的 后面再说
+    if (this.scaleable) {
+      this.dragable = false
     }
   }
   draw (ctx, scale, realSize) {
@@ -41,7 +44,12 @@ class Shape {
     // 碰撞判定
     this.Shape.collisionDetection(realSize)
     // 绘制路径
-    this.Shape.createPath(ctx)
+    // transfromControl, transformInfo
+    this.Shape.createPath(ctx, this.transformInfo)
+    // this.Shape.restProps(this.transformInfo)
+  }
+  setTransformInfo (transformInfo) {
+    this.transformInfo = transformInfo
   }
   isNeedCalcRatio () {
     return this.Shape.firstRender
@@ -84,6 +92,9 @@ class Shape {
     this.startOption = Object.assign({}, this.Shape) // 记录初始值
     this._loopAnimation()
     // console.log(this.startOption)
+  }
+  resetTransInfo () {
+    this.transformInfo = null
   }
   _loopAnimation () {
     let _this = this

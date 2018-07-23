@@ -37,13 +37,14 @@ class RoundRect {
     this.h = this.h * scale.y
   }
   // 绘制路径
-  createPath (ctx, sacle, realSize) {
+  createPath (ctx, transformInfo) {
     // if (this.firstRender) {
     //   this.calcInfo(sacle)
     // }
     // this.collisionDetection(realSize)
     ctx.save()
     ctx[this.fillMethod + 'Style'] = this.color
+    transformInfo && this.handleTransform(ctx, transformInfo)
     ctx.beginPath()
     ctx.moveTo(this.x + this.r, this.y)
     ctx.lineTo(this.x + this.w - this.r, this.y)
@@ -57,7 +58,36 @@ class RoundRect {
     ctx.closePath()
     ctx[this.fillMethod]()
     ctx.restore()
+    transformInfo && this.restProps(transformInfo)
   }
+  // _restProps (transformInfo) {
+  //   const changedLen = {
+  //     w: this.w / 2 * transformInfo.scale.x,
+  //     h: this.h / 2 * transformInfo.scale.y
+  //   }
+  //   const centerPoint = {
+  //     x: this.x + this.w / 2,
+  //     y: this.y + this.h / 2
+  //   }
+  //   this.x = centerPoint.x - changedLen.w
+  //   this.y = centerPoint.y - changedLen.h
+  //   this.w = this.w * transformInfo.scale.x
+  //   this.h = this.h * transformInfo.scale.y
+  // }
+  // _handleTransform (ctx, transformInfo) {
+  //   transformInfo.scale && this._scaleTransform(ctx, transformInfo.scale)
+  // }
+  // _scaleTransform (ctx, scaleInfo) {
+  //   console.log(scaleInfo)
+  //   const center = {
+  //     x: (this.x + this.w / 2) * (1 - scaleInfo.x),
+  //     y: (this.y + this.h / 2) * (1 - scaleInfo.y)
+  //   }
+  //   ctx.translate(center.x, center.y)
+  //   ctx.scale(scaleInfo.x, scaleInfo.y)
+  //   console.log(center.x, center.y)
+  //   console.log(scaleInfo)
+  // }
   judgeRange (e) {
     this.startPoint = {
       x: e.mp.changedTouches[0].x,
@@ -68,6 +98,7 @@ class RoundRect {
     if (this.startPoint.x > this.x && this.startPoint.x < rightX && this.startPoint.y < bottomY && this.startPoint.y > this.y) {
       this.startX = this.x
       this.startY = this.y
+      console.log('in')
       return true
     } else {
       return false

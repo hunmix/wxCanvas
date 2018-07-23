@@ -29,14 +29,17 @@ class Circle {
     this.r = this.r * scale.x
   }
   // 绘制路径
-  createPath (ctx) {
+  createPath (ctx, transformInfo) {
+    console.log(transformInfo)
     ctx.save()
     ctx.beginPath()
+    transformInfo && this.handleTransform(ctx, transformInfo)
     ctx[this.fillMethod + 'Style'] = this.color
     ctx.arc(this.x + this.r, this.y + this.r, this.r, 0, 2 * Math.PI)
     ctx[this.fillMethod]()
     ctx.closePath()
     ctx.restore()
+    transformInfo && this.restProps(transformInfo, this.type)
   }
   judgeRange (e) {
     this.startPoint = {

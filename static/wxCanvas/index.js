@@ -12,7 +12,7 @@ class WxCanvas {
     this.info = new Info(config) // info对象，初始化各种信息
     this.canMove = false // 是否能拖动标记
     this.bus = new EventBus() // 事件总线对象
-    this.scaleControl = new ScaleControl(this.bus)
+    this.scaleControl = new ScaleControl(this.bus, this.initCanvasInfo())
     this.bus.listen('update', this, this.update)
     this.bus.listen('add', this, this.add)
     this.bus.listen('delete', this, this.delete)
@@ -36,7 +36,7 @@ class WxCanvas {
   draw () {
     let that = this
     this.store.store.forEach((item) => {
-      console.log(item)
+      // console.log(item)
       item.draw(that.canvas, that.info.scale, that.info.realSize)
     })
     this.canvas.draw()
@@ -44,46 +44,23 @@ class WxCanvas {
   // 外置触摸开始
   touchStart (e) {
     this.isMouseMove = false
-    // ----------------------------------------------------------------
-    let len = this.store.store.length
-    for (let i = len - 1; i > -1; i--) {
-      let shape = this.store.store[i]
-      if (shape.canDragable() && shape.isInShape(e)) {
-        this.moveItem = shape
-        this.canMove = true
-        return
-      }
-    }
+    this.judgeCanMoveItem(e)
   }
   // 外置触摸移动
   touchMove (e) {
-    const _this = this
     this.isMouseMove = true
-    if (this.canMove) {
-      this.moveItem.move(e)
-      _this.scaleControl.isBorderFrameNeedMove(this.moveItem) && _this.scaleControl.update()
-      this.draw()
-    }
+    this.canMove && this.handleMoveEvent(e)
+    this.scaleControl.canShapeTrans() && this.scaleControl.handleTransEvent(e)
+    // 全部画出来
+    this.draw()
   }
   // 触摸结束
   touchEnd (e) {
     this.canMove = false
     // 点击事件回调函数
-    this.isMouseMove === false && this.clickEvent(e)
-    // if (this.isMouseMove === false) {
-    //   let len = this.store.store.length
-    //   for (let i = len - 1; i > -1; i--) {
-    //     let shape = this.store.store[i]
-    //     if (shape.isInShape(e)) {
-    //       if (shape.eventList['click'].length > 0) {
-    //         shape.eventList['click'].forEach((ele) => {
-    //           ele(this)
-    //         })
-    //         return false
-    //       }
-    //     }
-    //   }
-    // }
+    this.isMouseMove === false && this.handleClickEvent(e)
+    this.scaleControl.stopTransfrom()
+    this.scaleControl.resetTransform()
   }
   // 清除所有图像，不可恢复
   clear () {

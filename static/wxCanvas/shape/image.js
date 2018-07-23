@@ -28,15 +28,13 @@ class Image {
     this.h = this.h * scale.y
   }
   // 绘制路径
-  createPath (ctx, sacle, realSize) {
-    // if (this.firstRender) {
-    //   this.calcInfo(sacle)
-    // }
-    // this.collisionDetection(realSize)
+  createPath (ctx, transformInfo) {
     ctx.save()
+    transformInfo && this.handleTransform(ctx, transformInfo)
     ctx.drawImage(this.url, 0, 0, this.imgW, this.imgH, this.x, this.y, this.w, this.h)
     ctx.closePath()
     ctx.restore()
+    transformInfo && this.restProps(transformInfo)
   }
   // 判断是否在图形范围内
   judgeRange (e) {

@@ -84,6 +84,77 @@ export const commonUtils = {
       console.log(option)
       calcPositionShape[calcType](option, _this)
     })
+  },
+  handleTransform (ctx, transformInfo) {
+    transformInfo.scale && this.scaleTransform(ctx, transformInfo.scale)
+  },
+  restProps (transformInfo) {
+    let halfW = null
+    let halfH = null
+    const type = getCalcProps.getShapeType[this.type]
+    if (type === 'circle') {
+      halfW = this.r
+      halfH = this.r
+    } else {
+      halfW = this.w / 2
+      halfH = this.h / 2
+    }
+    const changedLen = {
+      w: halfW * transformInfo.scale.x,
+      h: halfH * transformInfo.scale.y
+    }
+    const centerPoint = {
+      x: this.x + halfW,
+      y: this.y + halfH
+    }
+    // 根据align设置x
+    if (type === 'text') {
+      switch (this.align) {
+        case 'right':
+          centerPoint.x = this.x - halfW
+          this.x = centerPoint.x + changedLen.w
+          break
+        case 'center':
+          centerPoint.x = this.x
+          break
+      }
+    } else {
+      this.x = centerPoint.x - changedLen.w
+      this.y = centerPoint.y - changedLen.h
+    }
+    
+    if (type === 'circle') {
+      this.r = this.r * transformInfo.scale.x
+    } else if (type === 'text') {
+      this.h = this.h * transformInfo.scale.y
+      // XXXXXXXXXXXXXXXXXXXXXXXXXXX
+      this.w = this.ctx.measureText(this.text).width * transformInfo.scale.x
+      this.fontSize = this.fontSize * transformInfo.scale.x
+    } else {
+      this.w = this.w * transformInfo.scale.x
+      this.h = this.h * transformInfo.scale.y
+    }
+  },
+  scaleTransform (ctx, scaleInfo) {
+    console.log(scaleInfo)
+    let halfW = null
+    let halfH = null
+    const type = getCalcProps.getShapeType[this.type]
+    if (type === 'circle') {
+      halfW = this.r
+      halfH = this.r
+    } else {
+      halfW = this.w / 2
+      halfH = this.h / 2
+    }
+    const center = {
+      x: (this.x + halfW) * (1 - scaleInfo.x),
+      y: (this.y + halfH) * (1 - scaleInfo.y)
+    }
+    ctx.translate(center.x, center.y)
+    ctx.scale(scaleInfo.x, scaleInfo.y)
+    console.log(center.x, center.y)
+    console.log(scaleInfo)
   }
 }
 // 各种查询表

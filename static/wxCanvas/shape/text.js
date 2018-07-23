@@ -34,20 +34,19 @@ class Text {
     this.h = this.h * scale.y
   }
   // 绘制路径
-  createPath (ctx, sacle, realSize) {
+  createPath (ctx, transformInfo) {
     console.log(this.y)
     this.ctx = ctx
-    // if (this.firstRender) {
-    //   this.calcInfo(sacle)
-    // }
-    // this.collisionDetection(realSize)
     ctx.save()
+    transformInfo && this.handleTransform(ctx, transformInfo)
     ctx.textBaseline = this.baseline || 'normal' // normal：baseLine在文字底部，则y值为y+文字框高度
     ctx.setFontSize(this.fontSize)
     ctx.textAlign = this.align || 'left'
     ctx[this.fillMethod + 'Style'] = this.color
     ctx.closePath()
+    console.log(this.text, this.x, this.y + this.h)
     ctx[this.fillMethod + 'Text'](this.text, this.x, this.y + this.h)
+    transformInfo && this.restProps(transformInfo)
     ctx.restore()
   }
   judgeRange (e) {
@@ -91,9 +90,10 @@ class Text {
         break
       case 'left':
         this.leftX = this.x
-        this.leftX = this.x - this.w / 2
+        this.leftX = this.x
         if (this.leftX < 0) {
           this.x = 0
+          console.log('000')
         }
         if (this.x + this.w > realSize.w) {
           this.x = realSize.w - this.w

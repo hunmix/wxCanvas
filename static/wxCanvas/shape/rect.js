@@ -17,6 +17,7 @@ class Rect {
     this.color = drawData.color
     this.type = 'rect'
     this.scale = drawData.scale || null
+    this.scaleInfo = null
   }
   // 计算绘画数据
   calcInfo (scale) {
@@ -28,14 +29,46 @@ class Rect {
     this.h = this.h * scale.y
   }
   // 绘制路径
-  createPath (ctx, sacle, realSize) {
+  createPath (ctx, transformInfo) {
+    console.log(transformInfo)
     ctx.save()
+    transformInfo && this.handleTransform(ctx, transformInfo)
     ctx.beginPath()
     ctx[this.fillMethod + 'Style'] = this.color
     ctx[this.fillMethod + 'Rect'](this.x, this.y, this.w, this.h)
     ctx.closePath()
     ctx.restore()
+    transformInfo && this.restProps(transformInfo)
   }
+  // _restProps (transformInfo) {
+  //   const changedLen = {
+  //     w: this.w / 2 * transformInfo.scale.x,
+  //     h: this.h / 2 * transformInfo.scale.y
+  //   }
+  //   const centerPoint = {
+  //     x: this.x + this.w / 2,
+  //     y: this.y + this.h / 2
+  //   }
+  //   this.x = centerPoint.x - changedLen.w
+  //   this.y = centerPoint.y - changedLen.h
+  //   this.w = this.w * transformInfo.scale.x
+  //   this.h = this.h * transformInfo.scale.y
+  // }
+  // // -----------------------------------------------------------------------------------
+  // _handleTransform (ctx, transformInfo) {
+  //   transformInfo.scale && this._scaleTransform(ctx, transformInfo.scale)
+  // }
+  // _scaleTransform (ctx, scaleInfo) {
+  //   console.log(scaleInfo)
+  //   const center = {
+  //     x: (this.x + this.w / 2) * (1 - scaleInfo.x),
+  //     y: (this.y + this.h / 2) * (1 - scaleInfo.y)
+  //   }
+  //   ctx.translate(center.x, center.y)
+  //   ctx.scale(scaleInfo.x, scaleInfo.y)
+  //   console.log(center.x, center.y)
+  //   console.log(scaleInfo)
+  // }
   judgeRange (e) {
     this.startPoint = {
       x: e.mp.changedTouches[0].x,

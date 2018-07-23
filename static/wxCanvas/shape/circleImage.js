@@ -30,17 +30,15 @@ class CircleImage {
     this.r = this.r * scale.x
   }
   // 绘制路径
-  createPath (ctx, sacle, realSize) {
-    // if (this.firstRender) {
-    //   this.calcInfo(sacle)
-    // }
-    // this.collisionDetection(realSize)
+  createPath (ctx, transformInfo) {
     ctx.save()
     ctx.beginPath()
+    transformInfo && this.handleTransform(ctx, transformInfo)
     ctx.arc(this.x + this.r, this.y + this.r, this.r, 0, 2 * Math.PI)
     ctx.clip()
     ctx.drawImage(this.url, 0, 0, this.imgW, this.imgH, this.x, this.y, this.r * 2, this.r * 2)
     ctx.restore()
+    transformInfo && this.restProps(transformInfo, this.type)
   }
   // 判定范围
   judgeRange (e) {
