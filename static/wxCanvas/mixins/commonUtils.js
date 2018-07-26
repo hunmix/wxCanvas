@@ -1,4 +1,6 @@
-export const commonUtils = {
+// import {Matrix} from './../matrix/matrix'
+import {Point} from './point'
+const commonUtils = {
   // 有xy的话则重置loc,left,right等等的值，避免更新x,y值时失效
   resetXY (keyArr) {
     // 只获取x,y的数组
@@ -86,56 +88,11 @@ export const commonUtils = {
     })
   },
   handleTransform (ctx, transformInfo) {
-    transformInfo.scale && this.scaleTransform(ctx, transformInfo.scale)
+    console.log(`handleTransform : ${transformInfo.rotate}`)
+    transformInfo.scale && this._scaleTransform(ctx, transformInfo.scale)
+    // transformInfo.rotate && this._rotateTransform(ctx, transformInfo.rotate)
   },
-  restProps (transformInfo) {
-    let halfW = null
-    let halfH = null
-    const type = getCalcProps.getShapeType[this.type]
-    if (type === 'circle') {
-      halfW = this.r
-      halfH = this.r
-    } else {
-      halfW = this.w / 2
-      halfH = this.h / 2
-    }
-    const changedLen = {
-      w: halfW * transformInfo.scale.x,
-      h: halfH * transformInfo.scale.y
-    }
-    const centerPoint = {
-      x: this.x + halfW,
-      y: this.y + halfH
-    }
-    // 根据align设置x
-    if (type === 'text') {
-      switch (this.align) {
-        case 'right':
-          centerPoint.x = this.x - halfW
-          this.x = centerPoint.x + changedLen.w
-          break
-        case 'center':
-          centerPoint.x = this.x
-          break
-      }
-    } else {
-      this.x = centerPoint.x - changedLen.w
-      this.y = centerPoint.y - changedLen.h
-    }
-    
-    if (type === 'circle') {
-      this.r = this.r * transformInfo.scale.x
-    } else if (type === 'text') {
-      this.h = this.h * transformInfo.scale.y
-      // XXXXXXXXXXXXXXXXXXXXXXXXXXX
-      this.w = this.ctx.measureText(this.text).width * transformInfo.scale.x
-      this.fontSize = this.fontSize * transformInfo.scale.x
-    } else {
-      this.w = this.w * transformInfo.scale.x
-      this.h = this.h * transformInfo.scale.y
-    }
-  },
-  scaleTransform (ctx, scaleInfo) {
+  _scaleTransform (ctx, scaleInfo) {
     console.log(scaleInfo)
     let halfW = null
     let halfH = null
@@ -151,10 +108,117 @@ export const commonUtils = {
       x: (this.x + halfW) * (1 - scaleInfo.x),
       y: (this.y + halfH) * (1 - scaleInfo.y)
     }
-    ctx.translate(center.x, center.y)
-    ctx.scale(scaleInfo.x, scaleInfo.y)
+    this.translateInfo = {
+      center,
+      scaleInfo
+    }
+    // ctx.translate(center.x, center.y)
+    // ctx.scale(scaleInfo.x, scaleInfo.y)
     console.log(center.x, center.y)
     console.log(scaleInfo)
+  },
+  _rotateTransform (ctx, rotateInfo) {
+    // wxDraw Point.js
+    console.log('_rotateTransform')
+    let halfW = null
+    let halfH = null
+    const type = getCalcProps.getShapeType[this.type]
+    if (type === 'circle') {
+      halfW = this.r
+      halfH = this.r
+    } else {
+      halfW = this.w / 2
+      halfH = this.h / 2
+    }
+    const center = {
+      x: this.x + halfW,
+      y: this.y + halfH
+    }
+    console.log(center)
+    const points = [
+      [this.x, this.y],
+      [this.x + this.w, this.y],
+      [this.x + this.w, this.y + this.h],
+      [this.x, this.y + this.h]
+    ]
+    const newPoints = []
+    points.forEach(point => {
+      newPoints.push(new Point(point[0], point[1]).rotate(center, rotateInfo))
+    })
+    console.log(newPoints)
+    this.rotateInfo = {
+      center: [center.x, center.y],
+      rad: rotateInfo * Math.PI / 180
+    }
+    // Matrix测试 :
+    // const changeMatrix = new Matrix([
+    //   [-50],
+    //   [-50]
+    // ])
+    // const rotateMatrix = new Matrix([
+    //   [Math.cos(180 * Math.PI / 180), -Math.sin(180 * Math.PI / 180)],
+    //   [Math.sin(180 * Math.PI / 180), Math.cos(180 * Math.PI / 180)]
+    // ])
+    // const originMatrix = new Matrix([
+    //   [50],
+    //   [50]
+    // ])
+    // console.log(rotateMatrix.multi(changeMatrix).add(originMatrix).matrixArray)
+    // ctx.translate(center.x, center.y)
+    // ctx.rotate(rotateInfo)
+    // ctx.translate(-center.x, -center.y)
+  },
+  restProps (transformInfo) {
+    if (transformInfo.scale) {
+      // 没有scale为null时报错，写了rotate一起改
+      let halfW = null
+      let halfH = null
+      const type = getCalcProps.getShapeType[this.type]
+      if (type === 'circle') {
+        halfW = this.r
+        halfH = this.r
+      } else {
+        halfW = this.w / 2
+        halfH = this.h / 2
+      }
+      const changedLen = {
+        w: halfW * transformInfo.scale.x,
+        h: halfH * transformInfo.scale.y
+      }
+      const centerPoint = {
+        x: this.x + halfW,
+        y: this.y + halfH
+      }
+      // 根据align设置x
+      if (type === 'text') {
+        switch (this.align) {
+          case 'right':
+            centerPoint.x = this.x - halfW
+            this.x = centerPoint.x + changedLen.w
+            break
+          case 'center':
+            centerPoint.x = this.x
+            break
+        }
+      } else {
+        this.x = centerPoint.x - changedLen.w
+        this.y = centerPoint.y - changedLen.h
+      }
+      this.centerPoint = centerPoint
+      if (type === 'circle') {
+        this.r = this.r * transformInfo.scale.x
+      } else if (type === 'text') {
+        this.h = this.h * transformInfo.scale.y
+        // XXXXXXXXXXXXXXXXXXXXXXXXXXX
+        this.w = this.ctx.measureText(this.text).width * transformInfo.scale.x
+        this.fontSize = this.fontSize * transformInfo.scale.x
+      } else {
+        this.w = this.w * transformInfo.scale.x
+        this.h = this.h * transformInfo.scale.y
+      }
+    } else {
+      console.log('reset rotate')
+    }
   }
 }
 // 各种查询表
@@ -440,4 +504,14 @@ const calcPositionShape = {
     console.log(Number(value.substring(0, len - 1)))
     return Number(value.substring(0, len - 1))
   }
+}
+function extendsCommonMethods (prototype, commonUtils) {
+  for (const key in commonUtils) {
+    prototype[key] = commonUtils[key]
+  }
+}
+export {
+  commonUtils,
+  getCalcProps,
+  extendsCommonMethods
 }

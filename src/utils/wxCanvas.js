@@ -1,3 +1,123 @@
+// export function calcMatrix (points, rotateMatrix) {
+//   console.log(rotateMatrix)
+//   console.log(points, rotateMatrix)
+//   const arrLen = points[0].length
+//   const newPoints = []
+//   points.forEach((point) => {
+//     let pointArr = []
+//     for (let i = 0; i < arrLen; i++) {
+//       let value = 0
+//       rotateMatrix[i].forEach((matrix, index) => {
+//         value += point[index] * matrix
+//         console.log(value)
+//       })
+//       pointArr.push(value)
+//     }
+//     newPoints.push(pointArr)
+//   })
+//   console.log(newPoints)
+//   return newPoints
+// }
+// 矩阵变换，加减乘除
+class Matrix {
+  // 接收一个数组
+  constructor (pointsArray) {
+    this.m = pointsArray.length;
+    this.n = pointsArray[0].length;
+    this.matrixArray = pointsArray;
+  }
+  // 矩阵乘法
+  multi (matrix) {
+    const Points = [];
+    if (matrix.m === this.n) {
+      this.matrixArray.forEach(function (everyM, _index) { // 将每一行拎出来
+        // console.log(everyM)
+        Points.push([]);
+        // console.log(matrix.n)
+        for (let i = 0; i < matrix.n; i++) { // 要乘多少次，即一列中有几个元素
+          let result = 0;
+          everyM.forEach(function (_everN, index) { // 每一行的每一个 x matrix对应元素 然后加起来 = 一个结果
+            result += _everN * matrix.matrixArray[index][i]; // 最小城乘数因子
+          });
+          // //console.log(_p)
+          Points[_index][i] = result; // 把结果扔到新矩阵里面去
+        }
+      }, this);
+      // 返回计算后的矩阵
+      return new Matrix(Points)
+    } else {
+      // m和n不同时矩阵无法做乘法
+      console.warn('矩阵无法相乘');
+      return false
+    }
+  }
+  // 矩阵加法
+  add (matrix) {
+    const Points = [];
+    if (matrix.m === this.m && matrix.n === this.n) {
+      this.matrixArray.forEach(function (everyM, index) {
+        Points.push([]);
+        everyM.forEach(function (_everN, _index) { // 每一行的每一个
+          Points[index][_index] = _everN + matrix.matrixArray[index][_index]; // 最小城乘数因子
+        });
+      });
+      return new Matrix(Points)
+    } else {
+      // 矩阵规模不一样时无法相加，即m=m&&n=n
+      console.warn('矩阵无法相加');
+      return false
+    }
+  }
+  // 矩阵减法
+  sub (matrix) {
+    const Points = [];
+    if (matrix.m === this.m && matrix.n === this.n) {
+      this.matrixArray.forEach(function (everyM, index) {
+        Points.push([]);
+        everyM.forEach(function (_everN, _index) { // 每一行的每一个
+          Points[index].push(_everN - matrix.matrixArray[index][_index]); // 最小城乘数因子
+        });
+      });
+      return new Matrix(Points)
+    }
+  }
+}
+
+class Point {
+  constructor (x, y) {
+    this.x = x;
+    this.y = y;
+  }
+  // 一般来说origin传图形中心坐标
+  rotate (origin, angle) {
+    const rad = angle * Math.PI / 180;
+    // 神tm不是translate和rotate形式，惊了！
+    // (x： 0 y: 0, w： 100，h: 100)
+    // (origin.x: 50, origin.y: 50) origin点
+    // (tx: -50, ty: -50) 距x,y距离
+    // origin对我来说就是，中心点坐标，
+    if (origin) {
+      let tx = -origin.x + this.x;
+      let ty = -origin.y + this.y;
+      let AtranslateMatrix = new Matrix([
+        [origin.x],
+        [origin.y]
+      ]); // 平移
+      let rotateMatrix = new Matrix([
+        [Math.cos(rad), -Math.sin(rad)],
+        [Math.sin(rad), Math.cos(rad)]
+      ]); // 旋转
+      console.log(Math.cos(angle), -Math.sin(angle));
+      let getChangeMatrix = new Matrix([
+        [tx], [ty]
+      ]);
+      let _temMatrix = rotateMatrix.multi(getChangeMatrix).add(AtranslateMatrix);
+      return _temMatrix.matrixArray
+    }
+  }
+}
+
+// import {Matrix} from './../matrix/matrix'
 const commonUtils = {
   // 有xy的话则重置loc,left,right等等的值，避免更新x,y值时失效
   resetXY (keyArr) {
@@ -84,6 +204,139 @@ const commonUtils = {
       console.log(option);
       calcPositionShape[calcType](option, _this);
     });
+  },
+  handleTransform (ctx, transformInfo) {
+    console.log(`handleTransform : ${transformInfo.rotate}`);
+    transformInfo.scale && this._scaleTransform(ctx, transformInfo.scale);
+    // transformInfo.rotate && this._rotateTransform(ctx, transformInfo.rotate)
+  },
+  _scaleTransform (ctx, scaleInfo) {
+    console.log(scaleInfo);
+    let halfW = null;
+    let halfH = null;
+    const type = getCalcProps.getShapeType[this.type];
+    if (type === 'circle') {
+      halfW = this.r;
+      halfH = this.r;
+    } else {
+      halfW = this.w / 2;
+      halfH = this.h / 2;
+    }
+    const center = {
+      x: (this.x + halfW) * (1 - scaleInfo.x),
+      y: (this.y + halfH) * (1 - scaleInfo.y)
+    };
+    this.translateInfo = {
+      center,
+      scaleInfo
+    };
+    // ctx.translate(center.x, center.y)
+    // ctx.scale(scaleInfo.x, scaleInfo.y)
+    console.log(center.x, center.y);
+    console.log(scaleInfo);
+  },
+  _rotateTransform (ctx, rotateInfo) {
+    // wxDraw Point.js
+    console.log('_rotateTransform');
+    let halfW = null;
+    let halfH = null;
+    const type = getCalcProps.getShapeType[this.type];
+    if (type === 'circle') {
+      halfW = this.r;
+      halfH = this.r;
+    } else {
+      halfW = this.w / 2;
+      halfH = this.h / 2;
+    }
+    const center = {
+      x: this.x + halfW,
+      y: this.y + halfH
+    };
+    console.log(center);
+    const points = [
+      [this.x, this.y],
+      [this.x + this.w, this.y],
+      [this.x + this.w, this.y + this.h],
+      [this.x, this.y + this.h]
+    ];
+    const newPoints = [];
+    points.forEach(point => {
+      newPoints.push(new Point(point[0], point[1]).rotate(center, rotateInfo));
+    });
+    console.log(newPoints);
+    this.rotateInfo = {
+      center: [center.x, center.y],
+      rad: rotateInfo * Math.PI / 180
+    };
+    // Matrix测试 :
+    // const changeMatrix = new Matrix([
+    //   [-50],
+    //   [-50]
+    // ])
+    // const rotateMatrix = new Matrix([
+    //   [Math.cos(180 * Math.PI / 180), -Math.sin(180 * Math.PI / 180)],
+    //   [Math.sin(180 * Math.PI / 180), Math.cos(180 * Math.PI / 180)]
+    // ])
+    // const originMatrix = new Matrix([
+    //   [50],
+    //   [50]
+    // ])
+    // console.log(rotateMatrix.multi(changeMatrix).add(originMatrix).matrixArray)
+    // ctx.translate(center.x, center.y)
+    // ctx.rotate(rotateInfo)
+    // ctx.translate(-center.x, -center.y)
+  },
+  restProps (transformInfo) {
+    if (transformInfo.scale) {
+      // 没有scale为null时报错，写了rotate一起改
+      let halfW = null;
+      let halfH = null;
+      const type = getCalcProps.getShapeType[this.type];
+      if (type === 'circle') {
+        halfW = this.r;
+        halfH = this.r;
+      } else {
+        halfW = this.w / 2;
+        halfH = this.h / 2;
+      }
+      const changedLen = {
+        w: halfW * transformInfo.scale.x,
+        h: halfH * transformInfo.scale.y
+      };
+      const centerPoint = {
+        x: this.x + halfW,
+        y: this.y + halfH
+      };
+      // 根据align设置x
+      if (type === 'text') {
+        switch (this.align) {
+          case 'right':
+            centerPoint.x = this.x - halfW;
+            this.x = centerPoint.x + changedLen.w;
+            break
+          case 'center':
+            centerPoint.x = this.x;
+            break
+        }
+      } else {
+        this.x = centerPoint.x - changedLen.w;
+        this.y = centerPoint.y - changedLen.h;
+      }
+      this.centerPoint = centerPoint;
+      if (type === 'circle') {
+        this.r = this.r * transformInfo.scale.x;
+      } else if (type === 'text') {
+        this.h = this.h * transformInfo.scale.y;
+        // XXXXXXXXXXXXXXXXXXXXXXXXXXX
+        this.w = this.ctx.measureText(this.text).width * transformInfo.scale.x;
+        this.fontSize = this.fontSize * transformInfo.scale.x;
+      } else {
+        this.w = this.w * transformInfo.scale.x;
+        this.h = this.h * transformInfo.scale.y;
+      }
+    } else {
+      console.log('reset rotate');
+    }
   }
 };
 // 各种查询表
@@ -370,7 +623,13 @@ const calcPositionShape = {
     return Number(value.substring(0, len - 1))
   }
 };
+function extendsCommonMethods (prototype, commonUtils) {
+  for (const key in commonUtils) {
+    prototype[key] = commonUtils[key];
+  }
+}
 
+// import {commonUtils} from './../mixins/commonUtils'
 // 圆
 class Circle {
   constructor (drawData) {
@@ -401,21 +660,24 @@ class Circle {
     this.r = this.r * scale.x;
   }
   // 绘制路径
-  createPath (ctx) {
+  createPath (ctx, transformInfo) {
+    console.log(transformInfo);
     ctx.save();
     ctx.beginPath();
+    transformInfo && this.handleTransform(ctx, transformInfo);
     ctx[this.fillMethod + 'Style'] = this.color;
     ctx.arc(this.x + this.r, this.y + this.r, this.r, 0, 2 * Math.PI);
     ctx[this.fillMethod]();
     ctx.closePath();
     ctx.restore();
+    transformInfo && this.restProps(transformInfo, this.type);
   }
   judgeRange (e) {
     this.startPoint = {
       x: e.mp.changedTouches[0].x,
       y: e.mp.changedTouches[0].y
     };
-    let len = Math.sqrt(Math.pow(this.startPoint.x - (this.x + this.r), 2) + Math.pow(this.startPoint.y - (this.y + this.r), 2));
+    const len = Math.sqrt(Math.pow(this.startPoint.x - (this.x + this.r), 2) + Math.pow(this.startPoint.y - (this.y + this.r), 2));
     if (len < this.r) {
       this.startX = this.x;
       this.startY = this.y;
@@ -468,8 +730,10 @@ class Circle {
     this.judgeChangeProps(this.type, this.realSize, keyArr);
   }
 }
-Circle.prototype = Object.assign(Circle.prototype, commonUtils);
+// Circle.prototype = Object.assign(Circle.prototype, commonUtils)
+extendsCommonMethods(Circle.prototype, commonUtils);
 
+// import {commonUtils} from './../mixins/commonUtils'
 // 圆形图片
 class CircleImage {
   constructor (drawData) {
@@ -501,17 +765,15 @@ class CircleImage {
     this.r = this.r * scale.x;
   }
   // 绘制路径
-  createPath (ctx, sacle, realSize) {
-    // if (this.firstRender) {
-    //   this.calcInfo(sacle)
-    // }
-    // this.collisionDetection(realSize)
+  createPath (ctx, transformInfo) {
     ctx.save();
     ctx.beginPath();
+    transformInfo && this.handleTransform(ctx, transformInfo);
     ctx.arc(this.x + this.r, this.y + this.r, this.r, 0, 2 * Math.PI);
     ctx.clip();
     ctx.drawImage(this.url, 0, 0, this.imgW, this.imgH, this.x, this.y, this.r * 2, this.r * 2);
     ctx.restore();
+    transformInfo && this.restProps(transformInfo, this.type);
   }
   // 判定范围
   judgeRange (e) {
@@ -578,8 +840,10 @@ class CircleImage {
   }
 }
 
-CircleImage.prototype = Object.assign(CircleImage.prototype, commonUtils);
+// CircleImage.prototype = Object.assign(CircleImage.prototype, commonUtils)
+extendsCommonMethods(CircleImage.prototype, commonUtils);
 
+// import {commonUtils} from './../mixins/commonUtils'
 class Image {
   constructor (drawData) {
     drawData.firstRender === false ? this.firstRender = false : this.firstRender = true;
@@ -609,15 +873,13 @@ class Image {
     this.h = this.h * scale.y;
   }
   // 绘制路径
-  createPath (ctx, sacle, realSize) {
-    // if (this.firstRender) {
-    //   this.calcInfo(sacle)
-    // }
-    // this.collisionDetection(realSize)
+  createPath (ctx, transformInfo) {
     ctx.save();
+    transformInfo && this.handleTransform(ctx, transformInfo);
     ctx.drawImage(this.url, 0, 0, this.imgW, this.imgH, this.x, this.y, this.w, this.h);
     ctx.closePath();
     ctx.restore();
+    transformInfo && this.restProps(transformInfo);
   }
   // 判断是否在图形范围内
   judgeRange (e) {
@@ -682,8 +944,10 @@ class Image {
   }
 }
 
-Image.prototype = Object.assign(Image.prototype, commonUtils);
+// Image.prototype = Object.assign(Image.prototype, commonUtils)
+extendsCommonMethods(Image.prototype, commonUtils);
 
+// import {commonUtils} from './../mixins/commonUtils'
 // 直线
 class Line {
   constructor (drawData) {
@@ -790,7 +1054,8 @@ class Line {
   }
 }
 
-Line.prototype = Object.assign(Line.prototype, commonUtils);
+// Line.prototype = Object.assign(Line.prototype, commonUtils)
+extendsCommonMethods(Line.prototype, commonUtils);
 
 // 矩形
 class Rect {
@@ -810,6 +1075,9 @@ class Rect {
     this.color = drawData.color;
     this.type = 'rect';
     this.scale = drawData.scale || null;
+    this.scaleInfo = null;
+    this.rotateInfo = null;
+    this.translateInfo = null;
   }
   // 计算绘画数据
   calcInfo (scale) {
@@ -821,13 +1089,33 @@ class Rect {
     this.h = this.h * scale.y;
   }
   // 绘制路径
-  createPath (ctx, sacle, realSize) {
+  createPath (ctx, transformInfo) {
+    console.log('------------------------------------');
+    console.log(transformInfo);
     ctx.save();
+    transformInfo && this.handleTransform(ctx, transformInfo);
+    console.log(this.rotateInfo);
     ctx.beginPath();
+    console.log('-------------------------上次写到这里！-----------------------');
+    console.log(this.translateInfo);
+    // if (this.translateInfo) {
+    //   ctx.translate(this.translateInfo.center.x, this.translateInfo.center.y)
+    //   ctx.scale(this.translateInfo.scaleInfo.x, this.translateInfo.scaleInfo.y)
+    // }
+    // if (this.rotateInfo) {
+    //   const x = this.rotateInfo.center[0]
+    //   const y = this.rotateInfo.center[1]
+    //   const rad = this.rotateInfo.rad
+    //   ctx.translate(x, y)
+    //   ctx.rotate(rad)
+    //   console.log(rad)
+    //   ctx.translate(-x, -y)
+    // }
     ctx[this.fillMethod + 'Style'] = this.color;
     ctx[this.fillMethod + 'Rect'](this.x, this.y, this.w, this.h);
     ctx.closePath();
     ctx.restore();
+    transformInfo && this.restProps(transformInfo);
   }
   judgeRange (e) {
     this.startPoint = {
@@ -888,8 +1176,10 @@ class Rect {
     this.judgeChangeProps(this.type, this.realSize, keyArr);
   }
 }
-Rect.prototype = Object.assign(Rect.prototype, commonUtils);
+// Rect.prototype = Object.assign(Rect.prototype, commonUtils)
+extendsCommonMethods(Rect.prototype, commonUtils);
 
+// import {commonUtils} from './../mixins/commonUtils'
 // 圆角矩形
 class RoundRect {
   constructor (drawData) {
@@ -928,13 +1218,14 @@ class RoundRect {
     this.h = this.h * scale.y;
   }
   // 绘制路径
-  createPath (ctx, sacle, realSize) {
+  createPath (ctx, transformInfo) {
     // if (this.firstRender) {
     //   this.calcInfo(sacle)
     // }
     // this.collisionDetection(realSize)
     ctx.save();
     ctx[this.fillMethod + 'Style'] = this.color;
+    transformInfo && this.handleTransform(ctx, transformInfo);
     ctx.beginPath();
     ctx.moveTo(this.x + this.r, this.y);
     ctx.lineTo(this.x + this.w - this.r, this.y);
@@ -948,7 +1239,36 @@ class RoundRect {
     ctx.closePath();
     ctx[this.fillMethod]();
     ctx.restore();
+    transformInfo && this.restProps(transformInfo);
   }
+  // _restProps (transformInfo) {
+  //   const changedLen = {
+  //     w: this.w / 2 * transformInfo.scale.x,
+  //     h: this.h / 2 * transformInfo.scale.y
+  //   }
+  //   const centerPoint = {
+  //     x: this.x + this.w / 2,
+  //     y: this.y + this.h / 2
+  //   }
+  //   this.x = centerPoint.x - changedLen.w
+  //   this.y = centerPoint.y - changedLen.h
+  //   this.w = this.w * transformInfo.scale.x
+  //   this.h = this.h * transformInfo.scale.y
+  // }
+  // _handleTransform (ctx, transformInfo) {
+  //   transformInfo.scale && this._scaleTransform(ctx, transformInfo.scale)
+  // }
+  // _scaleTransform (ctx, scaleInfo) {
+  //   console.log(scaleInfo)
+  //   const center = {
+  //     x: (this.x + this.w / 2) * (1 - scaleInfo.x),
+  //     y: (this.y + this.h / 2) * (1 - scaleInfo.y)
+  //   }
+  //   ctx.translate(center.x, center.y)
+  //   ctx.scale(scaleInfo.x, scaleInfo.y)
+  //   console.log(center.x, center.y)
+  //   console.log(scaleInfo)
+  // }
   judgeRange (e) {
     this.startPoint = {
       x: e.mp.changedTouches[0].x,
@@ -959,6 +1279,7 @@ class RoundRect {
     if (this.startPoint.x > this.x && this.startPoint.x < rightX && this.startPoint.y < bottomY && this.startPoint.y > this.y) {
       this.startX = this.x;
       this.startY = this.y;
+      console.log('in');
       return true
     } else {
       return false
@@ -1009,8 +1330,10 @@ class RoundRect {
     this.judgeChangeProps(this.type, this.realSize, keyArr);
   }
 }
-RoundRect.prototype = Object.assign(RoundRect.prototype, commonUtils);
+// RoundRect.prototype = Object.assign(RoundRect.prototype, commonUtils)
+extendsCommonMethods(RoundRect.prototype, commonUtils);
 
+// import {commonUtils} from './../mixins/commonUtils'
 // 文字
 class Text {
   constructor (drawData) {
@@ -1046,20 +1369,19 @@ class Text {
     this.h = this.h * scale.y;
   }
   // 绘制路径
-  createPath (ctx, sacle, realSize) {
+  createPath (ctx, transformInfo) {
     console.log(this.y);
     this.ctx = ctx;
-    // if (this.firstRender) {
-    //   this.calcInfo(sacle)
-    // }
-    // this.collisionDetection(realSize)
     ctx.save();
+    transformInfo && this.handleTransform(ctx, transformInfo);
     ctx.textBaseline = this.baseline || 'normal'; // normal：baseLine在文字底部，则y值为y+文字框高度
     ctx.setFontSize(this.fontSize);
     ctx.textAlign = this.align || 'left';
     ctx[this.fillMethod + 'Style'] = this.color;
     ctx.closePath();
+    console.log(this.text, this.x, this.y + this.h);
     ctx[this.fillMethod + 'Text'](this.text, this.x, this.y + this.h);
+    transformInfo && this.restProps(transformInfo);
     ctx.restore();
   }
   judgeRange (e) {
@@ -1103,9 +1425,10 @@ class Text {
         break
       case 'left':
         this.leftX = this.x;
-        this.leftX = this.x - this.w / 2;
+        this.leftX = this.x;
         if (this.leftX < 0) {
           this.x = 0;
+          console.log('000');
         }
         if (this.x + this.w > realSize.w) {
           this.x = realSize.w - this.w;
@@ -1159,8 +1482,10 @@ class Text {
   }
 }
 
-Text.prototype = Object.assign(Text.prototype, commonUtils);
+// Text.prototype = Object.assign(Text.prototype, commonUtils)
+extendsCommonMethods(Text.prototype, commonUtils);
 
+// import {commonUtils} from './../mixins/commonUtils'
 // 选中边框
 class BorderFrame {
   constructor (drawData) {
@@ -1169,18 +1494,27 @@ class BorderFrame {
     this.y = drawData.y || 0;
     this.w = drawData.w;
     this.h = drawData.h;
-    this.left = drawData.left;
-    this.right = drawData.right;
-    this.top = drawData.top;
-    this.bottom = drawData.bottom;
-    this.locX = drawData.locX;
-    this.locY = drawData.locY;
+    if (drawData.r) {
+      this.w = drawData.r * 2;
+      this.h = drawData.r * 2;
+    }
+    // this.left = drawData.left
+    // this.right = drawData.right
+    // this.top = drawData.top
+    // this.bottom = drawData.bottom
+    // this.locX = drawData.locX
+    // this.locY = drawData.locY
     // this.fillMethod = drawData.fillMethod || 'fill'
     this.fillMethod = 'stroke';
     this.color = '#80cef5';
     // this.color = drawData.color
     this.type = 'borderFrame';
     this.scale = drawData.scale || null;
+    // -----------------------
+    this.dragable = true;
+    this.rectsInfo = [];
+    this.distance = 5;
+    this.len = this.distance * 2;
   }
   // 计算绘画数据
   calcInfo (scale) {
@@ -1193,7 +1527,7 @@ class BorderFrame {
     this.h = this.h * scale.y;
   }
   // 绘制路径
-  createPath (ctx, sacle, realSize) {
+  createPath (ctx) {
     ctx.save();
     ctx.beginPath();
     ctx[this.fillMethod + 'Style'] = this.color;
@@ -1205,36 +1539,46 @@ class BorderFrame {
     ctx.restore();
   }
   _drawPoint (ctx) {
-    const option = this._calcPointsPosition();
-    console.log(option);
-    option.forEach(point => {
+    const _this = this;
+    this._calcPointsPosition();
+    console.log(this.rectsInfo);
+    this.rectsInfo.forEach(point => {
       ctx.beginPath();
-      ctx.strokeStyle = this.color;
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(point.x, point.y, 10, 10);
-      ctx.strokeRect(point.x, point.y, 10, 10);
+      ctx.strokeStyle = 'lightblue';
+      ctx.fillStyle = point.activeColor || '#fff';
+      ctx.fillRect(point.x, point.y, _this.len, _this.len);
+      ctx.strokeRect(point.x, point.y, _this.len, _this.len);
       ctx.closePath();
     });
   }
   _calcPointsPosition () {
-    const len = 5;
+    console.log('in borderFrame :' + this.w);
     const pointLeftTop = {
-      x: this.x - len,
-      y: this.y - len
+      x: this.x - this.distance,
+      y: this.y - this.distance,
+      color: this.color
     };
     const pointRightTop = {
-      x: this.x + this.w - len,
-      y: this.y - len
+      x: this.x + this.w - this.distance,
+      y: this.y - this.distance,
+      color: this.color
     };
     const pointRightBottom = {
-      x: this.x + this.w - len,
-      y: this.y + this.h - len
+      x: this.x + this.w - this.distance,
+      y: this.y + this.h - this.distance,
+      color: this.color
     };
     const pointLeftBottom = {
-      x: this.x - len,
-      y: this.y + this.h - len
+      x: this.x - this.distance,
+      y: this.y + this.h - this.distance,
+      color: this.color
     };
-    return [pointLeftTop, pointRightTop, pointRightBottom, pointLeftBottom]
+    this.circleInfo = {
+      x: this.x + this.w / 2,
+      y: this.y - 20,
+      r: this.len / 2
+    };
+    this.rectsInfo = [pointLeftTop, pointRightTop, pointRightBottom, pointLeftBottom];
   }
   _drawLine (ctx) {
     const lineOption = {
@@ -1254,12 +1598,14 @@ class BorderFrame {
     const circleOption = {
       x: this.x + this.w / 2,
       y: this.y - 20,
-      r: 5
+      r: this.len / 2
     };
     ctx.beginPath();
     ctx.strokeStyle = this.color;
+    ctx.fillStyle = '#fff';
     ctx.arc(circleOption.x, circleOption.y, circleOption.r, 0, 2 * Math.PI);
     ctx.stroke();
+    ctx.fill();
     ctx.closePath();
   }
   judgeRange (e) {
@@ -1267,15 +1613,54 @@ class BorderFrame {
       x: e.mp.changedTouches[0].x,
       y: e.mp.changedTouches[0].y
     };
-    let rightX = this.x + this.w;
-    let bottomY = this.y + this.h;
-    if (this.startPoint.x > this.x && this.startPoint.x < rightX && this.startPoint.y < bottomY && this.startPoint.y > this.y) {
-      this.startX = this.x;
-      this.startY = this.y;
+    return this._isInRectPoint() || this._isInCircle()
+  }
+  _isInRectPoint () {
+    const _this = this;
+    const judgeInfo = [];
+    this.rectsInfo.forEach(rectInfo => {
+      // 增加实际可点击范围，视图不变(手机上点太小，点中几率太小)
+      judgeInfo.push({x: rectInfo.x - _this.len, y: rectInfo.y - _this.len, rightX: rectInfo.x + _this.len * 2, bottomY: rectInfo.y + _this.len * 2});
+    });
+    // console.log(judgeInfo)
+    return judgeInfo.some((rectInfo, index) => {
+      const isInCurrentRect = this.startPoint.x > rectInfo.x && this.startPoint.x < rectInfo.rightX && this.startPoint.y < rectInfo.bottomY && this.startPoint.y > rectInfo.y;
+      if (isInCurrentRect) {
+        _this.startX = this.x;
+        _this.startY = this.y;
+        _this.rectsInfo[index].activeColor = 'lightblue';
+        console.log('------------------------------------');
+        console.log(_this.rectsInfo);
+        _this.movePoint = index;
+        console.log(index);
+        console.log(_this.rectsInfo);
+      }
+      _this.rectsInfo[index].activeColor = '#fff';
+      return isInCurrentRect
+    })
+  }
+  _isInCircle () {
+    this.circleInfo = {
+      x: this.x + this.w / 2 - this.len,
+      y: this.y - 20 - this.len,
+      r: this.len / 2
+    };
+    const circleJudgeInfo = {
+      x: this.circleInfo.x - this.len,
+      y: this.circleInfo.y - this.len,
+      r: this.circleInfo.r + this.len
+    };
+    const len = Math.sqrt(Math.pow(this.startPoint.x - (circleJudgeInfo.x + circleJudgeInfo.r), 2) + Math.pow(this.startPoint.y - (circleJudgeInfo.y + circleJudgeInfo.r), 2));
+    console.log(`len in borderFrame :${len}`);
+    if (len < circleJudgeInfo.r) {
+      this.movePoint = 4;
       return true
     } else {
       return false
     }
+  }
+  getMovePointIndex () {
+    return this.movePoint
   }
   collisionDetection (realSize) {
     const len = 5;
@@ -1295,34 +1680,28 @@ class BorderFrame {
     }
   }
   move (e) {
-    // let movePoint = {
-    //   x: e.mp.touches[0].x,
-    //   y: e.mp.touches[0].y
-    // }
-    // this.offsetX = movePoint.x - this.startPoint.x
-    // this.offsetY = movePoint.y - this.startPoint.y
-    // this.x = this.startX + this.offsetX
-    // this.y = this.startY + this.offsetY
+    // do nothing
   }
   // 更新自适应属性数据x,y,r,w,h等，直接更新or动画调用
   updateOption (option, calcScale) {
     // ----------------------可能会有问题-----------------------------------------------
-    let keyArr = Object.keys(option);
-    if (keyArr.length !== 0) {
-      this.resetXY(keyArr);
-      if (calcScale) {
-        this.calcScaleValue(keyArr, option, this.scale);
-      } else {
-        this.calcScaleValue(keyArr, option, false);
-      }
-      this.getOptionValue(keyArr, option);
-    }
-    // 如果有left, right啥啥啥的，就重置同方向的定位属性，避免影响
-    this.resetAbsoluteInfo(keyArr, option);
-    this.judgeChangeProps(this.type, this.realSize, keyArr);
+    // let keyArr = Object.keys(option)
+    // if (keyArr.length !== 0) {
+    //   this.resetXY(keyArr)
+    //   if (calcScale) {
+    //     this.calcScaleValue(keyArr, option, this.scale)
+    //   } else {
+    //     this.calcScaleValue(keyArr, option, false)
+    //   }
+    //   this.getOptionValue(keyArr, option)
+    // }
+    // // 如果有left, right啥啥啥的，就重置同方向的定位属性，避免影响
+    // this.resetAbsoluteInfo(keyArr, option)
+    // this.judgeChangeProps(this.type, this.realSize, keyArr)
   }
 }
-BorderFrame.prototype = Object.assign(BorderFrame.prototype, commonUtils);
+// BorderFrame.prototype = Object.assign(BorderFrame.prototype, commonUtils)
+extendsCommonMethods(BorderFrame.prototype, commonUtils);
 
 class AnimationControl {
   constructor () {
@@ -1697,13 +2076,12 @@ const colorList = {
 
 // 图形
 class Shape {
-  constructor (type, drawData, dragable, scaleable) {
+  constructor (type, drawData, {dragable = false, scaleable = false} = {}) {
+    console.log(arguments);
     this.Shape = createShape[type](drawData);
     this.dragable = dragable;
     this.scaleable = scaleable;
-    if (scaleable) {
-      this.dragable = false;
-    }
+    this.transformInfo = null;
     this.watch = new AnimationControl();
     this._bus = new EventBus();
     this.animationStore = [];
@@ -1712,6 +2090,13 @@ class Shape {
       'click': [],
       'longpress': []
     };
+    console.log(`---------------0-0-0-0---------------------------------`);
+    console.log(`dragable : ${this.dragable}`);
+    console.log(`scaleable : ${this.scaleable}`);
+    // 为可自定义图形和borderFrame添加点击事件，这个点击事件，怪怪的 后面再说
+    if (this.scaleable) {
+      this.dragable = false;
+    }
   }
   draw (ctx, scale, realSize) {
     this.scale = scale;
@@ -1726,7 +2111,12 @@ class Shape {
     // 碰撞判定
     this.Shape.collisionDetection(realSize);
     // 绘制路径
-    this.Shape.createPath(ctx);
+    // transfromControl, transformInfo
+    this.Shape.createPath(ctx, this.transformInfo);
+    // this.Shape.restProps(this.transformInfo)
+  }
+  setTransformInfo (transformInfo) {
+    this.transformInfo = transformInfo;
   }
   isNeedCalcRatio () {
     return this.Shape.firstRender
@@ -1762,24 +2152,31 @@ class Shape {
     return this
   }
   start (loopTime, calcScale) {
+    console.log(`start : ${this.dragable}`);
+    console.log(this.animationStore);
+    const tempDragable = this.dragable;
+    const tempScaleable = this.scaleable;
     this.dragable = false;
+    this.scaleable = false;
     this.watch.running = true; // 动画开始
     this.watch.setLoop(loopTime); // 设置循环次数
     this.watch.setStartTime(); // 设置开始时间
     this.startOption = Object.assign({}, this.Shape); // 记录初始值
-    this._loopAnimation();
-    // console.log(this.startOption)
+    this._loopAnimation(tempDragable, tempScaleable);
   }
-  _loopAnimation () {
+  resetTransInfo () {
+    this.transformInfo = null;
+  }
+  _loopAnimation (tempDragable, tempScaleable) {
     let _this = this;
     // 动画时禁止拖动, 这边可以放到watch里面，后面再改- -
-    const tempDragable = this.dragable;
     function stepAnimation () { // 实现动画循环
       // drawAnimationStep(stepAnimation)
       if (_this.watch.isRunning()) {
         _this._updateStep();
       } else {
         _this.dragable = tempDragable;
+        _this.scaleable = tempScaleable;
         return false
       }
       drawAnimationStep(stepAnimation);
@@ -2010,27 +2407,60 @@ class Info {
 
 // wxCanvas中用到的方法
 const canvasFunction = {
+  // touchStart,遍历store找到点击图形
+  judgeCanMoveItem (e) {
+    let len = this.store.store.length;
+    for (let i = len - 1; i > -1; i--) {
+      let shape = this.store.store[i];
+      if (shape.isInShape(e)) {
+        shape.canDragable() && this._setMoveInfo(shape);
+        // 点在框上就return
+        if (this.scaleControl.isTouchOnFrame(e)) {
+          this.scaleControl.startTransfrom(e);
+          return
+        }
+        // 点击不在自定义图形上时清除边框
+        this.scaleControl.isScaleShapeChanged(shape) && this.scaleControl.reset(this);
+        return
+      }
+    }
+    try {
+      this.scaleControl.reset();
+    } catch (err) {
+      console.log(err);
+    }
+    console.log('emit reset');
+  },
+  _setMoveInfo (shape) {
+    this.moveItem = shape;
+    this.canMove = true;
+  },
+  // touchMove事件处理
+  handleMoveEvent (e) {
+    console.log('move');
+    this.moveItem.move(e);
+    this.scaleControl.isBorderFrameNeedMove(this.moveItem) && this.scaleControl.update();
+  },
   // touchEnd点击事件处理
-  clickEvent (e) {
+  handleClickEvent (e) {
     const len = this.store.store.length;
     for (let i = len - 1; i > -1; i--) {
       const shape = this.store.store[i];
-      if (this._isInShapeAfterTouchEnd(e, shape)) {
-        this.scaleControl.isScaleShapeChanged() && this.scaleControl.reset(this);
-        shape.scaleable && this.scaleControl.createBorderFrame(shape);
-        // shape.scaleable && this._drawBorderFrame(shape)
-        this._ergodicEvents(shape);
-        return false
+      if (shape.isInShape(e)) {
+        console.log(shape);
+        // 遍历点击事件
+        this._isEventExist(shape) && this._ergodicEvents(shape);
+        // 自定义边框处理
+        this._shouldCreateBorderFrame(shape) && this.scaleControl.createBorderFrame(shape);
+        return
       }
     }
-    this.scaleControl.reset(this);
   },
-  // 判断是否触发缩放事件
-  _isInShapeAfterTouchEnd (e, shape) {
-    const isInShape = shape.isInShape(e);
-    const hasClickEvent = shape.eventList['click'].length > 0;
-    const canClickEmit = isInShape && hasClickEvent;
-    return canClickEmit
+  _isEventExist (shape) {
+    return shape.eventList['click'].length > 0
+  },
+  _shouldCreateBorderFrame (shape) {
+    return this.scaleControl.isScaleShapeChanged(shape) && shape.scaleable
   },
   // 遍历所有点击事件
   _ergodicEvents (shape) {
@@ -2041,32 +2471,66 @@ const canvasFunction = {
 };
 
 class ScaleControl {
-  constructor (bus) {
+  constructor (bus, realSize) {
     this.borderFrame = null;
     this.bus = bus;
     this.scaleShape = null;
+    this.canTrans = false;
+    this.transformInfo = {};
+    this.startPoint = null;
+    this.realSize = realSize;
+    this.fromBorderLen = 5;
   }
   createBorderFrame (shape) {
     if (!this.isScaleShapeChanged()) return
     this.scaleShape = shape;
     this.scaleShape.dragable = true;
-    const option = this.calcBorderFrameData(shape);
+    console.log(shape);
+    const option = this.calcBorderFrameData();
     this.drawBorderFrame(option);
   }
-  calcBorderFrameData (scaleShape) {
-    const len = 5;
-    return {
-      x: scaleShape.Shape.x - len,
-      y: scaleShape.Shape.y - len,
-      w: scaleShape.Shape.w + len * 2,
-      h: scaleShape.Shape.h + len * 2
+  // 计算缩放框的数据
+  calcBorderFrameData (scaleShape = this.scaleShape.Shape) {
+    const len = this.fromBorderLen;
+    const option = {
+      x: scaleShape.x - len,
+      y: scaleShape.y - len
+    };
+    if (scaleShape.type === 'text') {
+      switch (scaleShape.align) {
+        case 'center' :
+          option.x = scaleShape.x - scaleShape.w / 2 - len;
+          break
+        case 'right' :
+          console.log('right');
+          option.x = scaleShape.x - scaleShape.w - len;
+          console.log(option.x);
+          break
+      }
     }
+    console.log('scaleControl :' + scaleShape);
+    if (this._isCircleTypeShape()) {
+      option.w = scaleShape.r * 2 + len * 2;
+      option.h = scaleShape.r * 2 + len * 2;
+      // -------------------------------------------------------
+    } else if (this.scaleShape.Shape.type === 'text') {
+      option.w = scaleShape.w + len * 2;
+      option.h = scaleShape.h + len * 2;
+      console.log('borderFrameData :' + option.w);
+    } else {
+      option.w = scaleShape.w + len * 2;
+      option.h = scaleShape.h + len * 2;
+    }
+    console.log(option);
+    return option
   }
   drawBorderFrame (drawData) {
+    console.log(drawData);
     this.borderFrame = new Shape('borderFrame', drawData);
     this.bus.emit('add', this.borderFrame);
   }
   reset () {
+    console.log('reset');
     this.delete();
     if (this.scaleShape) {
       this.scaleShape.dragable = false;
@@ -2076,21 +2540,190 @@ class ScaleControl {
   delete () {
     console.log('delete');
     this.bus.emit('delete', this.borderFrame);
+    this.borderFrame = null;
   }
   isScaleShapeChanged (shape) {
+    // console.log(this.scaleShape)
+    // console.log(shape)
+    console.log(this.scaleShape === shape);
     return this.scaleShape !== shape
   }
   isBorderFrameNeedMove (currentMoveItem) {
     return currentMoveItem === this.scaleShape
   }
-  update () {
+  isTouchOnFrame (e) {
+    // 边框不存在直接返回
+    if (!this.borderFrame) { return false }
+    console.log(this.borderFrame.isInShape(e));
+    return this.borderFrame.isInShape(e)
+  }
+  update (updateData) {
+    console.log('ScaleControl :');
+    console.log(updateData);
     console.log('update');
-    const shape = this.scaleShape;
+    const shape = updateData || this.scaleShape.Shape;
+    console.log(updateData);
     const option = this.calcBorderFrameData(shape);
+    console.log(option);
     const changedProps = Object.keys(option);
     changedProps.forEach(prop => {
       this.borderFrame.Shape[prop] = option[prop];
     });
+  }
+  canShapeTrans () {
+    return this.canTrans
+  }
+  startTransfrom (e) {
+    this.canTrans = true;
+    console.log(e);
+    this.startPoint = {
+      x: e.mp.changedTouches[0].x,
+      y: e.mp.changedTouches[0].y
+    };
+  }
+  stopTransfrom () {
+    this.canTrans = false;
+  }
+  // 计算缩放比例(待整理。。乱- -)
+  handleTransEvent (e) {
+    const movePoint = {
+      x: e.mp.changedTouches[0].x,
+      y: e.mp.changedTouches[0].y
+    };
+    const movedX = {
+      x: movePoint.x - this.startPoint.x,
+      y: movePoint.y - this.startPoint.y
+    };
+    // 判断按在哪个移动点上面
+    const movePointIndex = this.borderFrame.Shape.getMovePointIndex();
+    if (movePointIndex === 4) {
+      console.log('-----------rotate-------------');
+      const centerPoint = this.scaleShape.Shape.centerPoint ? this.scaleShape.Shape.centerPoint : this._getCenterPoint();
+      const deg = this._calcDegValue(centerPoint, movePoint);
+      console.log(deg);
+      this.transformInfo.rotate = deg;
+    } else {
+      console.log(movePointIndex);
+      // 根据点击不同的点来更改movedx的属性，计算缩放
+      this._judgeLongerMoveLength(movePointIndex, movedX);
+      this.startPoint = movePoint;
+      // 判断是否是圆形
+      if (this._isCircleTypeShape()) {
+        this.transformInfo.scale = {
+          x: 1 + movedX.x / this.scaleShape.Shape.r,
+          y: 1 + movedX.y / this.scaleShape.Shape.r
+        };
+      } else {
+        this.transformInfo.scale = {
+          x: 1 + movedX.x / (this.scaleShape.Shape.w / 2),
+          y: 1 + movedX.y / (this.scaleShape.Shape.h / 2)
+        };
+      }
+      // 根据移动最多的值进行缩放
+      if (Math.abs(1 - this.transformInfo.scale.x) > Math.abs(1 - this.transformInfo.scale.y)) {
+        this.transformInfo.scale.y = this.transformInfo.scale.x;
+      } else {
+        this.transformInfo.scale.x = this.transformInfo.scale.y;
+      }
+      // 设定缩放边界
+      if (!this._canShapeScale(this.transformInfo.scale)) {
+        this.transformInfo.scale = null;
+      }
+    }
+    this.scaleShape.setTransformInfo(this.transformInfo);
+    this.update();
+  }
+  // 判断在哪个象限
+  _calcDegValue (centerPoint, movePoint) {
+    let tan = null;
+    let deg = null;
+    const currentPoint = {
+      x: Math.abs(movePoint.x - centerPoint.x),
+      y: Math.abs(movePoint.y - centerPoint.y)
+    };
+    console.log('-----------------------------1111111111111----------------------------');
+    if (movePoint.x > centerPoint.x && movePoint.y < centerPoint.y) {
+      console.log('第一象限');
+      tan = currentPoint.x / currentPoint.y;
+      deg = Math.atan(tan) / Math.PI * 180;
+    } else if (movePoint.x > centerPoint.x && movePoint.y > centerPoint.y) {
+      console.log('第二象限');
+      tan = currentPoint.y / currentPoint.x;
+      deg = Math.atan(tan) / Math.PI * 180 + 90;
+      console.log(Math.atan(tan) / Math.PI * 180);
+    } else if (movePoint.x < centerPoint.x && movePoint.y > centerPoint.y) {
+      console.log('第三象限');
+      tan = currentPoint.x / currentPoint.y;
+      deg = Math.atan(tan) / Math.PI * 180 + 180;
+    } else if (movePoint.x < centerPoint.x && movePoint.y < centerPoint.y) {
+      console.log('第四象限');
+      tan = currentPoint.y / currentPoint.x;
+      deg = Math.atan(tan) / Math.PI * 180 + 270;
+    }
+    console.log(deg);
+    return deg
+  }
+  _getCenterPoint () {
+    const currentShape = getCalcProps.getShapeType[this.scaleShape.Shape.type];
+    let centerPoint = null;
+    if (currentShape === 'rect') {
+      centerPoint = {
+        x: this.scaleShape.Shape.x + this.scaleShape.Shape.w / 2,
+        y: this.scaleShape.Shape.y + this.scaleShape.Shape.h / 2
+      };
+    } else if (currentShape === 'circle') {
+      centerPoint = {
+        x: this.scaleShape.Shape.x + this.scaleShape.Shape.r,
+        y: this.scaleShape.Shape.y + this.scaleShape.Shape.r
+      };
+    } else if (currentShape === 'text') {
+      console.log('太多等会写');
+    }
+    return centerPoint
+  }
+  // 该图形是否能缩放，到达边界没有
+  _canShapeScale (scale) {
+    console.log(this.realSize);
+    if (this._isCircleTypeShape() && this._isCircleInBoundary(scale)) {
+      return false
+    } else if (this._isOtherShapeInBoundary(scale)) {
+      return false
+    } else {
+      return true
+    }
+  }
+  _isCircleInBoundary (scale) {
+    return this.scaleShape.Shape.r * 2 * scale.x <= 10 || this.scaleShape.Shape.r * 2 * scale.x >= this.realSize.width - this.fromBorderLen * 2
+  }
+  _isOtherShapeInBoundary (scale) {
+    return this.scaleShape.Shape.w * scale.x <= 10 || this.scaleShape.Shape.h * scale.y <= 10 || this.scaleShape.Shape.w * scale.x >= this.realSize.width - this.fromBorderLen * 2 || this.scaleShape.Shape.h * scale.y >= this.realSize.height - this.fromBorderLen * 2
+  }
+  _judgeLongerMoveLength (currentPoint, movedX) {
+    switch (currentPoint) {
+      case 0 :
+        movedX.x = -movedX.x;
+        movedX.y = -movedX.y;
+        console.log('in 0');
+        break
+      case 1 :
+        movedX.y = -movedX.y;
+        console.log('in 1');
+        break
+      case 2 :
+        console.log('in 2');
+        break
+      case 3 :
+        movedX.x = -movedX.x;
+        console.log('in 3');
+        break
+    }
+  }
+  _isCircleTypeShape () {
+    return this.scaleShape.Shape.type === 'circle' || this.scaleShape.Shape.type === 'circleImage'
+  }
+  resetTransform () {
+    this.transformInfo = {};
+    this.scaleShape && this.scaleShape.resetTransInfo();
   }
 }
 
@@ -2102,7 +2735,7 @@ class WxCanvas {
     this.info = new Info(config); // info对象，初始化各种信息
     this.canMove = false; // 是否能拖动标记
     this.bus = new EventBus(); // 事件总线对象
-    this.scaleControl = new ScaleControl(this.bus);
+    this.scaleControl = new ScaleControl(this.bus, this.initCanvasInfo());
     this.bus.listen('update', this, this.update);
     this.bus.listen('add', this, this.add);
     this.bus.listen('delete', this, this.delete);
@@ -2126,7 +2759,7 @@ class WxCanvas {
   draw () {
     let that = this;
     this.store.store.forEach((item) => {
-      console.log(item);
+      // console.log(item)
       item.draw(that.canvas, that.info.scale, that.info.realSize);
     });
     this.canvas.draw();
@@ -2134,46 +2767,23 @@ class WxCanvas {
   // 外置触摸开始
   touchStart (e) {
     this.isMouseMove = false;
-    // ----------------------------------------------------------------
-    let len = this.store.store.length;
-    for (let i = len - 1; i > -1; i--) {
-      let shape = this.store.store[i];
-      if (shape.canDragable() && shape.isInShape(e)) {
-        this.moveItem = shape;
-        this.canMove = true;
-        return
-      }
-    }
+    this.judgeCanMoveItem(e);
   }
   // 外置触摸移动
   touchMove (e) {
-    const _this = this;
     this.isMouseMove = true;
-    if (this.canMove) {
-      this.moveItem.move(e);
-      _this.scaleControl.isBorderFrameNeedMove(this.moveItem) && _this.scaleControl.update();
-      this.draw();
-    }
+    this.canMove && this.handleMoveEvent(e);
+    this.scaleControl.canShapeTrans() && this.scaleControl.handleTransEvent(e);
+    // 全部画出来
+    this.draw();
   }
   // 触摸结束
   touchEnd (e) {
     this.canMove = false;
     // 点击事件回调函数
-    this.isMouseMove === false && this.clickEvent(e);
-    // if (this.isMouseMove === false) {
-    //   let len = this.store.store.length
-    //   for (let i = len - 1; i > -1; i--) {
-    //     let shape = this.store.store[i]
-    //     if (shape.isInShape(e)) {
-    //       if (shape.eventList['click'].length > 0) {
-    //         shape.eventList['click'].forEach((ele) => {
-    //           ele(this)
-    //         })
-    //         return false
-    //       }
-    //     }
-    //   }
-    // }
+    this.isMouseMove === false && this.handleClickEvent(e);
+    this.scaleControl.stopTransfrom();
+    this.scaleControl.resetTransform();
   }
   // 清除所有图像，不可恢复
   clear () {
@@ -2200,52 +2810,60 @@ class WxCanvas {
     this.draw();
   }
   /* 保存图片，外部调用
-  * @param {boolean} useShowLoading 是否使用提示
-  * @param {string} loadingText 提示文字
+  * @param {boolean} loadingText loading文字
+  * @param {string} successText 成功文字
+  * @param {Function} failCallback 授权失败回调函数
   */
-  saveImage (useShowLoading, loadingText = '保存中...') {
+  saveImage ({loadingText = null, successText = null, imagePreview = false}, failCallback = undefined) {
     console.log('save');
-    useShowLoading && wx.showLoading({
-      title: loadingText
-    });
     var _this = this;
     wx.authorize({
       scope: 'scope.writePhotosAlbum',
       success () {
-        _this._saveCanvasToPthotosAlbum(useShowLoading);
+        loadingText && wx.showLoading({
+          title: loadingText
+        });
+        _this._saveCanvasToPthotosAlbum(imagePreview, successText);
+        console.log('授权成功');
       },
       fail () {
+        console.log(failCallback);
+        failCallback && failCallback();
         console.log('授权失败');
       }
     });
   }
   // 保存canvas到相册
-  _saveCanvasToPthotosAlbum (useShowLoading) {
+  _saveCanvasToPthotosAlbum (imagePreview, successText) {
     let _this = this;
     console.log(_this.canvas);
     // canvas转图片并获取路径
     wx.canvasToTempFilePath({
       canvasId: _this.canvas.canvasId,
       success: function (res) {
-        console.log(res.tempFilePath);
+        // 图片预览
+        imagePreview && wx.previewImage({
+          current: res.tempFilePath,
+          urls: [res.tempFilePath]
+        });
+        console.log('canvasUrl :' + res.tempFilePath);
         // 获取路径后保存图片到相册s
         wx.saveImageToPhotosAlbum({
           filePath: res.tempFilePath,
           success () {
+            console.log('save image');
+            wx.hideLoading();
             // 成功之后关掉loading并提示已保存
-            if (useShowLoading) {
-              wx.hideLoading();
+            if (successText) {
               wx.showToast({
-                title: '已保存到相册',
+                title: successText,
                 icon: 'success',
                 duration: 1000
               });
             }
           },
           fail (err) {
-            if (useShowLoading) {
-              wx.hideLoading();
-            }
+            wx.hideLoading();
             console.warn(err);
           }
         });
@@ -2254,6 +2872,7 @@ class WxCanvas {
   }
 }
 //  感觉这样好像不太好 先这么滴吧
-WxCanvas.prototype = Object.assign(WxCanvas.prototype, canvasFunction);
+// WxCanvas.prototype = Object.assign(WxCanvas.prototype, canvasFunction)
+extendsCommonMethods(WxCanvas.prototype, canvasFunction);
 
 export { WxCanvas, Shape };

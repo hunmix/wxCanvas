@@ -2,6 +2,7 @@
 基于mpvue的canvas绘图工具，用于快速还原设计稿，自适应保证不同手机下视觉效果一致（canvas宽度与屏幕比例与设计图中canvas和屏幕比例一致，如果高度不够则定高宽度等比缩放），基本用法就是，按照设计稿的画就行了。
 ## 使用方法
 ### 1. 使用npm下载并引用（推荐，我把编译版单独的仓库删了，太懒了...)
+
 ```
 npm install wx-canvas --save
 ```
@@ -48,6 +49,7 @@ export default {
 </script>
 ```
 ### 需要一个变量接收计算过的宽高值，并动态设置canvas宽高
+
 ```
 export default {
   data () {
@@ -69,6 +71,7 @@ canvas | Object|是| canvas绘画上下文
 config | Object|是| 初始配置，设计图宽高，canvas宽高，具体如下代码
 
 ```
+
 let ctx = wx.createCanvasContext('canvas', this)
 this.wxCanvas = new WxCanvas(ctx, {
   canvasWidth: 710, // 设计图canvas宽
@@ -79,6 +82,23 @@ this.wxCanvas = new WxCanvas(ctx, {
 //开始时务必调用一下initCanvasInfo()方法并把值赋给canvasSize（可自定义）
 this.canvasSize = this.wxCanvas.initCanvasInfo()
 ```
+
+#### WxCanvas方法： 
+#### saveImage() ：保存canvas到相册
+
+参数 | 类型| 必填|说明
+:-: | :-: | :-: |:-:|
+loadingText | String|否| loading时候的文字，不写默认没有loading
+successText | String|否| 完成保存到相册时候的文字，不写默认没有提示
+imagePreview | Boolean|否| 是否在保存后预览图片，默认false
+failCallback| Function|否| 授权失败回调函数
+
+```
+this.wxCanvas.saveImage({loadingText: '保存中...', successText: '已保存到相册', imagePreview: true}, function{
+  console.log('授权失败')
+})
+```
+
 ### Shape对象
 参数 | 类型| 必填|说明
 :-: | :-: | :-: |:-:|
@@ -87,10 +107,12 @@ drawData | Object|是| 形状参数，宽高，x，y，颜色，绘画方式之�
 dragable | Boolean|是| 是否可拖动，默认false
 
 **创建一个可拖动的矩形**
+
 ```
 let rect = new Shape('rect', {x: 100, y: 100, w: 100, h: 100, color: 'blue', fillMethod: 'fill'}, true)
 ```
 **将矩形显示到canvas上**
+
 ```
 this.wxCanvas.add(this.rect)
 ```
@@ -101,6 +123,7 @@ this.wxCanvas.add(this.rect)
 参数 | 类型| 必填|说明
 :-: | :-: | :-: |:-:|
 无 | 无|无| 无
+
 ```
 // 这样写就多了个和rect一样的双胞胎
 let rect2 = rect.clone()
@@ -113,6 +136,7 @@ this.wxCanvas.add(this.rect2)
 option | Object|是| 要更新的属性
 calcScale | Boolean|否| 更新的属性是否按照设计图来，即是否需对更新的属性进行等比缩放
 dragable | Boolean|否| 是否可拖动，要定义此属性需要定义calcScale，反正就是这个东西得是，第三个参数
+
 ```
 // 这样rect2就变红了,并且上下左右居中
 rect2.updateOption({color: 'red, locX: 'center', locY: 'center'})
@@ -147,6 +171,7 @@ duration | Number|是| 持续时间
 :-: | :-: | :-: |:-|
 loopTime | Number|否| 循环次数，true为无限循环，默认1次
 calcScale | Boolean|是| 是否按设计图缩放（未来可能的参数，现在不存在的）
+
 ```
 // 效果就是先向右向下位移100，然后回到原位，然后循环两次，自行脑补...
 rect.animate({x: '+100', y: '+100'}, 1000).animate({x: 100,y: 100}, 1000).start(2)
@@ -170,9 +195,10 @@ top | Number, String|否| 同上，方向换一换
 bottom | Number, String|否| 同上，方向换一换
 locX | Number, String|否| 图形**中点**到左边距离，可选值：数字，百分比, 'center'（居中，即50%）。
 locY | Number, String|否| 图形**中点**到上边距离，可选值：数字，百分比, 'center'（居中，即50%）。
+
 ```
 // 圆
-let circle = new Shape({locX: 50%, y: 100, r: 10, fillMethod: 'fill', color: 'red'})
+let circle = new Shape('circle', {locX: 50%, y: 100, r: 10, fillMethod: 'fill', color: 'red'})
 ```
 
 #### CircleImage: 圆形图片，放个头像啥的**(模拟器图片可能会超出圆，真机没问题)
@@ -191,9 +217,10 @@ top | Number, String|否| 同上，方向换一换
 bottom | Number, String|否| 同上，方向换一换
 locX | Number, String|否| 图形**中点**到左边距离，可选值：数字，百分比, 'center'（居中，即50%）。
 locY | Number, String|否| 图形**中点**到上边距离，可选值：数字，百分比, 'center'（居中，即50%）。
+
 ```
 // 圆形图片
-let circleImage = new Shape({locX: 50%, y: 100, r: 10, url: 'XXX/XXX.png'})
+let circleImage = new Shape('circleImage', {locX: 50%, y: 100, r: 10, url: 'XXX/XXX.png'})
 ```
 
 #### Rect: 矩形
@@ -212,9 +239,10 @@ top | Number, String|否| 同上，方向换一换
 bottom | Number, String|否| 同上，方向换一换
 locX | Number, String|否| 图形**中点**到左边距离，可选值：数字，百分比, 'center'（居中，即50%）。
 locY | Number, String|否| 图形**中点**到上边距离，可选值：数字，百分比, 'center'（居中，即50%）。
+
 ```
 // 矩形
-let rect = new Shape({locX: 50%, y: 100, w: 10, h: 10, fillMethod: 'fill', color: 'blue'})
+let rect = new Shape('rect', {locX: 50%, y: 100, w: 10, h: 10, fillMethod: 'fill', color: 'blue'})
 ```
 
 #### RoundRect: 圆角矩形
@@ -234,10 +262,11 @@ top | Number, String|否| 同上，方向换一换
 bottom | Number, String|否| 同上，方向换一换
 locX | Number, String|否| 图形**中点**到左边距离，可选值：数字，百分比, 'center'（居中，即50%）。
 locY | Number, String|否| 图形**中点**到上边距离，可选值：数字，百分比, 'center'（居中，即50%）。
+
 ```
 // 圆角矩形
 
-let roundRect = new Shape({locX: 50%, y: 100, w: 50, h: 50, r: 10, fillMethod: 'fill', color: 'blue'})
+let roundRect = new Shape('roundRect', {locX: 50%, y: 100, w: 50, h: 50, r: 10, fillMethod: 'fill', color: 'blue'})
 ```
 
 #### Image: 图片
@@ -260,7 +289,7 @@ locY | Number, String|否| 图形**中点**到上边距离，可选值：数字�
 
 ```
 // 图片
-let image = new Shape({locX: 50%, y: 100, w: 50, h: 50, url: 'XXX/XXX.png'})
+let image = new Shape('image', {locX: 50%, y: 100, w: 50, h: 50, url: 'XXX/XXX.png'})
 ```
 #### Text: 文字
 
@@ -282,8 +311,8 @@ locX | Number, String|否| 图形**中点**到左边距离，可选值：数字�
 locY | Number, String|否| 图形**中点**到上边距离，可选值：数字，百分比, 'center'（居中，即50%）。
 
 ```
-// 文字
-let text = new Shape({text: '嘿嘿嘿', locX: 50%, y: 100, h: 30, fillMethod: 'fill', color: '#000'})
+// 文字, 注意h必填
+let text = new Shape('text', {text: '嘿嘿嘿', locX: 50%, y: 100, h: 30, fillMethod: 'fill', color: '#000'})
 ```
 
 #### Line: 线条（不支持动画，拖动）
@@ -300,7 +329,7 @@ w | Number|否| 线段粗细， 默认1
 
 ```
 // 图片
-let line = new Shape({x:0, y: 0, x2: 100, y2: 100, w: 3, fillMethod: 'fill', color: '#000'})
+let line = new Shape('line', {x:0, y: 0, x2: 100, y2: 100, w: 3, fillMethod: 'fill', color: '#000'})
 ```
 
 > **感谢dalao的源码，虽然并看不懂，但是还是给了很多帮助，地址在右边 [这是地址](https://github.com/bobiscool/wxDraw)**

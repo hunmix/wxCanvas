@@ -91,17 +91,19 @@ class Shape {
     console.log(`start : ${this.dragable}`)
     console.log(this.animationStore)
     const tempDragable = this.dragable
+    const tempScaleable = this.scaleable
     this.dragable = false
+    this.scaleable = false
     this.watch.running = true // 动画开始
     this.watch.setLoop(loopTime) // 设置循环次数
     this.watch.setStartTime() // 设置开始时间
     this.startOption = Object.assign({}, this.Shape) // 记录初始值
-    this._loopAnimation(tempDragable)
+    this._loopAnimation(tempDragable, tempScaleable)
   }
   resetTransInfo () {
     this.transformInfo = null
   }
-  _loopAnimation (tempDragable) {
+  _loopAnimation (tempDragable, tempScaleable) {
     let _this = this
     // 动画时禁止拖动, 这边可以放到watch里面，后面再改- -
     function stepAnimation () { // 实现动画循环
@@ -110,6 +112,7 @@ class Shape {
         _this._updateStep()
       } else {
         _this.dragable = tempDragable
+        _this.scaleable = tempScaleable
         return false
       }
       drawAnimationStep(stepAnimation)

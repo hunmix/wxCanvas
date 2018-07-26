@@ -1,4 +1,5 @@
-import {commonUtils} from './commonUtils'
+// import {commonUtils} from './../mixins/commonUtils'
+import {extendsCommonMethods, commonUtils} from './../mixins/commonUtils'
 // 圆形图片
 class CircleImage {
   constructor (drawData) {
@@ -105,6 +106,7 @@ class CircleImage {
   }
 }
 
-CircleImage.prototype = Object.assign(CircleImage.prototype, commonUtils)
+// CircleImage.prototype = Object.assign(CircleImage.prototype, commonUtils)
+extendsCommonMethods(CircleImage.prototype, commonUtils)
 
 export {CircleImage}

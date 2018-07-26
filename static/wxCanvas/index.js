@@ -4,6 +4,7 @@ import {Info} from './info/info'
 import {EventBus} from './eventBus/eventBus'
 import {canvasFunction} from './utils/wxCanvasSelfFun'
 import {ScaleControl} from './scale/ScaleControl'
+import {extendsCommonMethods} from './mixins/commonUtils'
 // 爸爸类
 class WxCanvas {
   constructor (canvas, config) {
@@ -87,52 +88,60 @@ class WxCanvas {
     this.draw()
   }
   /* 保存图片，外部调用
-  * @param {boolean} useShowLoading 是否使用提示
-  * @param {string} loadingText 提示文字
+  * @param {boolean} loadingText loading文字
+  * @param {string} successText 成功文字
+  * @param {Function} failCallback 授权失败回调函数
   */
-  saveImage (useShowLoading, loadingText = '保存中...') {
+  saveImage ({loadingText = null, successText = null, imagePreview = false}, failCallback = undefined) {
     console.log('save')
-    useShowLoading && wx.showLoading({
-      title: loadingText
-    })
     var _this = this
     wx.authorize({
       scope: 'scope.writePhotosAlbum',
       success () {
-        _this._saveCanvasToPthotosAlbum(useShowLoading)
+        loadingText && wx.showLoading({
+          title: loadingText
+        })
+        _this._saveCanvasToPthotosAlbum(imagePreview, successText)
+        console.log('授权成功')
       },
       fail () {
+        console.log(failCallback)
+        failCallback && failCallback()
         console.log('授权失败')
       }
     })
   }
   // 保存canvas到相册
-  _saveCanvasToPthotosAlbum (useShowLoading) {
+  _saveCanvasToPthotosAlbum (imagePreview, successText) {
     let _this = this
     console.log(_this.canvas)
     // canvas转图片并获取路径
     wx.canvasToTempFilePath({
       canvasId: _this.canvas.canvasId,
       success: function (res) {
-        console.log(res.tempFilePath)
+        // 图片预览
+        imagePreview && wx.previewImage({
+          current: res.tempFilePath,
+          urls: [res.tempFilePath]
+        })
+        console.log('canvasUrl :' + res.tempFilePath)
         // 获取路径后保存图片到相册s
         wx.saveImageToPhotosAlbum({
           filePath: res.tempFilePath,
           success () {
+            console.log('save image')
+            wx.hideLoading()
             // 成功之后关掉loading并提示已保存
-            if (useShowLoading) {
-              wx.hideLoading()
+            if (successText) {
               wx.showToast({
-                title: '已保存到相册',
+                title: successText,
                 icon: 'success',
                 duration: 1000
               })
             }
           },
           fail (err) {
-            if (useShowLoading) {
-              wx.hideLoading()
-            }
+            wx.hideLoading()
             console.warn(err)
           }
         })
@@ -141,6 +150,7 @@ class WxCanvas {
   }
 }
 //  感觉这样好像不太好 先这么滴吧
-WxCanvas.prototype = Object.assign(WxCanvas.prototype, canvasFunction)
+// WxCanvas.prototype = Object.assign(WxCanvas.prototype, canvasFunction)
+extendsCommonMethods(WxCanvas.prototype, canvasFunction)
 
 export {WxCanvas, Shape}

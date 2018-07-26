@@ -1,4 +1,5 @@
-import {commonUtils} from './commonUtils'
+// import {commonUtils} from './../mixins/commonUtils'
+import {extendsCommonMethods, commonUtils} from './../mixins/commonUtils'
 // 文字
 class Text {
   constructor (drawData) {
@@ -147,6 +148,7 @@ class Text {
   }
 }
 
-Text.prototype = Object.assign(Text.prototype, commonUtils)
+// Text.prototype = Object.assign(Text.prototype, commonUtils)
+extendsCommonMethods(Text.prototype, commonUtils)
 
 export {Text}

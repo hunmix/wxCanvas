@@ -1,4 +1,5 @@
-import {commonUtils} from './commonUtils'
+// import {commonUtils} from './../mixins/commonUtils'
+import {extendsCommonMethods, commonUtils} from './../mixins/commonUtils'
 // 选中边框
 class BorderFrame {
   constructor (drawData) {
@@ -86,6 +87,11 @@ class BorderFrame {
       y: this.y + this.h - this.distance,
       color: this.color
     }
+    this.circleInfo = {
+      x: this.x + this.w / 2,
+      y: this.y - 20,
+      r: this.len / 2
+    }
     this.rectsInfo = [pointLeftTop, pointRightTop, pointRightBottom, pointLeftBottom]
   }
   _drawLine (ctx) {
@@ -110,7 +116,7 @@ class BorderFrame {
     }
     ctx.beginPath()
     ctx.strokeStyle = this.color
-    ctx.strokeStyle = this.color
+    ctx.fillStyle = '#fff'
     ctx.arc(circleOption.x, circleOption.y, circleOption.r, 0, 2 * Math.PI)
     ctx.stroke()
     ctx.fill()
@@ -121,11 +127,13 @@ class BorderFrame {
       x: e.mp.changedTouches[0].x,
       y: e.mp.changedTouches[0].y
     }
-    // console.log('judge borderFrame range ')
+    return this._isInRectPoint() || this._isInCircle()
+  }
+  _isInRectPoint () {
     const _this = this
     const judgeInfo = []
     this.rectsInfo.forEach(rectInfo => {
-      // 增加实际可点击范围，视图不变，不然根本点不着好吧= =
+      // 增加实际可点击范围，视图不变(手机上点太小，点中几率太小)
       judgeInfo.push({x: rectInfo.x - _this.len, y: rectInfo.y - _this.len, rightX: rectInfo.x + _this.len * 2, bottomY: rectInfo.y + _this.len * 2})
     })
     // console.log(judgeInfo)
@@ -135,6 +143,8 @@ class BorderFrame {
         _this.startX = this.x
         _this.startY = this.y
         _this.rectsInfo[index].activeColor = 'lightblue'
+        console.log('------------------------------------')
+        console.log(_this.rectsInfo)
         _this.movePoint = index
         console.log(index)
         console.log(_this.rectsInfo)
@@ -142,6 +152,26 @@ class BorderFrame {
       _this.rectsInfo[index].activeColor = '#fff'
       return isInCurrentRect
     })
+  }
+  _isInCircle () {
+    this.circleInfo = {
+      x: this.x + this.w / 2 - this.len,
+      y: this.y - 20 - this.len,
+      r: this.len / 2
+    }
+    const circleJudgeInfo = {
+      x: this.circleInfo.x - this.len,
+      y: this.circleInfo.y - this.len,
+      r: this.circleInfo.r + this.len
+    }
+    const len = Math.sqrt(Math.pow(this.startPoint.x - (circleJudgeInfo.x + circleJudgeInfo.r), 2) + Math.pow(this.startPoint.y - (circleJudgeInfo.y + circleJudgeInfo.r), 2))
+    console.log(`len in borderFrame :${len}`)
+    if (len < circleJudgeInfo.r) {
+      this.movePoint = 4
+      return true
+    } else {
+      return false
+    }
   }
   getMovePointIndex () {
     return this.movePoint
@@ -184,5 +214,6 @@ class BorderFrame {
     // this.judgeChangeProps(this.type, this.realSize, keyArr)
   }
 }
-BorderFrame.prototype = Object.assign(BorderFrame.prototype, commonUtils)
+// BorderFrame.prototype = Object.assign(BorderFrame.prototype, commonUtils)
+extendsCommonMethods(BorderFrame.prototype, commonUtils)
 export {BorderFrame}

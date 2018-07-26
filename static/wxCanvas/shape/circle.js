@@ -1,4 +1,5 @@
-import {commonUtils} from './commonUtils'
+// import {commonUtils} from './../mixins/commonUtils'
+import {extendsCommonMethods, commonUtils} from './../mixins/commonUtils'
 // 圆
 class Circle {
   constructor (drawData) {
@@ -46,7 +47,7 @@ class Circle {
       x: e.mp.changedTouches[0].x,
       y: e.mp.changedTouches[0].y
     }
-    let len = Math.sqrt(Math.pow(this.startPoint.x - (this.x + this.r), 2) + Math.pow(this.startPoint.y - (this.y + this.r), 2))
+    const len = Math.sqrt(Math.pow(this.startPoint.x - (this.x + this.r), 2) + Math.pow(this.startPoint.y - (this.y + this.r), 2))
     if (len < this.r) {
       this.startX = this.x
       this.startY = this.y
@@ -99,5 +100,6 @@ class Circle {
     this.judgeChangeProps(this.type, this.realSize, keyArr)
   }
 }
-Circle.prototype = Object.assign(Circle.prototype, commonUtils)
+// Circle.prototype = Object.assign(Circle.prototype, commonUtils)
+extendsCommonMethods(Circle.prototype, commonUtils)
 export {Circle}

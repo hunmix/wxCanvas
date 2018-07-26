@@ -1,4 +1,5 @@
-import {commonUtils} from './commonUtils'
+// import {commonUtils} from './../mixins/commonUtils'
+import {extendsCommonMethods, commonUtils} from './../mixins/commonUtils'
 // 直线
 class Line {
   constructor (drawData) {
@@ -105,6 +106,7 @@ class Line {
   }
 }
 
-Line.prototype = Object.assign(Line.prototype, commonUtils)
+// Line.prototype = Object.assign(Line.prototype, commonUtils)
+extendsCommonMethods(Line.prototype, commonUtils)
 
 export {Line}

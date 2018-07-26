@@ -1,4 +1,5 @@
-import {commonUtils} from './commonUtils'
+// import {commonUtils} from './../mixins/commonUtils'
+import {extendsCommonMethods, commonUtils} from './../mixins/commonUtils'
 class Image {
   constructor (drawData) {
     drawData.firstRender === false ? this.firstRender = false : this.firstRender = true
@@ -99,6 +100,7 @@ class Image {
   }
 }
 
-Image.prototype = Object.assign(Image.prototype, commonUtils)
+// Image.prototype = Object.assign(Image.prototype, commonUtils)
+extendsCommonMethods(Image.prototype, commonUtils)
 
 export {Image}

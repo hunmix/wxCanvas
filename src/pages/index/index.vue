@@ -50,6 +50,10 @@ export default {
     }
   },
   mounted () {
+    // const deg = Math.PI / 4
+    // const tan = Math.tan(deg)
+    console.log(Math.atan(1) / Math.PI * 180)
+    console.log(Math.atan(-1) / Math.PI * 180)
     // let _this = this
     let ctx = wx.createCanvasContext('canvas', this)
     this.wxCanvas = new WxCanvas(ctx, this.config)
@@ -71,7 +75,7 @@ export default {
     // this.wxCanvas.add(this.image)
     // this.wxCanvas.add(this.circleImage)
     // this.circle = new Shape('circle', {r: 100, locX: 'center', locY: 'center', color: '#ccc', fillMethod: 'fill'}, {scaleable: true})
-    this.rect = new Shape('rect', {w: 200, h: 200, locY: 'center', locX: 'center', color: 'red', fillMethod: 'fill'}, {dragable: true})
+    this.rect = new Shape('rect', {w: 200, h: 200, locY: 'center', locX: 'center', color: 'red', fillMethod: 'fill'}, {scaleable: true})
     this.roundRect = new Shape('roundRect', {w: 200, h: 200, locY: 'center', locX: 'center', r: 10, color: 'blue', fillMethod: 'fill'}, {dragable: true, scaleable: true})
     // this.wxCanvas.add(this.text)
     this.wxCanvas.add(this.rect)
@@ -79,8 +83,8 @@ export default {
     this.wxCanvas.add(this.roundRect)
     // this.line = new Shape('line', {x1: 0, y1: 0, x2: 100, y2: 100, color: '#000'})
     // this.wxCanvas.add(this.line)
-    this.rect.animate({color: 'rgba(0, 0,0,.1)', x: '+40', y: '+40', h: '+40', w: '+40'}).animate({color: 'red', x: '-40', y: '-40', h: '-40', w: '-40'}).start()
-    this.roundRect.animate({color: 'blue', x: '+40', y: '+40', h: '+40', w: '+40'}).start(2)
+    // this.rect.animate({color: 'rgba(0, 0,0,.1)', x: '+40', y: '+40', h: '+40', w: '+40'}).animate({color: 'red', x: '-40', y: '-40', h: '-40', w: '-40'}).start()
+    // this.roundRect.animate({color: 'blue', x: '+40', y: '+40', h: '+40', w: '+40'}).start(2)
   },
   methods: {
     // 触摸开始
@@ -137,7 +141,7 @@ export default {
       this.text.updateOption({locX: '50%', locY: 'center', color: 'red', text: '嘿嘿嘿'}, false, false)
     },
     handleTest () {
-      this.wxCanvas.saveImage(true)
+      this.wxCanvas.saveImage({loadingText: '保存中...', successText: '已保存到相册', imagePreview: true})
     }
   }
 }

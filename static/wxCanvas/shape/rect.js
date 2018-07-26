@@ -1,4 +1,4 @@
-import {commonUtils} from './commonUtils'
+import {extendsCommonMethods, commonUtils} from './../mixins/commonUtils'
 // 矩形
 class Rect {
   constructor (drawData) {
@@ -18,6 +18,8 @@ class Rect {
     this.type = 'rect'
     this.scale = drawData.scale || null
     this.scaleInfo = null
+    this.rotateInfo = null
+    this.translateInfo = null
   }
   // 计算绘画数据
   calcInfo (scale) {
@@ -33,13 +35,29 @@ class Rect {
     console.log('------------------------------------')
     console.log(transformInfo)
     ctx.save()
-    // transformInfo && this.handleTransform(ctx, transformInfo)
+    transformInfo && this.handleTransform(ctx, transformInfo)
+    console.log(this.rotateInfo)
     ctx.beginPath()
+    console.log('-------------------------上次写到这里！-----------------------')
+    console.log(this.translateInfo)
+    // if (this.translateInfo) {
+    //   ctx.translate(this.translateInfo.center.x, this.translateInfo.center.y)
+    //   ctx.scale(this.translateInfo.scaleInfo.x, this.translateInfo.scaleInfo.y)
+    // }
+    // if (this.rotateInfo) {
+    //   const x = this.rotateInfo.center[0]
+    //   const y = this.rotateInfo.center[1]
+    //   const rad = this.rotateInfo.rad
+    //   ctx.translate(x, y)
+    //   ctx.rotate(rad)
+    //   console.log(rad)
+    //   ctx.translate(-x, -y)
+    // }
     ctx[this.fillMethod + 'Style'] = this.color
     ctx[this.fillMethod + 'Rect'](this.x, this.y, this.w, this.h)
     ctx.closePath()
     ctx.restore()
-    // transformInfo && this.restProps(transformInfo)
+    transformInfo && this.restProps(transformInfo)
   }
   judgeRange (e) {
     this.startPoint = {
@@ -100,5 +118,6 @@ class Rect {
     this.judgeChangeProps(this.type, this.realSize, keyArr)
   }
 }
-Rect.prototype = Object.assign(Rect.prototype, commonUtils)
+// Rect.prototype = Object.assign(Rect.prototype, commonUtils)
+extendsCommonMethods(Rect.prototype, commonUtils)
 export {Rect}

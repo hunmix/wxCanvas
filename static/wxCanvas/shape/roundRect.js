@@ -1,4 +1,5 @@
-import {commonUtils} from './commonUtils'
+// import {commonUtils} from './../mixins/commonUtils'
+import {extendsCommonMethods, commonUtils} from './../mixins/commonUtils'
 // 圆角矩形
 class RoundRect {
   constructor (drawData) {
@@ -149,5 +150,6 @@ class RoundRect {
     this.judgeChangeProps(this.type, this.realSize, keyArr)
   }
 }
-RoundRect.prototype = Object.assign(RoundRect.prototype, commonUtils)
+// RoundRect.prototype = Object.assign(RoundRect.prototype, commonUtils)
+extendsCommonMethods(RoundRect.prototype, commonUtils)
 export {RoundRect}

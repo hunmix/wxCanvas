@@ -1,4 +1,5 @@
 import {Shape} from './../shape/shape'
+import {getCalcProps} from './../mixins/commonUtils'
 class ScaleControl {
   constructor (bus, realSize) {
     this.borderFrame = null
@@ -115,9 +116,6 @@ class ScaleControl {
   }
   // 计算缩放比例(待整理。。乱- -)
   handleTransEvent (e) {
-    // 判断按在哪个移动点上面
-    const movePointIndex = this.borderFrame.Shape.getMovePointIndex()
-    console.log(movePointIndex)
     const movePoint = {
       x: e.mp.changedTouches[0].x,
       y: e.mp.changedTouches[0].y
@@ -126,34 +124,92 @@ class ScaleControl {
       x: movePoint.x - this.startPoint.x,
       y: movePoint.y - this.startPoint.y
     }
-    // 根据点击不同的点来更改movedx的属性，计算缩放
-    this._judgeLongerMoveLength(movePointIndex, movedX)
-    this.startPoint = movePoint
-    // 判断是否是圆形
-    if (this._isCircleTypeShape()) {
-      this.transformInfo.scale = {
-        x: 1 + movedX.x / this.scaleShape.Shape.r,
-        y: 1 + movedX.y / this.scaleShape.Shape.r
+    // 判断按在哪个移动点上面
+    const movePointIndex = this.borderFrame.Shape.getMovePointIndex()
+    if (movePointIndex === 4) {
+      console.log('-----------rotate-------------')
+      const centerPoint = this.scaleShape.Shape.centerPoint ? this.scaleShape.Shape.centerPoint : this._getCenterPoint()
+      const deg = this._calcDegValue(centerPoint, movePoint)
+      console.log(deg)
+      this.transformInfo.rotate = deg
+    } else {
+      console.log(movePointIndex)
+      // 根据点击不同的点来更改movedx的属性，计算缩放
+      this._judgeLongerMoveLength(movePointIndex, movedX)
+      this.startPoint = movePoint
+      // 判断是否是圆形
+      if (this._isCircleTypeShape()) {
+        this.transformInfo.scale = {
+          x: 1 + movedX.x / this.scaleShape.Shape.r,
+          y: 1 + movedX.y / this.scaleShape.Shape.r
+        }
+      } else {
+        this.transformInfo.scale = {
+          x: 1 + movedX.x / (this.scaleShape.Shape.w / 2),
+          y: 1 + movedX.y / (this.scaleShape.Shape.h / 2)
+        }
       }
-    } else {
-      this.transformInfo.scale = {
-        x: 1 + movedX.x / (this.scaleShape.Shape.w / 2),
-        y: 1 + movedX.y / (this.scaleShape.Shape.h / 2)
+      // 根据移动最多的值进行缩放
+      if (Math.abs(1 - this.transformInfo.scale.x) > Math.abs(1 - this.transformInfo.scale.y)) {
+        this.transformInfo.scale.y = this.transformInfo.scale.x
+      } else {
+        this.transformInfo.scale.x = this.transformInfo.scale.y
+      }
+      // 设定缩放边界
+      if (!this._canShapeScale(this.transformInfo.scale)) {
+        this.transformInfo.scale = null
       }
     }
-    // 根据移动最多的值进行缩放
-    if (Math.abs(1 - this.transformInfo.scale.x) > Math.abs(1 - this.transformInfo.scale.y)) {
-      this.transformInfo.scale.y = this.transformInfo.scale.x
-    } else {
-      this.transformInfo.scale.x = this.transformInfo.scale.y
+    this.scaleShape.setTransformInfo(this.transformInfo)
+    this.update()
+  }
+  // 判断在哪个象限
+  _calcDegValue (centerPoint, movePoint) {
+    let tan = null
+    let deg = null
+    const currentPoint = {
+      x: Math.abs(movePoint.x - centerPoint.x),
+      y: Math.abs(movePoint.y - centerPoint.y)
     }
-    // 设定缩放边界
-    if (this._canShapeScale(this.transformInfo.scale)) {
-      this.scaleShape.setTransformInfo(this.transformInfo)
-      this.update()
-    } else {
-      this.scaleShape.setTransformInfo(null)
+    console.log('-----------------------------1111111111111----------------------------')
+    if (movePoint.x > centerPoint.x && movePoint.y < centerPoint.y) {
+      console.log('第一象限')
+      tan = currentPoint.x / currentPoint.y
+      deg = Math.atan(tan) / Math.PI * 180
+    } else if (movePoint.x > centerPoint.x && movePoint.y > centerPoint.y) {
+      console.log('第二象限')
+      tan = currentPoint.y / currentPoint.x
+      deg = Math.atan(tan) / Math.PI * 180 + 90
+      console.log(Math.atan(tan) / Math.PI * 180)
+    } else if (movePoint.x < centerPoint.x && movePoint.y > centerPoint.y) {
+      console.log('第三象限')
+      tan = currentPoint.x / currentPoint.y
+      deg = Math.atan(tan) / Math.PI * 180 + 180
+    } else if (movePoint.x < centerPoint.x && movePoint.y < centerPoint.y) {
+      console.log('第四象限')
+      tan = currentPoint.y / currentPoint.x
+      deg = Math.atan(tan) / Math.PI * 180 + 270
     }
+    console.log(deg)
+    return deg
+  }
+  _getCenterPoint () {
+    const currentShape = getCalcProps.getShapeType[this.scaleShape.Shape.type]
+    let centerPoint = null
+    if (currentShape === 'rect') {
+      centerPoint = {
+        x: this.scaleShape.Shape.x + this.scaleShape.Shape.w / 2,
+        y: this.scaleShape.Shape.y + this.scaleShape.Shape.h / 2
+      }
+    } else if (currentShape === 'circle') {
+      centerPoint = {
+        x: this.scaleShape.Shape.x + this.scaleShape.Shape.r,
+        y: this.scaleShape.Shape.y + this.scaleShape.Shape.r
+      }
+    } else if (currentShape === 'text') {
+      console.log('太多等会写')
+    }
+    return centerPoint
   }
   // 该图形是否能缩放，到达边界没有
   _canShapeScale (scale) {
