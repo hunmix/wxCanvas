@@ -95,38 +95,12 @@ class WxCanvas {
   * @param {string} successText 成功文字
   * @param {Function} failCallback 授权失败回调函数
   */
-  saveImage ({loadingText = null, successText = null, imagePreview = false}, failCallback = undefined) {
+  saveImage ({loadingText = null, successText = null, imagePreview = false}, callback = undefined) {
     console.log('save begin')
-    console.log(this.store.store)
-    var _this = this
-    wx.getSetting({
-      success (res) {
-        if (!res.authSetting['scope.writePhotosAlbum']) {
-          wx.authorize({
-            scope: 'scope.writePhotosAlbum',
-            success () {
-              console.log('授权成功')
-              loadingText && wx.showLoading({
-                title: loadingText
-              })
-              _this._saveCanvasToPthotosAlbum(imagePreview, successText)
-            },
-            fail () {
-              console.log(failCallback)
-              failCallback && failCallback()
-              wx.hideLoading()
-              console.log('授权失败')
-            }
-          })
-        } else {
-          console.log('已授权')
-          loadingText && wx.showLoading({
-            title: loadingText
-          })
-          _this._saveCanvasToPthotosAlbum(imagePreview, successText)
-        }
-      }
+    loadingText && wx.showLoading({
+      title: loadingText
     })
+    this._saveCanvasToPthotosAlbum(imagePreview, successText, callback)
   }
   // 保存canvas到相册
   _saveCanvasToPthotosAlbum (imagePreview, successText) {
@@ -156,9 +130,11 @@ class WxCanvas {
                 duration: 1000
               })
             }
+            callback && callback(false)
           },
           fail (err) {
             wx.hideLoading()
+            callback && callback(false)
             console.warn(err)
           }
         })
