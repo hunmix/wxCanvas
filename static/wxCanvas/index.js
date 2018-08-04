@@ -68,6 +68,9 @@ class WxCanvas {
     this.store.clear()
     this.draw()
   }
+  clearStore () {
+    this.store.clear()
+  }
   // 撤销
   cancel (cancelNum) {
     cancelNum = cancelNum || 1
@@ -93,21 +96,35 @@ class WxCanvas {
   * @param {Function} failCallback 授权失败回调函数
   */
   saveImage ({loadingText = null, successText = null, imagePreview = false}, failCallback = undefined) {
-    console.log('save')
+    console.log('save begin')
+    console.log(this.store.store)
     var _this = this
-    wx.authorize({
-      scope: 'scope.writePhotosAlbum',
-      success () {
-        loadingText && wx.showLoading({
-          title: loadingText
-        })
-        _this._saveCanvasToPthotosAlbum(imagePreview, successText)
-        console.log('授权成功')
-      },
-      fail () {
-        console.log(failCallback)
-        failCallback && failCallback()
-        console.log('授权失败')
+    wx.getSetting({
+      success (res) {
+        if (!res.authSetting['scope.writePhotosAlbum']) {
+          wx.authorize({
+            scope: 'scope.writePhotosAlbum',
+            success () {
+              console.log('授权成功')
+              loadingText && wx.showLoading({
+                title: loadingText
+              })
+              _this._saveCanvasToPthotosAlbum(imagePreview, successText)
+            },
+            fail () {
+              console.log(failCallback)
+              failCallback && failCallback()
+              wx.hideLoading()
+              console.log('授权失败')
+            }
+          })
+        } else {
+          console.log('已授权')
+          loadingText && wx.showLoading({
+            title: loadingText
+          })
+          _this._saveCanvasToPthotosAlbum(imagePreview, successText)
+        }
       }
     })
   }
@@ -129,7 +146,7 @@ class WxCanvas {
         wx.saveImageToPhotosAlbum({
           filePath: res.tempFilePath,
           success () {
-            console.log('save image')
+            console.log('save complete')
             wx.hideLoading()
             // 成功之后关掉loading并提示已保存
             if (successText) {
