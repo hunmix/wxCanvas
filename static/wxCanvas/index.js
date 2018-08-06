@@ -27,20 +27,30 @@ class WxCanvas {
       height: this.info.realHeight
     }
   }
-  add (shape) {
-    shape.bus = this.bus
-    shape.realSize = this.info.realSize
-    this.store.add(shape)
-    this.draw()
+  add (shapes, callback) {
+    if (shapes instanceof Array) {
+      shapes.forEach(shape => {
+        shape.bus = this.bus
+        shape.realSize = this.info.realSize
+        this.store.add(shape)
+      })
+    } else {
+      shapes.bus = this.bus
+      shapes.realSize = this.info.realSize
+      this.store.add(shapes)
+    }
+    this.draw(callback)
     return this
   }
-  draw () {
+  draw (callback) {
+    console.log(callback)
     let that = this
     this.store.store.forEach((item) => {
       // console.log(item)
       item.draw(that.canvas, that.info.scale, that.info.realSize)
     })
-    this.canvas.draw()
+    callback ? this.canvas.draw(false, callback) : this.canvas.draw(false)
+    console.log('draw complete')
   }
   // 外置触摸开始
   touchStart (e) {
@@ -103,7 +113,7 @@ class WxCanvas {
     this._saveCanvasToPthotosAlbum(imagePreview, successText, callback)
   }
   // 保存canvas到相册
-  _saveCanvasToPthotosAlbum (imagePreview, successText) {
+  _saveCanvasToPthotosAlbum (imagePreview, successText, callback) {
     let _this = this
     console.log(_this.canvas)
     // canvas转图片并获取路径
@@ -130,7 +140,7 @@ class WxCanvas {
                 duration: 1000
               })
             }
-            callback && callback(false)
+            callback && callback(true)
           },
           fail (err) {
             wx.hideLoading()
