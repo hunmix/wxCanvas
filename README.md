@@ -299,6 +299,7 @@ fillMethod|String|是|'fill' or 'stroke'， 默认fill
 text | String|是| 文字内容
 align | String|否| 对齐方式，可选值：'left', 'center', 'right'。默认'left'
 fontSize | Number|否| 文字大小， 默认14
+family | String|否| 字体，默认san-serlf
 color | String|否| 文字颜色
 x | Number|否| 默认0
 y | Number|否| 默认0

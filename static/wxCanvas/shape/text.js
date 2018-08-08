@@ -5,7 +5,7 @@ class Text {
   constructor (drawData) {
     console.log(drawData)
     drawData.firstRender === false ? this.firstRender = false : this.firstRender = true
-    this.text = drawData.text || '超级变变变'
+    this.text = drawData.text || '没有拿到文字'
     // this.width = ctx.measureText(drawData.text).width
     this.h = drawData.h
     this.x = drawData.x || 0
@@ -18,6 +18,7 @@ class Text {
     this.top = drawData.top
     this.bottom = drawData.bottom
     this.fontSize = drawData.fontSize || 14
+    this.family = drawData.family || 'sans-serif'
     this.fillMethod = drawData.fillMethod || 'fill'
     this.color = drawData.color
     this.align = drawData.align || 'left'
@@ -42,6 +43,7 @@ class Text {
     transformInfo && this.handleTransform(ctx, transformInfo)
     ctx.textBaseline = this.baseline || 'normal' // normal：baseLine在文字底部，则y值为y+文字框高度
     ctx.setFontSize(this.fontSize)
+    ctx.font = `${this.fontSize}px ${this.family}`
     ctx.textAlign = this.align || 'left'
     ctx[this.fillMethod + 'Style'] = this.color
     ctx.closePath()

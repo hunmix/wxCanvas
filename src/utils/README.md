@@ -91,11 +91,11 @@ this.canvasSize = this.wxCanvas.initCanvasInfo()
 loadingText | String|否| loading时候的文字，不写默认没有loading
 successText | String|否| 完成保存到相册时候的文字，不写默认没有提示
 imagePreview | Boolean|否| 是否在保存后预览图片，默认false
-callback| Function|否| 绘画完成回调函数(有this的话必须使用箭头函数,不然this会指向wxCanvas)
+failCallback| Function|否| 授权失败回调函数
 
 ```
-this.wxCanvas.saveImage({loadingText: '保存中...', successText: '已保存到相册', imagePreview: true}, () => {
-  console.log('complete')
+this.wxCanvas.saveImage({loadingText: '保存中...', successText: '已保存到相册', imagePreview: true}, function{
+  console.log('授权失败')
 })
 ```
 
@@ -299,6 +299,7 @@ fillMethod|String|是|'fill' or 'stroke'， 默认fill
 text | String|是| 文字内容
 align | String|否| 对齐方式，可选值：'left', 'center', 'right'。默认'left'
 fontSize | Number|否| 文字大小， 默认14
+family | String|否| 字体，默认san-serlf
 color | String|否| 文字颜色
 x | Number|否| 默认0
 y | Number|否| 默认0
