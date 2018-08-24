@@ -91,11 +91,12 @@ this.canvasSize = this.wxCanvas.initCanvasInfo()
 loadingText | String|否| loading时候的文字，不写默认没有loading
 successText | String|否| 完成保存到相册时候的文字，不写默认没有提示
 imagePreview | Boolean|否| 是否在保存后预览图片，默认false
-failCallback| Function|否| 授权失败回调函数
+callback| Function|否| 完成绘画后的回调，返回canvas生成图片地址和是否成功保存到相册
 
 ```
-this.wxCanvas.saveImage({loadingText: '保存中...', successText: '已保存到相册', imagePreview: true}, function{
-  console.log('授权失败')
+this.wxCanvas.saveImage({loadingText: '保存中...', successText: '已保存到相册', imagePreview: true}, (imageUrl, isSaveSuccess) => {
+  console.log(imageUrl)
+  console.log(isSaveSuccess)
 })
 ```
 

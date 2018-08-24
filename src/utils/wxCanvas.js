@@ -2844,15 +2844,16 @@ class WxCanvas {
     wx.canvasToTempFilePath({
       canvasId: _this.canvas.canvasId,
       success: function (res) {
+        const tempFilePath = res.tempFilePath;
         // 图片预览
         imagePreview && wx.previewImage({
-          current: res.tempFilePath,
-          urls: [res.tempFilePath]
+          current: tempFilePath,
+          urls: [tempFilePath]
         });
-        console.log('canvasUrl :' + res.tempFilePath);
+        console.log('canvasUrl :' + tempFilePath);
         // 获取路径后保存图片到相册s
         wx.saveImageToPhotosAlbum({
-          filePath: res.tempFilePath,
+          filePath: tempFilePath,
           success () {
             console.log('save complete');
             wx.hideLoading();
@@ -2864,11 +2865,11 @@ class WxCanvas {
                 duration: 1000
               });
             }
-            callback && callback(true);
+            callback && callback(tempFilePath, true);
           },
           fail (err) {
             wx.hideLoading();
-            callback && callback(false);
+            callback && callback(tempFilePath, false);
             console.warn(err);
           }
         });
